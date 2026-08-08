@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 
 const NAV = [
   { href: "/", label: "Home", match: (p: string) => p === "/" },
+  { href: "/calendar", label: "Calendar", match: (p: string) => p.startsWith("/calendar") },
   { href: "/admin", label: "Admin", match: (p: string) => p.startsWith("/admin") },
   { href: "/projects", label: "Projects", match: (p: string) => p.startsWith("/projects") },
 ];
@@ -27,6 +28,15 @@ function NavIcon({ name, active }: { name: string; active: boolean }) {
         <rect x="13.5" y="3" width="7.5" height="7.5" rx="2" {...common} />
         <rect x="3" y="13.5" width="7.5" height="7.5" rx="2" {...common} />
         <rect x="13.5" y="13.5" width="7.5" height="7.5" rx="2" {...common} />
+      </svg>
+    );
+  }
+
+  if (name === "Calendar") {
+    return (
+      <svg width="19" height="19" viewBox="0 0 24 24" className="shrink-0">
+        <rect x="3" y="5" width="18" height="16" rx="3" {...common} />
+        <path d="M3 10h18M8 3v4M16 3v4" {...common} />
       </svg>
     );
   }

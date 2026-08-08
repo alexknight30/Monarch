@@ -172,3 +172,63 @@ export const PROJECTS: Project[] = [
 export function getProject(slug: string) {
   return PROJECTS.find((p) => p.slug === slug);
 }
+
+/* ------------------------------------------------------------ calendar --- */
+
+export type CalendarKind = "class" | "office-hours" | "deadline" | "session";
+
+export type Course = {
+  code: string;
+  title: string;
+  /** Weekdays the class meets, 0 = Sunday. */
+  days: number[];
+  start: string;
+  end: string;
+  location: string;
+};
+
+/** Fall 2026 course load — matches the "5 active courses" home stat. */
+export const COURSES: Course[] = [
+  { code: "CHEM 122", title: "General Chemistry II", days: [1, 3, 5], start: "09:00", end: "09:50", location: "Keck 101" },
+  { code: "SPAN 101", title: "Intermediate Spanish", days: [1, 2, 3, 4], start: "10:00", end: "10:50", location: "Kravis 118" },
+  { code: "HIST 210", title: "Modern Europe", days: [2, 4], start: "11:00", end: "12:15", location: "Kravis 205" },
+  { code: "STAT 140", title: "Intro to Statistics", days: [1, 3, 5], start: "13:00", end: "13:50", location: "Adams 118" },
+  { code: "ENGL 185", title: "Literary Theory", days: [2, 4], start: "14:30", end: "15:45", location: "Story House" },
+];
+
+/** Weekly office hours. */
+export const OFFICE_HOURS = [
+  { code: "CHEM 122", title: "Prof. Ibarra — office hours", day: 3, start: "15:00", end: "16:30", location: "Keck 340" },
+  { code: "STAT 140", title: "Ravi (TA) — office hours", day: 4, start: "10:00", end: "11:00", location: "Adams 12" },
+  { code: "ENGL 185", title: "Prof. Whitlock — office hours", day: 2, start: "16:00", end: "17:00", location: "Story House 2" },
+];
+
+/**
+ * Assignment deadlines, keyed by day of month so the calendar stays populated
+ * whichever month the student is looking at.
+ */
+export const DEADLINES = [
+  { code: "SPAN 101", title: "Vocab quiz 4", day: 2, at: "10:00" },
+  { code: "CHEM 122", title: "Problem set 7", day: 4, at: "23:59" },
+  { code: "STAT 140", title: "Lab writeup 3", day: 6, at: "23:59" },
+  { code: "HIST 210", title: "Reading response — Ch. 4", day: 9, at: "17:00" },
+  { code: "CHEM 122", title: "Midterm exam", day: 12, at: "09:00" },
+  { code: "ENGL 185", title: "Essay outline", day: 19, at: "23:59" },
+  { code: "STAT 140", title: "Problem set 8", day: 21, at: "23:59" },
+  { code: "HIST 210", title: "Response paper", day: 26, at: "17:00" },
+  { code: "CHEM 122", title: "Lab report — titration", day: 28, at: "23:59" },
+];
+
+/** Study sessions the student logged themselves — totals 18h 45m. */
+export const STUDY_SESSIONS = [
+  { code: "SPAN 101", title: "Vocab drilling", day: 2, start: "19:00", end: "20:30" },
+  { code: "CHEM 122", title: "Problem set 7", day: 4, start: "13:00", end: "15:45" },
+  { code: "STAT 140", title: "Lab writeup 3", day: 5, start: "20:00", end: "21:30" },
+  { code: "HIST 210", title: "Ch. 4 reading", day: 8, start: "10:00", end: "12:00" },
+  { code: "CHEM 122", title: "Midterm review", day: 11, start: "19:00", end: "21:00" },
+  { code: "STAT 140", title: "Practice problems", day: 15, start: "14:00", end: "16:00" },
+  { code: "ENGL 185", title: "Essay reading", day: 19, start: "16:00", end: "17:30" },
+  { code: "HIST 210", title: "Response paper notes", day: 22, start: "13:00", end: "15:00" },
+  { code: "CHEM 122", title: "Titration lab prep", day: 25, start: "18:00", end: "20:00" },
+  { code: "ENGL 185", title: "Theory seminar prep", day: 27, start: "19:30", end: "21:00" },
+];
