@@ -1,3 +1,6 @@
+"use client";
+
+import { useRouter } from "next/navigation";
 import { AIChatInput } from "@/components/ui/ai-chat-input";
 import { CURRENT_USER, HOME_STATS, QUICK_ACTIONS } from "@/lib/mock-data";
 
@@ -50,6 +53,8 @@ function ActionIcon({ name }: { name: (typeof QUICK_ACTIONS)[number]["icon"] }) 
 }
 
 export default function HomePage() {
+  const router = useRouter();
+
   return (
     <div className="flex flex-1 flex-col items-center pt-[88px] pb-16">
       {/* Greeting */}
@@ -77,7 +82,11 @@ export default function HomePage() {
 
       {/* Composer */}
       <div className="w-[732px]">
-        <AIChatInput />
+        <AIChatInput
+          onSubmit={(value) =>
+            router.push(`/chat?q=${encodeURIComponent(value)}`)
+          }
+        />
       </div>
 
       {/* Quick actions */}

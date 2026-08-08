@@ -16,23 +16,30 @@ const PLACEHOLDERS = [
   "When are office hours?",
 ];
 
-type ChatTurn = {
-  role: "user" | "assistant";
-  content: string;
+type AIChatInputProps = {
+  /** Called with the trimmed value when the user submits. Input clears after. */
+  onSubmit?: (value: string) => void;
+  /** Override the cycling placeholder copy. */
+  placeholders?: string[];
+  /** Focus the field on mount — used on the chat screen. */
+  autoFocus?: boolean;
+  /** Blocks input while the caller is awaiting a reply. */
+  disabled?: boolean;
 };
 
-const AIChatInput = () => {
+const AIChatInput = ({
+  onSubmit,
+  placeholders = PLACEHOLDERS,
+  autoFocus = false,
+  disabled = false,
+}: AIChatInputProps) => {
   const [placeholderIndex, setPlaceholderIndex] = useState(0);
   const [showPlaceholder, setShowPlaceholder] = useState(true);
   const [isActive, setIsActive] = useState(false);
   const [thinkActive, setThinkActive] = useState(false);
   const [deepSearchActive, setDeepSearchActive] = useState(false);
   const [inputValue, setInputValue] = useState("");
-  const [messages, setMessages] = useState<ChatTurn[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
   const wrapperRef = useRef<HTMLDivElement>(null);
-  const messagesEndRef = useRef<HTMLDivElement>(null);
 
   // Cycle placeholder text when input is inactive
   useEffect(() => {
@@ -41,13 +48,13 @@ const AIChatInput = () => {
     const interval = setInterval(() => {
       setShowPlaceholder(false);
       setTimeout(() => {
-        setPlaceholderIndex((prev) => (prev + 1) % PLACEHOLDERS.length);
+        setPlaceholderIndex((prev) => (prev + 1) % placeholders.length);
         setShowPlaceholder(true);
       }, 400);
     }, 3000);
 
     return () => clearInterval(interval);
-  }, [isActive, inputValue]);
+  }, [isActive, inputValue, placeholders.length]);
 
   // Close input when clicking outside
   useEffect(() => {
@@ -66,57 +73,12 @@ const AIChatInput = () => {
 
   const handleActivate = () => setIsActive(true);
 
-  useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages, isLoading]);
-
-  const handleSubmit = async () => {
-    const text = inputValue.trim();
-    if (!text || isLoading) return;
-
-    const nextMessages: ChatTurn[] = [
-      ...messages,
-      { role: "user", content: text },
-    ];
-
-    setMessages(nextMessages);
+  const handleSubmit = () => {
+    const value = inputValue.trim();
+    if (!value || disabled) return;
+    onSubmit?.(value);
     setInputValue("");
-    setError(null);
-    setIsLoading(true);
-    setIsActive(true);
-
-    try {
-      const res = await fetch("/api/chat", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          message: text,
-          messages: nextMessages,
-        }),
-      });
-
-      const data = (await res.json()) as {
-        message?: ChatTurn;
-        error?: string;
-      };
-
-      if (!res.ok) {
-        throw new Error(data.error || "Chat request failed.");
-      }
-
-      if (!data.message?.content) {
-        throw new Error("Empty response from model.");
-      }
-
-      setMessages((prev) => [
-        ...prev,
-        { role: "assistant", content: data.message!.content },
-      ]);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Something went wrong.");
-    } finally {
-      setIsLoading(false);
-    }
+    setIsActive(false);
   };
 
   const containerVariants: Variants = {
@@ -167,36 +129,7 @@ const AIChatInput = () => {
   };
 
   return (
-    <div className="w-full flex flex-col justify-center items-center gap-4 text-black">
-      {(messages.length > 0 || error) && (
-        <div className="w-full max-w-3xl max-h-72 overflow-y-auto rounded-2xl border border-[#E6E6E6] bg-white px-4 py-3">
-          <div className="flex flex-col gap-3">
-            {messages.map((msg, i) => (
-              <div
-                key={`${msg.role}-${i}`}
-                className={`text-sm leading-6 whitespace-pre-wrap ${
-                  msg.role === "user"
-                    ? "text-[#0A0A0A] font-medium"
-                    : "text-[#3D3D3D]"
-                }`}
-              >
-                <span className="mb-0.5 block text-[11px] uppercase tracking-wide text-[#8A8A8A]">
-                  {msg.role === "user" ? "You" : "Lumis"}
-                </span>
-                {msg.content}
-              </div>
-            ))}
-            {isLoading && (
-              <p className="text-sm text-[#8A8A8A]">Thinking…</p>
-            )}
-            {error && (
-              <p className="text-sm text-red-600">{error}</p>
-            )}
-            <div ref={messagesEndRef} />
-          </div>
-        </div>
-      )}
-
+    <div className="w-full flex justify-center items-center text-black">
       <motion.div
         ref={wrapperRef}
         className="w-full max-w-3xl"
@@ -223,14 +156,15 @@ const AIChatInput = () => {
               <input
                 type="text"
                 value={inputValue}
+                autoFocus={autoFocus}
                 onChange={(e) => setInputValue(e.target.value)}
                 onKeyDown={(e) => {
                   if (e.key === "Enter" && !e.shiftKey) {
                     e.preventDefault();
-                    void handleSubmit();
+                    handleSubmit();
                   }
                 }}
-                disabled={isLoading}
+                disabled={disabled}
                 className="flex-1 border-0 outline-0 rounded-md py-2 text-base bg-transparent w-full font-normal disabled:opacity-60"
                 style={{ position: "relative", zIndex: 1 }}
                 onFocus={handleActivate}
@@ -252,7 +186,7 @@ const AIChatInput = () => {
                       animate="animate"
                       exit="exit"
                     >
-                      {PLACEHOLDERS[placeholderIndex]
+                      {placeholders[placeholderIndex]
                         .split("")
                         .map((char, i) => (
                           <motion.span
@@ -281,10 +215,10 @@ const AIChatInput = () => {
               className="flex items-center gap-1 bg-black hover:bg-zinc-700 text-white p-3 rounded-full font-medium justify-center disabled:opacity-50 disabled:hover:bg-black"
               title="Send"
               type="button"
-              disabled={isLoading || !inputValue.trim()}
+              disabled={disabled || !inputValue.trim()}
               onClick={(e) => {
                 e.stopPropagation();
-                void handleSubmit();
+                handleSubmit();
               }}
             >
               <Send size={18} />
