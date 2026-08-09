@@ -1,0 +1,70 @@
+[
+  {
+    "key": "LMS-14",
+    "title": "Misc",
+    "status": "todo",
+    "children": [
+      {
+        "key": "LMS-15",
+        "title": "Get jeans",
+        "status": "todo"
+      },
+      {
+        "key": "LMS-16",
+        "title": "Do laundry",
+        "status": "todo"
+      }
+    ],
+    "course": "Life"
+  },
+  {
+    "key": "LMS-6",
+    "title": "Arden",
+    "status": "todo",
+    "children": [
+      {
+        "key": "LMS-7",
+        "title": "Apple build",
+        "status": "todo",
+        "course": "Arden"
+      },
+      {
+        "key": "LMS-8",
+        "title": "Supabase + render + proccess scaling check",
+        "status": "todo",
+        "course": "Arden"
+      },
+      {
+        "key": "LMS-9",
+        "title": "Dogfood setup",
+        "status": "todo",
+        "course": "Arden"
+      },
+      {
+        "key": "LMS-10",
+        "title": "Auth smoketests",
+        "status": "todo",
+        "course": "Arden"
+      },
+      {
+        "key": "LMS-11",
+        "title": "New setup flow",
+        "status": "todo",
+        "course": "Arden"
+      },
+      {
+        "key": "LMS-12",
+        "title": "Policies",
+        "status": "todo",
+        "course": "Arden"
+      },
+      {
+        "key": "LMS-17",
+        "title": "Keanu project doc",
+        "status": "todo",
+        "course": "Arden"
+      }
+    ],
+    "course": "Arden"
+  }
+]

@@ -1,8 +1,21 @@
 "use client";
 
-import { useRouter } from "next/navigation";
+import { Suspense, useEffect, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import {
+  ChatHistoryPane,
+  HistoryButton,
+} from "@/components/chat-history-pane";
 import { AIChatInput } from "@/components/ui/ai-chat-input";
-import { CURRENT_USER, HOME_STATS, QUICK_ACTIONS } from "@/lib/mock-data";
+import {
+  getActiveChatId,
+  getChatThread,
+  listChatThreads,
+  setActiveChatId,
+  type ChatThread,
+} from "@/lib/chat-history";
+import { QUICK_ACTIONS } from "@/lib/mock-data";
+import { useViewDataset } from "@/components/view-provider";
 
 const iconProps = {
   fill: "none",
@@ -52,78 +65,168 @@ function ActionIcon({ name }: { name: (typeof QUICK_ACTIONS)[number]["icon"] }) 
   }
 }
 
-export default function HomePage() {
+function HomeScreen() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  // Logo uses /?home=1 so we always show the landing, even from an open chat.
+  const forceLanding = searchParams.get("home") === "1";
+  const { user, homeStats } = useViewDataset();
+  const [historyOpen, setHistoryOpen] = useState(false);
+  const [threads, setThreads] = useState<ChatThread[]>([]);
+  const [activeId, setActiveId] = useState<string | null>(null);
+  const [ready, setReady] = useState(false);
+
+  // Resume the last chat when using the Home nav item — not the logo.
+  useEffect(() => {
+    if (forceLanding) {
+      setActiveChatId(null);
+      setActiveId(null);
+      setThreads(listChatThreads());
+      setReady(true);
+      router.replace("/");
+      return;
+    }
+
+    const id = getActiveChatId();
+    if (id && getChatThread(id)) {
+      router.replace(`/chat?id=${encodeURIComponent(id)}`);
+      return;
+    }
+    if (id) setActiveChatId(null);
+    setActiveId(getActiveChatId());
+    setThreads(listChatThreads());
+    setReady(true);
+  }, [forceLanding, router]);
+
+  if (!ready) {
+    return <div className="flex-1 bg-white" />;
+  }
 
   return (
-    <div className="flex flex-1 flex-col items-center pt-[88px] pb-16">
-      {/* Greeting */}
-      <div className="flex flex-col items-center gap-3.5">
-        <div className="flex items-baseline gap-3">
-          <h1 className="font-display text-[40px] leading-[48px] tracking-[-0.015em] text-[#0A0A0A]">
-            Good afternoon,
-          </h1>
-          <span className="font-display text-[40px] leading-[48px] tracking-[-0.015em] text-[#A0A0A0]">
-            {CURRENT_USER.firstName}
-          </span>
-        </div>
-        <p className="text-sm leading-5 text-[#6B6B6B]">What are we working on today?</p>
-      </div>
-
-      {/* Carousel dots */}
-      <div className="flex items-center gap-[7px] pt-[26px] pb-10">
-        {[0, 1, 2, 3, 4].map((i) => (
-          <span
-            key={i}
-            className={`h-0.5 w-[17px] shrink-0 rounded-sm ${i === 3 ? "bg-[#9A9A9A]" : "bg-[#E2E2E2]"}`}
-          />
-        ))}
-      </div>
-
-      {/* Composer */}
-      <div className="w-[732px]">
-        <AIChatInput
-          onSubmit={(value) =>
-            router.push(`/chat?q=${encodeURIComponent(value)}`)
-          }
-        />
-      </div>
-
-      {/* Quick actions */}
-      <div className="flex items-center justify-center gap-3 pt-11">
-        {QUICK_ACTIONS.map((action) => (
-          <button
-            key={action.label}
-            type="button"
-            className="flex h-[34px] items-center gap-[7px] rounded-md border border-[#E6E6E6] bg-white px-3 transition-colors hover:bg-[#FAFAFA]"
-          >
-            <ActionIcon name={action.icon} />
-            <span className="text-[13px] leading-4 text-[#1A1A1A]">{action.label}</span>
-          </button>
-        ))}
-      </div>
-
-      {/* Stats */}
-      <div className="grid w-[732px] grid-cols-3 gap-3 pt-12">
-        {HOME_STATS.map((stat) => (
-          <div
-            key={stat.label}
-            className="flex h-25 flex-col justify-between rounded-md border border-[#E6E6E6] bg-white p-[15px]"
-          >
-            <span className="text-[13px] leading-4 text-[#5E5E5E]">{stat.label}</span>
-            <div className="flex items-baseline gap-1.5">
-              <span
-                className={`shrink-0 text-[22px] font-medium leading-7 tracking-[-0.02em] ${
-                  stat.muted ? "text-[#C4C4C4]" : "text-[#0A0A0A]"
-                }`}
-              >
-                {stat.value}
-              </span>
-              <span className="text-xs leading-4 text-[#7A7A7A]">{stat.note}</span>
-            </div>
+    <div className="flex h-full min-h-0 flex-1 bg-white">
+      <div className="relative min-w-0 flex-1 overflow-y-auto">
+        {!historyOpen ? (
+          <div className="absolute top-[88px] right-6 z-10 flex h-12 items-center">
+            <HistoryButton
+              onClick={() => {
+                setThreads(listChatThreads());
+                setActiveId(getActiveChatId());
+                setHistoryOpen(true);
+              }}
+            />
           </div>
-        ))}
+        ) : null}
+
+        <div className="flex flex-col items-center pt-[88px] pb-16">
+          {/* Greeting */}
+          <div className="flex flex-col items-center gap-3.5">
+            <div className="flex items-baseline gap-3">
+              <h1 className="font-display text-[40px] leading-[48px] tracking-[-0.015em] text-[#0A0A0A]">
+                Good afternoon,
+              </h1>
+              <span className="font-display text-[40px] leading-[48px] tracking-[-0.015em] text-[#A0A0A0]">
+                {user.firstName}
+              </span>
+            </div>
+            <p className="text-sm leading-5 text-[#6B6B6B]">
+              What are we working on today?
+            </p>
+          </div>
+
+          {/* Carousel dots */}
+          <div className="flex items-center gap-[7px] pt-[26px] pb-10">
+            {[0, 1, 2, 3, 4].map((i) => (
+              <span
+                key={i}
+                className={`h-0.5 w-[17px] shrink-0 rounded-sm ${
+                  i === 3 ? "bg-[#9A9A9A]" : "bg-[#E2E2E2]"
+                }`}
+              />
+            ))}
+          </div>
+
+          {/* Composer */}
+          <div className="w-[732px]">
+            <AIChatInput
+              onSubmit={(value, meta) => {
+                const params = new URLSearchParams();
+                if (value) params.set("q", value);
+                if (meta?.skill) params.set("skill", meta.skill.command);
+                router.push(`/chat?${params.toString()}`);
+              }}
+            />
+          </div>
+
+          {/* Quick actions */}
+          <div className="flex items-center justify-center gap-3 pt-11">
+            {QUICK_ACTIONS.map((action) => (
+              <button
+                key={action.label}
+                type="button"
+                className="flex h-[34px] items-center gap-[7px] rounded-md border border-[#E6E6E6] bg-white px-3 transition-colors hover:bg-[#FAFAFA]"
+              >
+                <ActionIcon name={action.icon} />
+                <span className="text-[13px] leading-4 text-[#1A1A1A]">
+                  {action.label}
+                </span>
+              </button>
+            ))}
+          </div>
+
+          {/* Stats */}
+          <div className="grid w-[732px] grid-cols-3 gap-3 pt-12">
+            {homeStats.map((stat) => (
+              <div
+                key={stat.label}
+                className="flex h-25 flex-col justify-between rounded-md border border-[#E6E6E6] bg-white p-[15px]"
+              >
+                <span className="text-[13px] leading-4 text-[#5E5E5E]">
+                  {stat.label}
+                </span>
+                <div className="flex items-baseline gap-1.5">
+                  <span
+                    className={`shrink-0 text-[22px] font-medium leading-7 tracking-[-0.02em] ${
+                      stat.muted ? "text-[#C4C4C4]" : "text-[#0A0A0A]"
+                    }`}
+                  >
+                    {stat.value}
+                  </span>
+                  <span className="text-xs leading-4 text-[#7A7A7A]">
+                    {stat.note}
+                  </span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
       </div>
+
+      {historyOpen ? (
+        <ChatHistoryPane
+          threads={threads}
+          activeId={activeId}
+          onSelect={(id) => {
+            setActiveChatId(id);
+            setHistoryOpen(false);
+            router.push(`/chat?id=${encodeURIComponent(id)}`);
+          }}
+          onClose={() => setHistoryOpen(false)}
+          onNewChat={() => {
+            setActiveChatId(null);
+            setActiveId(null);
+            setHistoryOpen(false);
+            router.push("/chat");
+          }}
+        />
+      ) : null}
     </div>
+  );
+}
+
+export default function HomePage() {
+  return (
+    <Suspense fallback={<div className="flex-1 bg-white" />}>
+      <HomeScreen />
+    </Suspense>
   );
 }

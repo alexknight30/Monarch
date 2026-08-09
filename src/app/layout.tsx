@@ -1,6 +1,9 @@
 import type { Metadata } from "next";
 import { Inter, Newsreader } from "next/font/google";
+import LoginGate from "@/components/login-gate";
 import Rail from "@/components/rail";
+import { ViewProvider } from "@/components/view-provider";
+import { getServerViewId } from "@/lib/views-server";
 import "./globals.css";
 
 const inter = Inter({
@@ -11,14 +14,20 @@ const inter = Inter({
 const newsreader = Newsreader({
   variable: "--font-newsreader",
   subsets: ["latin"],
+  style: ["normal", "italic"],
 });
 
 export const metadata: Metadata = {
-  title: "Lumis",
+  title: "Monarch",
   description: "The AI platform for higher ed.",
+  icons: {
+    icon: [{ url: "/icon.svg", type: "image/svg+xml" }],
+  },
 };
 
-export default function RootLayout({ children }: LayoutProps<"/">) {
+export default async function RootLayout({ children }: LayoutProps<"/">) {
+  const viewId = await getServerViewId();
+
   return (
     <html
       lang="en"
@@ -26,8 +35,14 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       suppressHydrationWarning
     >
       <body className="flex h-full min-h-full bg-white text-[#0A0A0A]">
-        <Rail />
-        <main className="flex min-w-0 flex-1 flex-col overflow-y-auto">{children}</main>
+        <ViewProvider viewId={viewId}>
+          <LoginGate>
+            <Rail />
+            <main className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">
+              {children}
+            </main>
+          </LoginGate>
+        </ViewProvider>
       </body>
     </html>
   );

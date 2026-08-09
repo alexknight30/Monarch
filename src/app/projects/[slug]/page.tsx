@@ -1,10 +1,9 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { PROJECTS, getProject } from "@/lib/mock-data";
+import { getServerViewDataset } from "@/lib/views-server";
 
-export function generateStaticParams() {
-  return PROJECTS.map((project) => ({ slug: project.slug }));
-}
+// No generateStaticParams: the page resolves against the active view's cookie,
+// so which slugs exist is a per-request question, not a build-time one.
 
 function LockIcon({ size = 12, color = "#9A9A98" }: { size?: number; color?: string }) {
   return (
@@ -25,11 +24,12 @@ function PlusIcon() {
 
 export default async function ProjectDetailPage({ params }: PageProps<"/projects/[slug]">) {
   const { slug } = await params;
-  const project = getProject(slug);
+  const { projects } = await getServerViewDataset();
+  const project = projects.find((p) => p.slug === slug);
   if (!project) notFound();
 
   return (
-    <div className="flex flex-1 flex-col items-center pt-11 pb-16">
+    <div className="flex min-h-0 flex-1 flex-col items-center overflow-y-auto pt-11 pb-16">
       <div className="flex w-[1180px] items-start gap-11">
         {/* ------------------------------------------------------ left ---- */}
         <div className="flex min-w-0 flex-1 flex-col">

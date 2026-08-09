@@ -173,6 +173,71 @@ export function getProject(slug: string) {
   return PROJECTS.find((p) => p.slug === slug);
 }
 
+/* ------------------------------------------------------------- classes --- */
+
+export type CourseClass = {
+  slug: string;
+  code: string;
+  title: string;
+  description: string;
+  instructor: string;
+  schedule: string;
+  term: string;
+};
+
+export const CLASSES: CourseClass[] = [
+  {
+    slug: "chem-122",
+    code: "CHEM 122",
+    title: "Organic Chemistry II",
+    description:
+      "Mechanisms, spectroscopy, and synthesis of organic compounds. Builds on CHEM 121 with a focus on carbonyl chemistry and multi-step routes.",
+    instructor: "Prof. Nadia Farouk",
+    schedule: "MWF · 10:00–10:50 AM",
+    term: "Fall 2026",
+  },
+  {
+    slug: "stat-140",
+    code: "STAT 140",
+    title: "Intro to Statistical Inference",
+    description:
+      "Probability, estimation, hypothesis testing, and regression. Weekly problem sets plus a midterm and final project.",
+    instructor: "Prof. Marcus Chen",
+    schedule: "TTh · 1:30–2:45 PM",
+    term: "Fall 2026",
+  },
+  {
+    slug: "gov-201",
+    code: "GOV 201",
+    title: "Comparative Institutions",
+    description:
+      "Seminar on constitutional design, federalism, and legislative organization across democracies. Discussion-heavy; short weekly memos.",
+    instructor: "Prof. Elena Vasquez",
+    schedule: "Th · 3:00–5:30 PM",
+    term: "Fall 2026",
+  },
+  {
+    slug: "cs-51",
+    code: "CS 51",
+    title: "Abstraction & Design",
+    description:
+      "Functional programming in OCaml, modular design, and data structures. Pair programming labs every Friday.",
+    instructor: "Prof. James Okonkwo",
+    schedule: "MWF · 11:15–12:05 PM",
+    term: "Fall 2026",
+  },
+  {
+    slug: "hist-210",
+    code: "HIST 210",
+    title: "Modern Europe",
+    description:
+      "Survey of European political and cultural history from 1789 to the present. Heavy reading load; two papers.",
+    instructor: "Prof. Claire Beaumont",
+    schedule: "TTh · 10:00–11:15 AM",
+    term: "Spring 2025",
+  },
+];
+
 /* ------------------------------------------------------------ calendar --- */
 
 export type CalendarKind = "class" | "office-hours" | "deadline" | "session";

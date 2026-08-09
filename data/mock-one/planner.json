@@ -1,0 +1,247 @@
+[
+  {
+    "key": "LMS-11",
+    "title": "Organic chemistry midterm prep",
+    "status": "in-progress",
+    "labels": [
+      "Exam"
+    ],
+    "children": [
+      {
+        "key": "LMS-12",
+        "title": "Rewatch carbonyl mechanism lectures",
+        "status": "done",
+        "course": "CHEM 122"
+      },
+      {
+        "key": "LMS-13",
+        "title": "Build reaction map flashcards",
+        "status": "in-progress",
+        "labels": [
+          "Problem set"
+        ],
+        "course": "CHEM 122",
+        "children": [
+          {
+            "key": "LMS-14",
+            "title": "Aldol condensation set",
+            "status": "done",
+            "course": "CHEM 122"
+          },
+          {
+            "key": "LMS-15",
+            "title": "Grignard addition set",
+            "status": "in-progress",
+            "course": "CHEM 122",
+            "children": [
+              {
+                "key": "LMS-16",
+                "title": "Draw 10 worked mechanisms",
+                "status": "todo",
+                "course": "CHEM 122"
+              },
+              {
+                "key": "LMS-17",
+                "title": "Check answers against Ch. 14 key",
+                "status": "todo",
+                "course": "CHEM 122"
+              }
+            ]
+          },
+          {
+            "key": "LMS-18",
+            "title": "Wittig reaction set",
+            "status": "todo",
+            "course": "CHEM 122"
+          }
+        ]
+      },
+      {
+        "key": "LMS-19",
+        "title": "Sit practice exam under timed conditions",
+        "status": "todo",
+        "labels": [
+          "Exam"
+        ],
+        "course": "CHEM 122",
+        "due": "Aug 11"
+      }
+    ]
+  },
+  {
+    "key": "LMS-20",
+    "title": "Response paper — Ch. 4",
+    "status": "in-progress",
+    "labels": [
+      "Writing",
+      "Reading"
+    ],
+    "course": "HIST 210",
+    "due": "Aug 9",
+    "children": [
+      {
+        "key": "LMS-21",
+        "title": "Finish Ch. 4 reading + margin notes",
+        "status": "done",
+        "course": "HIST 210"
+      },
+      {
+        "key": "LMS-22",
+        "title": "Outline the argument",
+        "status": "in-progress",
+        "labels": [
+          "Writing"
+        ],
+        "course": "HIST 210",
+        "children": [
+          {
+            "key": "LMS-23",
+            "title": "Pull three supporting passages",
+            "status": "done",
+            "course": "HIST 210"
+          },
+          {
+            "key": "LMS-24",
+            "title": "Draft thesis sentence",
+            "status": "todo",
+            "course": "HIST 210"
+          }
+        ]
+      },
+      {
+        "key": "LMS-25",
+        "title": "Write first draft",
+        "status": "todo",
+        "labels": [
+          "Writing"
+        ],
+        "course": "HIST 210"
+      }
+    ]
+  },
+  {
+    "key": "LMS-30",
+    "title": "Statistics problem set 8",
+    "status": "todo",
+    "labels": [
+      "Problem set"
+    ],
+    "course": "STAT 140",
+    "due": "Aug 21",
+    "children": [
+      {
+        "key": "LMS-31",
+        "title": "Review regression lecture notes",
+        "status": "todo",
+        "course": "STAT 140"
+      },
+      {
+        "key": "LMS-32",
+        "title": "Work through questions 1–6",
+        "status": "todo",
+        "course": "STAT 140",
+        "children": [
+          {
+            "key": "LMS-33",
+            "title": "Q1–Q3 — confidence intervals",
+            "status": "todo",
+            "course": "STAT 140"
+          },
+          {
+            "key": "LMS-34",
+            "title": "Q4–Q6 — hypothesis tests",
+            "status": "todo",
+            "course": "STAT 140"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "key": "LMS-40",
+    "title": "Titration lab report",
+    "status": "todo",
+    "labels": [
+      "Lab"
+    ],
+    "course": "CHEM 122",
+    "due": "Aug 28",
+    "children": [
+      {
+        "key": "LMS-41",
+        "title": "Plot the titration curve",
+        "status": "todo",
+        "course": "CHEM 122"
+      },
+      {
+        "key": "LMS-42",
+        "title": "Write up error analysis",
+        "status": "todo",
+        "course": "CHEM 122"
+      }
+    ]
+  },
+  {
+    "key": "LMS-50",
+    "title": "Spanish oral exam prep",
+    "status": "backlog",
+    "labels": [
+      "Exam"
+    ],
+    "course": "SPAN 101",
+    "children": [
+      {
+        "key": "LMS-51",
+        "title": "Drill unit 4–6 vocab",
+        "status": "backlog",
+        "course": "SPAN 101"
+      },
+      {
+        "key": "LMS-52",
+        "title": "Practice conversation prompts",
+        "status": "backlog",
+        "course": "SPAN 101"
+      }
+    ]
+  },
+  {
+    "key": "LMS-60",
+    "title": "Literary theory essay",
+    "status": "backlog",
+    "labels": [
+      "Writing"
+    ],
+    "course": "ENGL 185",
+    "children": [
+      {
+        "key": "LMS-61",
+        "title": "Choose a critical framework",
+        "status": "backlog",
+        "course": "ENGL 185"
+      },
+      {
+        "key": "LMS-62",
+        "title": "Assemble secondary sources",
+        "status": "backlog",
+        "course": "ENGL 185"
+      }
+    ]
+  },
+  {
+    "key": "LMS-70",
+    "title": "Vocab quiz 4",
+    "status": "done",
+    "labels": [
+      "Exam"
+    ],
+    "course": "SPAN 101",
+    "children": [
+      {
+        "key": "LMS-71",
+        "title": "Drill unit 3 vocab",
+        "status": "done",
+        "course": "SPAN 101"
+      }
+    ]
+  }
+]

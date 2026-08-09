@@ -10,7 +10,9 @@ import {
   loggedMinutesForDate,
   loggedMinutesForMonth,
   type CalendarEvent,
+  type CalendarSource,
 } from "@/lib/calendar";
+import { useViewDataset } from "@/components/view-provider";
 
 const WEEKDAYS = ["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"];
 const MONTHS = [
@@ -43,12 +45,14 @@ const BLOCK_STYLES: Record<CalendarEvent["kind"], string> = {
 function DayPanel({
   date,
   onClose,
+  source,
 }: {
   date: Date;
   onClose: () => void;
+  source: CalendarSource;
 }) {
-  const events = eventsForDate(date);
-  const logged = loggedMinutesForDate(date);
+  const events = eventsForDate(date, source);
+  const logged = loggedMinutesForDate(date, source);
   const hours = Array.from(
     { length: TIMELINE_END_HOUR - TIMELINE_START_HOUR + 1 },
     (_, i) => TIMELINE_START_HOUR + i,
@@ -175,6 +179,7 @@ function DayPanel({
 }
 
 export default function CalendarPage() {
+  const source = useViewDataset();
   const today = useMemo(() => new Date(), []);
   const [viewYear, setViewYear] = useState(today.getFullYear());
   const [viewMonth, setViewMonth] = useState(today.getMonth());
@@ -193,21 +198,13 @@ export default function CalendarPage() {
   };
 
   return (
-    <div className="flex h-full min-h-0 bg-white">
+    <div className="flex h-full min-h-0 flex-1 overflow-hidden bg-white">
       {/* Calendar column */}
-      <div className="flex min-w-0 flex-1 flex-col">
-        <div className="flex h-14 shrink-0 items-center gap-2.5 border-b border-[#F0F0F0] px-6">
-          <svg width="15" height="15" viewBox="0 0 24 24" className="shrink-0">
-            <circle cx="11" cy="11" r="7" fill="none" stroke="#A0A0A0" strokeWidth="1.8" />
-            <path d="M16.5 16.5L21 21" fill="none" stroke="#A0A0A0" strokeWidth="1.8" strokeLinecap="round" />
-          </svg>
-          <span className="text-sm leading-5 text-[#A0A0A0]">Find anything…</span>
-        </div>
-
-        <div className="flex shrink-0 items-end justify-between px-6 pt-[26px] pb-[22px]">
-          <div className="flex flex-col items-start gap-1">
-            <span className="font-display text-[40px] leading-[48px] tracking-[-0.015em] text-[#0A0A0A]">
-              {formatDuration(loggedMinutesForMonth())}
+      <div className="flex min-h-0 min-w-0 flex-1 flex-col">
+        <div className="flex h-12 shrink-0 items-center justify-between px-6">
+          <div className="flex items-baseline gap-2">
+            <span className="text-[13px] leading-[18px] font-medium text-[#0A0A0A]">
+              {formatDuration(loggedMinutesForMonth(source))}
             </span>
             <span className="text-[13px] leading-[18px] text-[#6B6B6B]">
               studied in {MONTHS[viewMonth]}
@@ -242,8 +239,8 @@ export default function CalendarPage() {
         </div>
 
         {/* Month grid */}
-        <div className="flex min-h-0 flex-1 flex-col overflow-y-auto border-t border-l border-[#EAEAEA]">
-          <div className="flex h-[38px] shrink-0">
+        <div className="flex min-h-0 flex-1 flex-col overflow-hidden border-t border-l border-[#EAEAEA]">
+          <div className="flex h-[34px] shrink-0">
             {WEEKDAYS.map((day) => (
               <div
                 key={day}
@@ -257,9 +254,9 @@ export default function CalendarPage() {
           </div>
 
           {weeks.map((week, wi) => (
-            <div key={wi} className="flex min-h-[116px] flex-1">
+            <div key={wi} className="flex min-h-0 flex-1">
               {week.map(({ date, inMonth }) => {
-                const events = eventsForDate(date);
+                const events = eventsForDate(date, source);
                 const isToday = isSameDay(date, today);
                 const isSelected = selected ? isSameDay(date, selected) : false;
 
@@ -318,7 +315,7 @@ export default function CalendarPage() {
       </div>
 
       {selected && (
-        <DayPanel date={selected} onClose={() => setSelected(null)} />
+        <DayPanel date={selected} onClose={() => setSelected(null)} source={source} />
       )}
     </div>
   );

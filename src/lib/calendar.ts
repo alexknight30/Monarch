@@ -1,10 +1,14 @@
-import {
-  COURSES,
-  DEADLINES,
-  OFFICE_HOURS,
-  STUDY_SESSIONS,
-  type CalendarKind,
-} from "@/lib/mock-data";
+import { type CalendarKind } from "@/lib/mock-data";
+import type { ViewDataset } from "@/lib/views";
+
+/**
+ * The slice of a view's dataset the calendar needs. Passed in rather than
+ * imported so the screen renders whichever view is active.
+ */
+export type CalendarSource = Pick<
+  ViewDataset,
+  "courses" | "officeHours" | "deadlines" | "studySessions"
+>;
 
 export type CalendarEvent = {
   id: string;
@@ -79,12 +83,15 @@ export function buildMonthGrid(year: number, month: number): MonthDay[][] {
  * Everything on a given date: recurring classes and office hours resolve by
  * weekday, deadlines and logged sessions by day of month.
  */
-export function eventsForDate(date: Date): CalendarEvent[] {
+export function eventsForDate(
+  date: Date,
+  source: CalendarSource,
+): CalendarEvent[] {
   const weekday = date.getDay();
   const dayOfMonth = date.getDate();
   const events: CalendarEvent[] = [];
 
-  for (const course of COURSES) {
+  for (const course of source.courses) {
     if (!course.days.includes(weekday)) continue;
     events.push({
       id: `class-${course.code}-${dayOfMonth}`,
@@ -97,7 +104,7 @@ export function eventsForDate(date: Date): CalendarEvent[] {
     });
   }
 
-  for (const oh of OFFICE_HOURS) {
+  for (const oh of source.officeHours) {
     if (oh.day !== weekday) continue;
     events.push({
       id: `oh-${oh.code}-${dayOfMonth}`,
@@ -110,7 +117,7 @@ export function eventsForDate(date: Date): CalendarEvent[] {
     });
   }
 
-  for (const due of DEADLINES) {
+  for (const due of source.deadlines) {
     if (due.day !== dayOfMonth) continue;
     const at = toMinutes(due.at);
     events.push({
@@ -123,7 +130,7 @@ export function eventsForDate(date: Date): CalendarEvent[] {
     });
   }
 
-  for (const session of STUDY_SESSIONS) {
+  for (const session of source.studySessions) {
     if (session.day !== dayOfMonth) continue;
     events.push({
       id: `session-${session.code}-${session.title}`,
@@ -139,15 +146,15 @@ export function eventsForDate(date: Date): CalendarEvent[] {
 }
 
 /** Total logged study time for the month, in minutes. */
-export function loggedMinutesForMonth() {
-  return STUDY_SESSIONS.reduce(
+export function loggedMinutesForMonth(source: CalendarSource) {
+  return source.studySessions.reduce(
     (total, s) => total + (toMinutes(s.end) - toMinutes(s.start)),
     0,
   );
 }
 
-export function loggedMinutesForDate(date: Date) {
-  return eventsForDate(date)
+export function loggedMinutesForDate(date: Date, source: CalendarSource) {
+  return eventsForDate(date, source)
     .filter((e) => e.kind === "session")
     .reduce((total, e) => total + (e.endMin - e.startMin), 0);
 }
