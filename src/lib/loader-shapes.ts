@@ -1,5 +1,5 @@
 /**
- * Geometry for the morphing Lumis loader.
+ * Geometry for the morphing Monarch loader.
  *
  * The four marks share a 140×140 viewBox, a 22-unit wall and a ~2931-unit
  * counter, so they read as one family. Footprint is the deliberate variable —

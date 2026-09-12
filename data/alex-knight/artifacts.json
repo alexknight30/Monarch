@@ -1,0 +1,28 @@
+[
+  {
+    "kind": "document",
+    "slug": "kjvk",
+    "title": "kjvk",
+    "description": "No description yet.",
+    "createdBy": "You",
+    "updated": "Just now",
+    "visibility": "Private",
+    "instructions": null,
+    "context": [],
+    "scheduled": [],
+    "chats": [],
+    "shortTitle": "kjvk",
+    "course": "",
+    "due": "",
+    "status": "Draft",
+    "savedAt": "Saved just now",
+    "bodyHtml": "<p style=\"line-height: 1.15;\"></p>",
+    "blocks": [
+      {
+        "id": "b1",
+        "text": ""
+      }
+    ],
+    "thread": []
+  }
+]

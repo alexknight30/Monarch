@@ -1,3 +1,9 @@
+import {
+  durationMinutes,
+  minutesFromStored,
+  parseStoredDate,
+  type StoredCalendarEvent,
+} from "@/lib/calendar-events";
 import { type CalendarKind } from "@/lib/mock-data";
 import type { ViewDataset } from "@/lib/views";
 
@@ -7,8 +13,18 @@ import type { ViewDataset } from "@/lib/views";
  */
 export type CalendarSource = Pick<
   ViewDataset,
-  "courses" | "officeHours" | "deadlines" | "studySessions"
+  | "calendarCourses"
+  | "officeHours"
+  | "deadlines"
+  | "studySessions"
+  | "storedCalendar"
 >;
+
+function storedKindToChip(kind: StoredCalendarEvent["kind"]): CalendarKind {
+  if (kind === "class") return "course";
+  if (kind === "exam") return "deadline";
+  return kind;
+}
 
 export type CalendarEvent = {
   id: string;
@@ -56,6 +72,97 @@ export function isSameDay(a: Date, b: Date) {
   );
 }
 
+export function startOfDay(date: Date) {
+  return new Date(date.getFullYear(), date.getMonth(), date.getDate());
+}
+
+export function addDays(date: Date, days: number) {
+  return new Date(date.getFullYear(), date.getMonth(), date.getDate() + days);
+}
+
+export function startOfWeek(date: Date) {
+  const day = startOfDay(date);
+  day.setDate(day.getDate() - day.getDay());
+  return day;
+}
+
+/** Seven days, Sunday–Saturday, covering `date`. */
+export function buildWeekDays(date: Date): Date[] {
+  const start = startOfWeek(date);
+  return Array.from({ length: 7 }, (_, i) => addDays(start, i));
+}
+
+/** "11am" / "12:15pm" — compact labels like Google Calendar. */
+export function formatTimeCompact(minutes: number) {
+  const h24 = Math.floor(minutes / 60);
+  const m = minutes % 60;
+  const suffix = h24 >= 12 ? "pm" : "am";
+  const h12 = h24 % 12 === 0 ? 12 : h24 % 12;
+  return m === 0 ? `${h12}${suffix}` : `${h12}:${String(m).padStart(2, "0")}${suffix}`;
+}
+
+export function formatHourLabel(hour: number) {
+  if (hour === 0) return "12 AM";
+  if (hour === 12) return "12 PM";
+  if (hour < 12) return `${hour} AM`;
+  return `${hour - 12} PM`;
+}
+
+export type PositionedEvent = CalendarEvent & {
+  /** Visual end — point-in-time events get a 30-minute block. */
+  displayEndMin: number;
+  col: number;
+  cols: number;
+};
+
+/** Pack overlapping timed events into columns the way a week grid does. */
+export function layoutDayEvents(events: CalendarEvent[]): PositionedEvent[] {
+  const timed = events
+    .map((event) => ({
+      ...event,
+      displayEndMin:
+        event.endMin > event.startMin ? event.endMin : event.startMin + 30,
+    }))
+    .sort(
+      (a, b) =>
+        a.startMin - b.startMin || a.displayEndMin - b.displayEndMin,
+    );
+
+  const positioned: PositionedEvent[] = [];
+  let cluster: typeof timed = [];
+  let clusterEnd = -1;
+
+  const flush = () => {
+    if (cluster.length === 0) return;
+    const colEnds: number[] = [];
+    const assignments: number[] = [];
+    for (const event of cluster) {
+      let col = colEnds.findIndex((end) => end <= event.startMin);
+      if (col === -1) {
+        col = colEnds.length;
+        colEnds.push(event.displayEndMin);
+      } else {
+        colEnds[col] = event.displayEndMin;
+      }
+      assignments.push(col);
+    }
+    const cols = colEnds.length;
+    cluster.forEach((event, i) => {
+      positioned.push({ ...event, col: assignments[i] ?? 0, cols });
+    });
+    cluster = [];
+    clusterEnd = -1;
+  };
+
+  for (const event of timed) {
+    if (cluster.length > 0 && event.startMin >= clusterEnd) flush();
+    cluster.push(event);
+    clusterEnd = Math.max(clusterEnd, event.displayEndMin);
+  }
+  flush();
+  return positioned;
+}
+
 /** Six weeks of days covering the month, padded with neighbouring months. */
 export function buildMonthGrid(year: number, month: number): MonthDay[][] {
   const first = new Date(year, month, 1);
@@ -80,8 +187,8 @@ export function buildMonthGrid(year: number, month: number): MonthDay[][] {
 }
 
 /**
- * Everything on a given date: recurring classes and office hours resolve by
- * weekday, deadlines and logged sessions by day of month.
+ * Everything on a given date. Seeded mocks still resolve by weekday / day of
+ * month. Ingested events match a real ISO `startsAt`.
  */
 export function eventsForDate(
   date: Date,
@@ -91,11 +198,27 @@ export function eventsForDate(
   const dayOfMonth = date.getDate();
   const events: CalendarEvent[] = [];
 
-  for (const course of source.courses) {
+  for (const stored of source.storedCalendar ?? []) {
+    const start = parseStoredDate(stored.startsAt);
+    if (Number.isNaN(start.getTime()) || !isSameDay(start, date)) continue;
+    const startMin = minutesFromStored(stored.startsAt);
+    const endMin = minutesFromStored(stored.endsAt);
+    events.push({
+      id: stored.id,
+      kind: storedKindToChip(stored.kind),
+      code: stored.courseSlug.replace(/-/g, " ").toUpperCase(),
+      title: stored.title,
+      startMin,
+      endMin: endMin > startMin ? endMin : startMin,
+      location: stored.location,
+    });
+  }
+
+  for (const course of source.calendarCourses) {
     if (!course.days.includes(weekday)) continue;
     events.push({
-      id: `class-${course.code}-${dayOfMonth}`,
-      kind: "class",
+      id: `course-${course.code}-${dayOfMonth}`,
+      kind: "course",
       code: course.code,
       title: course.title,
       startMin: toMinutes(course.start),
@@ -147,10 +270,14 @@ export function eventsForDate(
 
 /** Total logged study time for the month, in minutes. */
 export function loggedMinutesForMonth(source: CalendarSource) {
-  return source.studySessions.reduce(
+  const mock = source.studySessions.reduce(
     (total, s) => total + (toMinutes(s.end) - toMinutes(s.start)),
     0,
   );
+  const stored = (source.storedCalendar ?? [])
+    .filter((event) => event.kind === "session")
+    .reduce((total, event) => total + durationMinutes(event), 0);
+  return mock + stored;
 }
 
 export function loggedMinutesForDate(date: Date, source: CalendarSource) {

@@ -42,7 +42,7 @@ export const PLANNER_TOOLS: Anthropic.Tool[] = [
         query: {
           type: "string",
           description:
-            "Optional filter matched against title, course, project, assignment, or key.",
+            "Optional filter matched against title, course, artifact, assignment, or key.",
         },
         status: {
           type: "string",
@@ -66,8 +66,8 @@ export const PLANNER_TOOLS: Anthropic.Tool[] = [
           enum: [...STATUSES],
           description: 'Defaults to "todo".',
         },
-        course: { type: "string", description: 'Class code, e.g. "CHEM 122".' },
-        project: { type: "string" },
+        course: { type: "string", description: 'Course code, e.g. "CHEM 122".' },
+        artifact: { type: "string" },
         assignment: {
           type: "string",
           description: 'Assignment name, e.g. "Problem Set 7".',
@@ -101,7 +101,7 @@ export const PLANNER_TOOLS: Anthropic.Tool[] = [
         status: { type: "string", enum: [...STATUSES] },
         priority: { type: "string", enum: [...PRIORITIES] },
         course: { type: ["string", "null"] },
-        project: { type: ["string", "null"] },
+        artifact: { type: ["string", "null"] },
         assignment: { type: ["string", "null"] },
         due: { type: ["string", "null"] },
         description: { type: ["string", "null"] },
@@ -177,7 +177,7 @@ function summarize(issue: PlannerIssue, parentKey?: string) {
     title: issue.title,
     status: issue.status,
     course: issue.course ?? null,
-    project: issue.project ?? null,
+    artifact: issue.artifact ?? null,
     assignment: issue.assignment ?? null,
     due: issue.due ?? null,
     priority: issue.priority ?? null,
@@ -212,7 +212,7 @@ function matchesQuery(
     row.key,
     row.title,
     row.course,
-    row.project,
+    row.artifact,
     row.assignment,
     row.description,
   ]
@@ -249,7 +249,7 @@ export async function executePlannerTool(
         ...(isStatus(input.status) ? { status: input.status } : {}),
         ...(isLabel(input.label) ? { label: input.label } : {}),
         course: asString(input.course),
-        project: asString(input.project),
+        artifact: asString(input.artifact),
         assignment: asString(input.assignment),
         due: asString(input.due),
         description: asString(input.description),
@@ -278,8 +278,8 @@ export async function executePlannerTool(
       if (isStatus(input.status)) payload.status = input.status;
       if (isPriority(input.priority)) payload.priority = input.priority;
       if (input.course !== undefined) payload.course = asNullableString(input.course);
-      if (input.project !== undefined)
-        payload.project = asNullableString(input.project);
+      if (input.artifact !== undefined)
+        payload.artifact = asNullableString(input.artifact);
       if (input.assignment !== undefined)
         payload.assignment = asNullableString(input.assignment);
       if (input.due !== undefined) payload.due = asNullableString(input.due);

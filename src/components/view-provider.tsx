@@ -37,7 +37,7 @@ export function useViewDataset(): ViewDataset {
 
 /**
  * Persist a view and hard-navigate so server components re-render against the
- * new cookie. A full load rather than router.push — the projects and admin
+ * new cookie. A full load rather than router.push — the artifacts and admin
  * screens are server-rendered and would otherwise serve cached output.
  */
 export function applyView(viewId: ViewId, destination = "/") {

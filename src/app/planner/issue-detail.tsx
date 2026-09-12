@@ -5,6 +5,7 @@ import {
   useId,
   useRef,
   useState,
+  type PointerEvent as ReactPointerEvent,
   type ReactNode,
 } from "react";
 import { createPortal } from "react-dom";
@@ -21,8 +22,8 @@ const STATUSES: PlannerStatus[] = ["todo", "in-progress", "backlog", "done"];
 const DUE_DATES = ["Aug 9", "Aug 11", "Aug 12", "Aug 21", "Aug 28", "Sep 4"];
 
 type TaskMeta = {
-  classes: string[];
-  projects: string[];
+  courses: string[];
+  artifacts: string[];
   assignments: string[];
 };
 
@@ -177,20 +178,31 @@ export default function IssueDetail({ issue, onClose, onOpenIssue }: IssueDetail
   const viewId = useViewId();
   const titleRef = useRef<HTMLTextAreaElement>(null);
   const subtaskRef = useRef<HTMLInputElement>(null);
+  const dialogRef = useRef<HTMLDivElement>(null);
+  const dragRef = useRef<{
+    pointerId: number;
+    startX: number;
+    startY: number;
+    originX: number;
+    originY: number;
+  } | null>(null);
 
   const [mounted, setMounted] = useState(false);
   const [title, setTitle] = useState(issue.title);
   const [description, setDescription] = useState(issue.description ?? "");
   const [addingSubtask, setAddingSubtask] = useState(false);
   const [subtaskTitle, setSubtaskTitle] = useState("");
+  const [subtaskDescription, setSubtaskDescription] = useState("");
   const [savingSubtask, setSavingSubtask] = useState(false);
+  const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
+  const [dragging, setDragging] = useState(false);
   const [menu, setMenu] = useState<
-    null | "status" | "class" | "project" | "assignment" | "due"
+    null | "status" | "course" | "artifact" | "assignment" | "due"
   >(null);
   const [error, setError] = useState<string | null>(null);
   const [meta, setMeta] = useState<TaskMeta>({
-    classes: [],
-    projects: [],
+    courses: [],
+    artifacts: [],
     assignments: [],
   });
 
@@ -207,13 +219,13 @@ export default function IssueDetail({ issue, onClose, onOpenIssue }: IssueDetail
         const data = (await res.json()) as Partial<TaskMeta>;
         if (!res.ok || cancelled) return;
         setMeta({
-          classes: Array.isArray(data.classes) ? data.classes : [],
-          projects: Array.isArray(data.projects) ? data.projects : [],
+          courses: Array.isArray(data.courses) ? data.courses : [],
+          artifacts: Array.isArray(data.artifacts) ? data.artifacts : [],
           assignments: Array.isArray(data.assignments) ? data.assignments : [],
         });
       } catch {
         if (!cancelled) {
-          setMeta({ classes: [], projects: [], assignments: [] });
+          setMeta({ courses: [], artifacts: [], assignments: [] });
         }
       }
     })();
@@ -222,23 +234,40 @@ export default function IssueDetail({ issue, onClose, onOpenIssue }: IssueDetail
     };
   }, [viewId]);
 
-  // Sync when the opened issue changes (e.g. click a subtask).
+  // Sync when navigating to a different issue (not on every child refresh).
   useEffect(() => {
     setTitle(issue.title);
     setDescription(issue.description ?? "");
     setAddingSubtask(false);
     setSubtaskTitle("");
+    setSubtaskDescription("");
     setMenu(null);
     setError(null);
-  }, [issue.key, issue.title, issue.description]);
+    setDragOffset({ x: 0, y: 0 });
+    dragRef.current = null;
+    setDragging(false);
+  }, [issue.key]);
+
+  // Keep title/description fields in sync if they change externally for this issue.
+  useEffect(() => {
+    setTitle(issue.title);
+    setDescription(issue.description ?? "");
+  }, [issue.title, issue.description]);
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") onClose();
+      if (e.key !== "Escape") return;
+      if (addingSubtask) {
+        setAddingSubtask(false);
+        setSubtaskTitle("");
+        setSubtaskDescription("");
+        return;
+      }
+      onClose();
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [onClose]);
+  }, [onClose, addingSubtask]);
 
   useEffect(() => {
     if (!addingSubtask) return;
@@ -278,9 +307,10 @@ export default function IssueDetail({ issue, onClose, onOpenIssue }: IssueDetail
     await patch({ description: next || null });
   };
 
-  const addSubtask = async () => {
+  const addSubtask = async (opts?: { keepOpen?: boolean }) => {
     const next = subtaskTitle.trim();
-    if (!next || savingSubtask) return;
+    if (!next || savingSubtask) return false;
+    const keepOpen = opts?.keepOpen ?? true;
     setSavingSubtask(true);
     setError(null);
     try {
@@ -289,21 +319,77 @@ export default function IssueDetail({ issue, onClose, onOpenIssue }: IssueDetail
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ title: next }),
+          body: JSON.stringify({
+            title: next,
+            description: subtaskDescription.trim() || undefined,
+          }),
         },
       );
       const data = (await res.json().catch(() => ({}))) as { error?: string };
       if (!res.ok) {
         setError(data.error ?? "Could not add subtask.");
-        return;
+        return false;
       }
       setSubtaskTitle("");
-      setAddingSubtask(false);
+      setSubtaskDescription("");
+      setAddingSubtask(keepOpen);
       router.refresh();
+      if (keepOpen) {
+        window.setTimeout(() => subtaskRef.current?.focus(), 30);
+      }
+      return true;
     } catch {
       setError("Could not reach the local backend.");
+      return false;
     } finally {
       setSavingSubtask(false);
+    }
+  };
+
+  const openSubtaskComposer = () => {
+    if (addingSubtask) {
+      if (subtaskTitle.trim()) {
+        void addSubtask({ keepOpen: true });
+        return;
+      }
+      subtaskRef.current?.focus();
+      return;
+    }
+    setAddingSubtask(true);
+  };
+
+  const onDragHandlePointerDown = (e: ReactPointerEvent<HTMLDivElement>) => {
+    if (e.button !== 0) return;
+    e.preventDefault();
+    dragRef.current = {
+      pointerId: e.pointerId,
+      startX: e.clientX,
+      startY: e.clientY,
+      originX: dragOffset.x,
+      originY: dragOffset.y,
+    };
+    setDragging(true);
+    e.currentTarget.setPointerCapture(e.pointerId);
+  };
+
+  const onDragHandlePointerMove = (e: ReactPointerEvent<HTMLDivElement>) => {
+    const drag = dragRef.current;
+    if (!drag || drag.pointerId !== e.pointerId) return;
+    setDragOffset({
+      x: drag.originX + (e.clientX - drag.startX),
+      y: drag.originY + (e.clientY - drag.startY),
+    });
+  };
+
+  const onDragHandlePointerUp = (e: ReactPointerEvent<HTMLDivElement>) => {
+    const drag = dragRef.current;
+    if (!drag || drag.pointerId !== e.pointerId) return;
+    dragRef.current = null;
+    setDragging(false);
+    try {
+      e.currentTarget.releasePointerCapture(e.pointerId);
+    } catch {
+      // already released
     }
   };
 
@@ -322,13 +408,31 @@ export default function IssueDetail({ issue, onClose, onOpenIssue }: IssueDetail
       />
 
       <div
+        ref={dialogRef}
         role="dialog"
         aria-modal="true"
         aria-labelledby={titleId}
-        className="relative z-10 flex max-h-[min(820px,84vh)] w-full max-w-[920px] overflow-hidden rounded-xl border border-[#E8E8E6] bg-white shadow-[0_16px_48px_rgba(0,0,0,0.14)]"
+        style={{ transform: `translate(${dragOffset.x}px, ${dragOffset.y}px)` }}
+        className={`relative z-10 flex max-h-[min(820px,84vh)] w-full max-w-[920px] flex-col overflow-hidden rounded-xl border border-[#E8E8E6] bg-white shadow-[0_16px_48px_rgba(0,0,0,0.14)] ${
+          dragging ? "select-none" : ""
+        }`}
       >
+        {/* Drag handle — top white strip across the card */}
+        <div
+          role="separator"
+          aria-label="Drag to move"
+          onPointerDown={onDragHandlePointerDown}
+          onPointerMove={onDragHandlePointerMove}
+          onPointerUp={onDragHandlePointerUp}
+          onPointerCancel={onDragHandlePointerUp}
+          className={`h-7 shrink-0 touch-none ${
+            dragging ? "cursor-grabbing" : "cursor-grab"
+          }`}
+        />
+
+        <div className="flex min-h-0 flex-1 overflow-hidden">
         {/* Main */}
-        <div className="flex min-w-0 flex-1 flex-col overflow-y-auto px-8 pt-7 pb-8">
+        <div className="flex min-w-0 flex-1 flex-col overflow-y-auto px-8 pt-1 pb-8">
           <div className="flex items-start justify-between gap-3">
             <textarea
               id={titleId}
@@ -344,7 +448,7 @@ export default function IssueDetail({ issue, onClose, onOpenIssue }: IssueDetail
               }}
               rows={1}
               className="min-w-0 flex-1 resize-none bg-transparent text-[26px] leading-[34px] font-semibold tracking-[-0.02em] text-[#0A0A0A] outline-none placeholder:text-[#C4C4C0]"
-              placeholder="Issue title"
+              placeholder="Task title"
             />
             <button
               type="button"
@@ -402,7 +506,7 @@ export default function IssueDetail({ issue, onClose, onOpenIssue }: IssueDetail
             </span>
           </div>
 
-          {/* Sub-issues */}
+          {/* Sub-tasks */}
           <section className="mt-8">
             <div className="flex h-9 items-center gap-2 border-b border-[#EFEFED]">
               <svg width="12" height="12" viewBox="0 0 24 24" className="shrink-0">
@@ -416,7 +520,7 @@ export default function IssueDetail({ issue, onClose, onOpenIssue }: IssueDetail
                 />
               </svg>
               <h2 className="text-[13px] leading-4 font-medium text-[#0A0A0A]">
-                Sub-issues
+                Sub-tasks
               </h2>
               {children.length > 0 ? (
                 <span className="flex items-center gap-1.5 text-[12.5px] leading-4 text-[#9A9A98] tabular-nums">
@@ -427,8 +531,10 @@ export default function IssueDetail({ issue, onClose, onOpenIssue }: IssueDetail
               <div className="flex-1" />
               <button
                 type="button"
-                aria-label="Add sub-issue"
-                onClick={() => setAddingSubtask(true)}
+                aria-label="Add sub-task"
+                // Prevent stealing focus / blur-saving the open composer.
+                onMouseDown={(e) => e.preventDefault()}
+                onClick={openSubtaskComposer}
                 className="flex h-7 w-7 items-center justify-center rounded-full border border-[#E6E6E6] text-[#5E5E5E] transition-colors hover:bg-[#FAFAFA]"
               >
                 <svg width="14" height="14" viewBox="0 0 24 24">
@@ -449,50 +555,100 @@ export default function IssueDetail({ issue, onClose, onOpenIssue }: IssueDetail
                   <button
                     type="button"
                     onClick={() => onOpenIssue(child.key)}
-                    className="flex w-full items-center gap-2.5 rounded-md px-1 py-2.5 text-left transition-colors hover:bg-[#FBFBFA]"
+                    className="flex w-full items-start gap-2.5 rounded-md px-1 py-2.5 text-left transition-colors hover:bg-[#FBFBFA]"
                   >
-                    <StatusIcon status={child.status} />
-                    <span
-                      className={`min-w-0 flex-1 truncate text-sm leading-[18px] ${
-                        child.status === "done"
-                          ? "text-[#9A9A98] line-through"
-                          : "text-[#0A0A0A]"
-                      }`}
-                    >
-                      {child.title}
+                    <span className="mt-0.5 shrink-0">
+                      <StatusIcon status={child.status} />
+                    </span>
+                    <span className="min-w-0 flex-1">
+                      <span
+                        className={`block truncate text-sm leading-[18px] ${
+                          child.status === "done"
+                            ? "text-[#9A9A98] line-through"
+                            : "text-[#0A0A0A]"
+                        }`}
+                      >
+                        {child.title}
+                      </span>
+                      {child.description ? (
+                        <span className="mt-0.5 block truncate text-[13px] leading-[18px] text-[#9A9A98]">
+                          {child.description}
+                        </span>
+                      ) : null}
                     </span>
                   </button>
                 </li>
               ))}
 
               {addingSubtask ? (
-                <li className="flex items-center gap-2.5 px-1 py-2">
-                  <StatusIcon status="todo" />
-                  <input
-                    ref={subtaskRef}
-                    value={subtaskTitle}
-                    onChange={(e) => setSubtaskTitle(e.target.value)}
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter") {
-                        e.preventDefault();
-                        void addSubtask();
-                      }
-                      if (e.key === "Escape") {
-                        setAddingSubtask(false);
-                        setSubtaskTitle("");
-                      }
-                    }}
-                    onBlur={() => {
-                      if (!subtaskTitle.trim()) {
-                        setAddingSubtask(false);
-                        return;
-                      }
-                      void addSubtask();
-                    }}
-                    placeholder="Sub-issue title"
-                    disabled={savingSubtask}
-                    className="min-w-0 flex-1 bg-transparent text-sm leading-[18px] text-[#0A0A0A] outline-none placeholder:text-[#B0B0AC]"
-                  />
+                <li className="flex items-start gap-2.5 px-1 py-2">
+                  <span className="mt-0.5 shrink-0">
+                    <StatusIcon status="todo" />
+                  </span>
+                  <div className="flex min-w-0 flex-1 flex-col gap-0.5">
+                    <input
+                      ref={subtaskRef}
+                      value={subtaskTitle}
+                      onChange={(e) => setSubtaskTitle(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") {
+                          e.preventDefault();
+                          void addSubtask({ keepOpen: true });
+                        }
+                        if (e.key === "Escape") {
+                          e.stopPropagation();
+                          setAddingSubtask(false);
+                          setSubtaskTitle("");
+                          setSubtaskDescription("");
+                        }
+                      }}
+                      onBlur={(e) => {
+                        const next = e.relatedTarget as Node | null;
+                        if (next && e.currentTarget.parentElement?.contains(next)) {
+                          return;
+                        }
+                        if (!subtaskTitle.trim() && !subtaskDescription.trim()) {
+                          setAddingSubtask(false);
+                          return;
+                        }
+                        if (subtaskTitle.trim()) {
+                          void addSubtask({ keepOpen: true });
+                        }
+                      }}
+                      placeholder="Task title"
+                      disabled={savingSubtask}
+                      className="w-full bg-transparent text-sm leading-[18px] text-[#0A0A0A] outline-none placeholder:text-[#B0B0AC]"
+                    />
+                    <textarea
+                      value={subtaskDescription}
+                      onChange={(e) => setSubtaskDescription(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter" && !e.shiftKey) {
+                          e.preventDefault();
+                          void addSubtask({ keepOpen: true });
+                        }
+                        if (e.key === "Escape") {
+                          e.stopPropagation();
+                          setAddingSubtask(false);
+                          setSubtaskTitle("");
+                          setSubtaskDescription("");
+                        }
+                      }}
+                      onBlur={(e) => {
+                        const next = e.relatedTarget as Node | null;
+                        if (next && e.currentTarget.parentElement?.contains(next)) {
+                          return;
+                        }
+                        if (!subtaskTitle.trim() && !subtaskDescription.trim()) {
+                          setAddingSubtask(false);
+                        }
+                      }}
+                      rows={1}
+                      placeholder="Add description..."
+                      disabled={savingSubtask}
+                      className="w-full resize-none bg-transparent text-[13px] leading-[18px] text-[#5E5E5E] outline-none placeholder:text-[#B0B0AC]"
+                    />
+                  </div>
                 </li>
               ) : null}
 
@@ -510,7 +666,7 @@ export default function IssueDetail({ issue, onClose, onOpenIssue }: IssueDetail
         </div>
 
         {/* Properties — flat list, no section dividers */}
-        <aside className="flex w-[240px] shrink-0 flex-col overflow-y-auto border-l border-[#EFEFED] bg-[#FCFCFB] px-4 pt-7 pb-8">
+        <aside className="flex w-[240px] shrink-0 flex-col overflow-y-auto border-l border-[#EFEFED] bg-[#FCFCFB] px-4 pt-1 pb-8">
           <div className="flex flex-col gap-0.5">
             <div className="relative">
               <PropButton
@@ -539,8 +695,8 @@ export default function IssueDetail({ issue, onClose, onOpenIssue }: IssueDetail
 
             <div className="relative">
               <PropButton
-                active={menu === "class"}
-                onClick={() => setMenu(menu === "class" ? null : "class")}
+                active={menu === "course"}
+                onClick={() => setMenu(menu === "course" ? null : "course")}
               >
                 <svg width="14" height="14" viewBox="0 0 24 24" className="shrink-0">
                   <path
@@ -558,9 +714,9 @@ export default function IssueDetail({ issue, onClose, onOpenIssue }: IssueDetail
                     strokeLinecap="round"
                   />
                 </svg>
-                {issue.course ?? <span className="text-[#9A9A98]">Class</span>}
+                {issue.course ?? <span className="text-[#9A9A98]">Course</span>}
               </PropButton>
-              <Menu open={menu === "class"} onClose={() => setMenu(null)}>
+              <Menu open={menu === "course"} onClose={() => setMenu(null)}>
                 <MenuItem
                   active={!issue.course}
                   onClick={() => {
@@ -568,14 +724,14 @@ export default function IssueDetail({ issue, onClose, onOpenIssue }: IssueDetail
                     void patch({ course: null });
                   }}
                 >
-                  No class
+                  No course
                 </MenuItem>
-                {meta.classes.length === 0 ? (
+                {meta.courses.length === 0 ? (
                   <div className="px-3 py-2 text-[13px] leading-4 text-[#9A9A98]">
-                    No classes yet
+                    No courses yet
                   </div>
                 ) : (
-                  meta.classes.map((c) => (
+                  meta.courses.map((c) => (
                     <MenuItem
                       key={c}
                       active={issue.course === c}
@@ -593,8 +749,8 @@ export default function IssueDetail({ issue, onClose, onOpenIssue }: IssueDetail
 
             <div className="relative">
               <PropButton
-                active={menu === "project"}
-                onClick={() => setMenu(menu === "project" ? null : "project")}
+                active={menu === "artifact"}
+                onClick={() => setMenu(menu === "artifact" ? null : "artifact")}
               >
                 <svg width="14" height="14" viewBox="0 0 24 24" className="shrink-0">
                   <rect
@@ -614,30 +770,30 @@ export default function IssueDetail({ issue, onClose, onOpenIssue }: IssueDetail
                     strokeWidth="1.7"
                   />
                 </svg>
-                {issue.project ?? <span className="text-[#9A9A98]">Project</span>}
+                {issue.artifact ?? <span className="text-[#9A9A98]">Artifact</span>}
               </PropButton>
-              <Menu open={menu === "project"} onClose={() => setMenu(null)}>
+              <Menu open={menu === "artifact"} onClose={() => setMenu(null)}>
                 <MenuItem
-                  active={!issue.project}
+                  active={!issue.artifact}
                   onClick={() => {
                     setMenu(null);
-                    void patch({ project: null });
+                    void patch({ artifact: null });
                   }}
                 >
-                  No project
+                  No artifact
                 </MenuItem>
-                {meta.projects.length === 0 ? (
+                {meta.artifacts.length === 0 ? (
                   <div className="px-3 py-2 text-[13px] leading-4 text-[#9A9A98]">
-                    No projects yet
+                    No artifacts yet
                   </div>
                 ) : (
-                  meta.projects.map((p) => (
+                  meta.artifacts.map((p) => (
                     <MenuItem
                       key={p}
-                      active={issue.project === p}
+                      active={issue.artifact === p}
                       onClick={() => {
                         setMenu(null);
-                        void patch({ project: p });
+                        void patch({ artifact: p });
                       }}
                     >
                       {p}
@@ -755,6 +911,7 @@ export default function IssueDetail({ issue, onClose, onOpenIssue }: IssueDetail
             </div>
           </div>
         </aside>
+        </div>
       </div>
     </div>,
     document.body,

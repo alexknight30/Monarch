@@ -1,0 +1,1097 @@
+[
+  {
+    "id": "RUN-2",
+    "documentId": "DOC-2",
+    "status": "failed",
+    "stages": [
+      {
+        "name": "upload",
+        "status": "failed",
+        "ms": 175,
+        "error": "401 {\"type\":\"error\",\"error\":{\"type\":\"authentication_error\",\"message\":\"API key is invalid.\"},\"request_id\":null}"
+      }
+    ]
+  },
+  {
+    "id": "RUN-1",
+    "documentId": "DOC-1",
+    "status": "applied",
+    "stages": [
+      {
+        "name": "upload",
+        "status": "done",
+        "ms": 755
+      },
+      {
+        "name": "fan-out",
+        "status": "done",
+        "ms": 11846
+      },
+      {
+        "name": "materialize",
+        "status": "done",
+        "ms": 7
+      }
+    ],
+    "proposal": {
+      "runId": "RUN-1",
+      "documentId": "DOC-1",
+      "course": {
+        "slug": "phil-198",
+        "code": "PHIL 198",
+        "title": "Memory",
+        "description": "An advanced philosophy seminar exploring the nature of memory and its role in personal identity, responsibility, extended cognition, collective remembrance, and nostalgia, supplemented by readings from memory science and relevant films, literature, and podcasts.",
+        "instructor": "Professor Amy Kind",
+        "schedule": "MW · 11:00 AM–12:15 PM",
+        "term": "Fall 2026",
+        "instructorEmail": "akind@cmc.edu",
+        "instructorOffice": "Kravis 282",
+        "meetings": [
+          {
+            "kind": "lecture",
+            "days": [
+              1,
+              3
+            ],
+            "start": "11:00",
+            "end": "12:15",
+            "location": "Kravis 321"
+          }
+        ],
+        "officeHours": [
+          {
+            "host": "Professor Amy Kind",
+            "day": 1,
+            "start": "13:30",
+            "end": "15:30",
+            "location": "Kravis 282",
+            "mode": "in-person"
+          }
+        ],
+        "grading": [
+          {
+            "component": "In-Class Writing Assignment 1",
+            "weight": 100
+          },
+          {
+            "component": "In-Class Writing Assignment 2 (Final)",
+            "weight": 120
+          },
+          {
+            "component": "Presentation",
+            "weight": 80
+          },
+          {
+            "component": "Presentation Critical Response Papers (3)",
+            "weight": 60
+          },
+          {
+            "component": "Ath Dinner Critical Response Paper",
+            "weight": 20
+          },
+          {
+            "component": "Guest Speaker Critical Response Paper",
+            "weight": 20
+          }
+        ],
+        "policies": {
+          "late": "Late work is accepted for all out-of-class assignments but a late penalty will be assigned; students should contact the professor first if circumstances warrant an extension and waiver of the penalty.",
+          "attendance": "Every student gets three free absences for illness or unavoidable conflicts; each additional absence results in a 2-point deduction to the course grade. Late arrivals or early departures of more than 10 minutes count as absences. The Ath Dinner on Nov. 12 is mandatory.",
+          "ai": "Work written in part or in full by AI, or prepared with AI assistance at any stage (brainstorming, drafting, editing), is not considered the student's own work and is prohibited; violations will be reported to the Academic Standards Committee.",
+          "integrity": "The highest standards of academic integrity are required; work must be the student's own original work. Plagiarism or use of others' work without attribution, or violations involving AI use, will be reported to the Academic Standards Committee and may result in a zero, failing the course, probation, suspension, or dismissal."
+        },
+        "sourceDocumentId": "DOC-1",
+        "termStartsAt": "2026-09-02",
+        "termEndsAt": "2026-12-18"
+      },
+      "assignments": [
+        {
+          "id": "ASG-1",
+          "courseSlug": "phil-198",
+          "title": "In-Class Writing Assignment 1",
+          "type": "exam",
+          "dueAt": "2026-09-30",
+          "weight": 100,
+          "description": "First in-class writing assignment using Electronic Bluebook Software.",
+          "source": {
+            "documentId": "DOC-1",
+            "quote": "The first will be held on September 30. This is worth 100 points.",
+            "page": 1
+          },
+          "status": "upcoming"
+        },
+        {
+          "id": "ASG-2",
+          "courseSlug": "phil-198",
+          "title": "In-Class Writing Assignment 2 (Final)",
+          "type": "exam",
+          "dueAt": "2026-12-18T09:00:00",
+          "weight": 120,
+          "description": "Second in-class writing assignment held during scheduled final exam time.",
+          "source": {
+            "documentId": "DOC-1",
+            "quote": "The second will be held during our scheduled final exam time on Fri., Dec. 18 at 9 am. It is worth 120 points.",
+            "page": 1
+          },
+          "status": "upcoming"
+        },
+        {
+          "id": "ASG-3",
+          "courseSlug": "phil-198",
+          "title": "Presentation",
+          "type": "presentation",
+          "dueAt": null,
+          "weight": 80,
+          "description": "In-class presentation of approximately 15 minutes in length, delivered on dates specified in syllabus.",
+          "source": {
+            "documentId": "DOC-1",
+            "quote": "Presentations are worth 80 points.",
+            "page": 1
+          },
+          "status": "upcoming",
+          "needsReview": true
+        },
+        {
+          "id": "ASG-4",
+          "courseSlug": "phil-198",
+          "title": "Presentation Critical Response Paper 1",
+          "type": "paper",
+          "dueAt": null,
+          "weight": 20,
+          "description": "Critical response paper for another student's presentation.",
+          "source": {
+            "documentId": "DOC-1",
+            "quote": "Each student will have to submit a critical response paper for three other students' presentations. Each response paper is worth 20 points.",
+            "page": 1
+          },
+          "status": "upcoming",
+          "needsReview": true
+        },
+        {
+          "id": "ASG-5",
+          "courseSlug": "phil-198",
+          "title": "Presentation Critical Response Paper 2",
+          "type": "paper",
+          "dueAt": null,
+          "weight": 20,
+          "description": "Critical response paper for another student's presentation.",
+          "source": {
+            "documentId": "DOC-1",
+            "quote": "Each student will have to submit a critical response paper for three other students' presentations. Each response paper is worth 20 points.",
+            "page": 1
+          },
+          "status": "upcoming",
+          "needsReview": true
+        },
+        {
+          "id": "ASG-6",
+          "courseSlug": "phil-198",
+          "title": "Presentation Critical Response Paper 3",
+          "type": "paper",
+          "dueAt": null,
+          "weight": 20,
+          "description": "Critical response paper for another student's presentation.",
+          "source": {
+            "documentId": "DOC-1",
+            "quote": "Each student will have to submit a critical response paper for three other students' presentations. Each response paper is worth 20 points.",
+            "page": 1
+          },
+          "status": "upcoming",
+          "needsReview": true
+        },
+        {
+          "id": "ASG-7",
+          "courseSlug": "phil-198",
+          "title": "Ath Dinner and Critical Response Paper",
+          "type": "paper",
+          "dueAt": "2026-11-12T20:00:00",
+          "weight": 20,
+          "description": "Mandatory class Ath dinner featuring a presentation by Professor Sharda Umanath, followed by a required response paper.",
+          "source": {
+            "documentId": "DOC-1",
+            "quote": "We will have a class Ath dinner on Thursday, November 12 (5:30 – 8 pm) where we will hear a presentation by Professor Sharda Umanath...The Ath Dinner is mandatory for all students in the class.",
+            "page": 1
+          },
+          "status": "upcoming"
+        },
+        {
+          "id": "ASG-8",
+          "courseSlug": "phil-198",
+          "title": "Guest Speaker Critical Response Paper",
+          "type": "paper",
+          "dueAt": "2026-10-26",
+          "weight": 20,
+          "description": "Response paper addressing the in-class discussion with Professor Basu on her paper 'The Importance of Forgetting.'",
+          "source": {
+            "documentId": "DOC-1",
+            "quote": "On Monday, October 26, Professor Basu will be attending our class to answer questions about her paper \"The Importance of Forgetting,\"...The response paper is worth 20 points.",
+            "page": 2
+          },
+          "status": "upcoming"
+        },
+        {
+          "id": "ASG-9",
+          "courseSlug": "phil-198",
+          "title": "Extra Credit: Memory Meme/Joke Submission",
+          "type": "project",
+          "dueAt": "2026-09-02",
+          "weight": 1,
+          "description": "Optional extra credit for emailing a meme, cartoon, drawing, TikTok, or joke relating to memory before the start of class.",
+          "source": {
+            "documentId": "DOC-1",
+            "quote": "I will award you one extra credit point for emailing me with a meme, cartoon, original drawing, TikTok, or joke relating to memory prior to the start of class on Wed., Sept. 2.",
+            "page": 4
+          },
+          "status": "upcoming"
+        },
+        {
+          "id": "ASG-10",
+          "courseSlug": "phil-198",
+          "title": "Extra Credit: Catching Professor Using Cell Phone",
+          "type": "discussion",
+          "dueAt": null,
+          "weight": 2,
+          "description": "Class-wide extra credit awarded if a student catches the professor using her cell phone for non-timing purposes.",
+          "source": {
+            "documentId": "DOC-1",
+            "quote": "If anyone catches me using my cell phone during class for any other purpose, everyone in the class will receive 2 extra credit points.",
+            "page": 3
+          },
+          "status": "upcoming",
+          "needsReview": true
+        }
+      ],
+      "calendarEvents": [
+        {
+          "id": "series-1-2026-09-02",
+          "courseSlug": "phil-198",
+          "kind": "class",
+          "title": "Philosophy 198 — Memory",
+          "startsAt": "2026-09-02T11:00:00",
+          "endsAt": "2026-09-02T12:15:00",
+          "location": "Kravis 321",
+          "generatedBy": "syllabus",
+          "seriesId": "series-1"
+        },
+        {
+          "id": "series-1-2026-09-07",
+          "courseSlug": "phil-198",
+          "kind": "class",
+          "title": "Philosophy 198 — Memory",
+          "startsAt": "2026-09-07T11:00:00",
+          "endsAt": "2026-09-07T12:15:00",
+          "location": "Kravis 321",
+          "generatedBy": "syllabus",
+          "seriesId": "series-1"
+        },
+        {
+          "id": "series-1-2026-09-09",
+          "courseSlug": "phil-198",
+          "kind": "class",
+          "title": "Philosophy 198 — Memory",
+          "startsAt": "2026-09-09T11:00:00",
+          "endsAt": "2026-09-09T12:15:00",
+          "location": "Kravis 321",
+          "generatedBy": "syllabus",
+          "seriesId": "series-1"
+        },
+        {
+          "id": "series-1-2026-09-14",
+          "courseSlug": "phil-198",
+          "kind": "class",
+          "title": "Philosophy 198 — Memory",
+          "startsAt": "2026-09-14T11:00:00",
+          "endsAt": "2026-09-14T12:15:00",
+          "location": "Kravis 321",
+          "generatedBy": "syllabus",
+          "seriesId": "series-1"
+        },
+        {
+          "id": "series-1-2026-09-16",
+          "courseSlug": "phil-198",
+          "kind": "class",
+          "title": "Philosophy 198 — Memory",
+          "startsAt": "2026-09-16T11:00:00",
+          "endsAt": "2026-09-16T12:15:00",
+          "location": "Kravis 321",
+          "generatedBy": "syllabus",
+          "seriesId": "series-1"
+        },
+        {
+          "id": "series-1-2026-09-21",
+          "courseSlug": "phil-198",
+          "kind": "class",
+          "title": "Philosophy 198 — Memory",
+          "startsAt": "2026-09-21T11:00:00",
+          "endsAt": "2026-09-21T12:15:00",
+          "location": "Kravis 321",
+          "generatedBy": "syllabus",
+          "seriesId": "series-1"
+        },
+        {
+          "id": "series-1-2026-09-23",
+          "courseSlug": "phil-198",
+          "kind": "class",
+          "title": "Philosophy 198 — Memory",
+          "startsAt": "2026-09-23T11:00:00",
+          "endsAt": "2026-09-23T12:15:00",
+          "location": "Kravis 321",
+          "generatedBy": "syllabus",
+          "seriesId": "series-1"
+        },
+        {
+          "id": "series-1-2026-09-28",
+          "courseSlug": "phil-198",
+          "kind": "class",
+          "title": "Philosophy 198 — Memory",
+          "startsAt": "2026-09-28T11:00:00",
+          "endsAt": "2026-09-28T12:15:00",
+          "location": "Kravis 321",
+          "generatedBy": "syllabus",
+          "seriesId": "series-1"
+        },
+        {
+          "id": "series-1-2026-09-30",
+          "courseSlug": "phil-198",
+          "kind": "class",
+          "title": "Philosophy 198 — Memory",
+          "startsAt": "2026-09-30T11:00:00",
+          "endsAt": "2026-09-30T12:15:00",
+          "location": "Kravis 321",
+          "generatedBy": "syllabus",
+          "seriesId": "series-1"
+        },
+        {
+          "id": "series-1-2026-10-05",
+          "courseSlug": "phil-198",
+          "kind": "class",
+          "title": "Philosophy 198 — Memory",
+          "startsAt": "2026-10-05T11:00:00",
+          "endsAt": "2026-10-05T12:15:00",
+          "location": "Kravis 321",
+          "generatedBy": "syllabus",
+          "seriesId": "series-1"
+        },
+        {
+          "id": "series-1-2026-10-07",
+          "courseSlug": "phil-198",
+          "kind": "class",
+          "title": "Philosophy 198 — Memory",
+          "startsAt": "2026-10-07T11:00:00",
+          "endsAt": "2026-10-07T12:15:00",
+          "location": "Kravis 321",
+          "generatedBy": "syllabus",
+          "seriesId": "series-1"
+        },
+        {
+          "id": "series-1-2026-10-12",
+          "courseSlug": "phil-198",
+          "kind": "class",
+          "title": "Philosophy 198 — Memory",
+          "startsAt": "2026-10-12T11:00:00",
+          "endsAt": "2026-10-12T12:15:00",
+          "location": "Kravis 321",
+          "generatedBy": "syllabus",
+          "seriesId": "series-1"
+        },
+        {
+          "id": "series-1-2026-10-14",
+          "courseSlug": "phil-198",
+          "kind": "class",
+          "title": "Philosophy 198 — Memory",
+          "startsAt": "2026-10-14T11:00:00",
+          "endsAt": "2026-10-14T12:15:00",
+          "location": "Kravis 321",
+          "generatedBy": "syllabus",
+          "seriesId": "series-1"
+        },
+        {
+          "id": "series-1-2026-10-19",
+          "courseSlug": "phil-198",
+          "kind": "class",
+          "title": "Philosophy 198 — Memory",
+          "startsAt": "2026-10-19T11:00:00",
+          "endsAt": "2026-10-19T12:15:00",
+          "location": "Kravis 321",
+          "generatedBy": "syllabus",
+          "seriesId": "series-1"
+        },
+        {
+          "id": "series-1-2026-10-21",
+          "courseSlug": "phil-198",
+          "kind": "class",
+          "title": "Philosophy 198 — Memory",
+          "startsAt": "2026-10-21T11:00:00",
+          "endsAt": "2026-10-21T12:15:00",
+          "location": "Kravis 321",
+          "generatedBy": "syllabus",
+          "seriesId": "series-1"
+        },
+        {
+          "id": "series-1-2026-10-26",
+          "courseSlug": "phil-198",
+          "kind": "class",
+          "title": "Philosophy 198 — Memory",
+          "startsAt": "2026-10-26T11:00:00",
+          "endsAt": "2026-10-26T12:15:00",
+          "location": "Kravis 321",
+          "generatedBy": "syllabus",
+          "seriesId": "series-1"
+        },
+        {
+          "id": "series-1-2026-10-28",
+          "courseSlug": "phil-198",
+          "kind": "class",
+          "title": "Philosophy 198 — Memory",
+          "startsAt": "2026-10-28T11:00:00",
+          "endsAt": "2026-10-28T12:15:00",
+          "location": "Kravis 321",
+          "generatedBy": "syllabus",
+          "seriesId": "series-1"
+        },
+        {
+          "id": "series-1-2026-11-02",
+          "courseSlug": "phil-198",
+          "kind": "class",
+          "title": "Philosophy 198 — Memory",
+          "startsAt": "2026-11-02T11:00:00",
+          "endsAt": "2026-11-02T12:15:00",
+          "location": "Kravis 321",
+          "generatedBy": "syllabus",
+          "seriesId": "series-1"
+        },
+        {
+          "id": "series-1-2026-11-04",
+          "courseSlug": "phil-198",
+          "kind": "class",
+          "title": "Philosophy 198 — Memory",
+          "startsAt": "2026-11-04T11:00:00",
+          "endsAt": "2026-11-04T12:15:00",
+          "location": "Kravis 321",
+          "generatedBy": "syllabus",
+          "seriesId": "series-1"
+        },
+        {
+          "id": "series-1-2026-11-09",
+          "courseSlug": "phil-198",
+          "kind": "class",
+          "title": "Philosophy 198 — Memory",
+          "startsAt": "2026-11-09T11:00:00",
+          "endsAt": "2026-11-09T12:15:00",
+          "location": "Kravis 321",
+          "generatedBy": "syllabus",
+          "seriesId": "series-1"
+        },
+        {
+          "id": "series-1-2026-11-11",
+          "courseSlug": "phil-198",
+          "kind": "class",
+          "title": "Philosophy 198 — Memory",
+          "startsAt": "2026-11-11T11:00:00",
+          "endsAt": "2026-11-11T12:15:00",
+          "location": "Kravis 321",
+          "generatedBy": "syllabus",
+          "seriesId": "series-1"
+        },
+        {
+          "id": "series-1-2026-11-16",
+          "courseSlug": "phil-198",
+          "kind": "class",
+          "title": "Philosophy 198 — Memory",
+          "startsAt": "2026-11-16T11:00:00",
+          "endsAt": "2026-11-16T12:15:00",
+          "location": "Kravis 321",
+          "generatedBy": "syllabus",
+          "seriesId": "series-1"
+        },
+        {
+          "id": "series-1-2026-11-18",
+          "courseSlug": "phil-198",
+          "kind": "class",
+          "title": "Philosophy 198 — Memory",
+          "startsAt": "2026-11-18T11:00:00",
+          "endsAt": "2026-11-18T12:15:00",
+          "location": "Kravis 321",
+          "generatedBy": "syllabus",
+          "seriesId": "series-1"
+        },
+        {
+          "id": "series-1-2026-11-23",
+          "courseSlug": "phil-198",
+          "kind": "class",
+          "title": "Philosophy 198 — Memory",
+          "startsAt": "2026-11-23T11:00:00",
+          "endsAt": "2026-11-23T12:15:00",
+          "location": "Kravis 321",
+          "generatedBy": "syllabus",
+          "seriesId": "series-1"
+        },
+        {
+          "id": "series-1-2026-11-25",
+          "courseSlug": "phil-198",
+          "kind": "class",
+          "title": "Philosophy 198 — Memory",
+          "startsAt": "2026-11-25T11:00:00",
+          "endsAt": "2026-11-25T12:15:00",
+          "location": "Kravis 321",
+          "generatedBy": "syllabus",
+          "seriesId": "series-1"
+        },
+        {
+          "id": "series-1-2026-11-30",
+          "courseSlug": "phil-198",
+          "kind": "class",
+          "title": "Philosophy 198 — Memory",
+          "startsAt": "2026-11-30T11:00:00",
+          "endsAt": "2026-11-30T12:15:00",
+          "location": "Kravis 321",
+          "generatedBy": "syllabus",
+          "seriesId": "series-1"
+        },
+        {
+          "id": "series-1-2026-12-02",
+          "courseSlug": "phil-198",
+          "kind": "class",
+          "title": "Philosophy 198 — Memory",
+          "startsAt": "2026-12-02T11:00:00",
+          "endsAt": "2026-12-02T12:15:00",
+          "location": "Kravis 321",
+          "generatedBy": "syllabus",
+          "seriesId": "series-1"
+        },
+        {
+          "id": "series-1-2026-12-07",
+          "courseSlug": "phil-198",
+          "kind": "class",
+          "title": "Philosophy 198 — Memory",
+          "startsAt": "2026-12-07T11:00:00",
+          "endsAt": "2026-12-07T12:15:00",
+          "location": "Kravis 321",
+          "generatedBy": "syllabus",
+          "seriesId": "series-1"
+        },
+        {
+          "id": "series-1-2026-12-09",
+          "courseSlug": "phil-198",
+          "kind": "class",
+          "title": "Philosophy 198 — Memory",
+          "startsAt": "2026-12-09T11:00:00",
+          "endsAt": "2026-12-09T12:15:00",
+          "location": "Kravis 321",
+          "generatedBy": "syllabus",
+          "seriesId": "series-1"
+        },
+        {
+          "id": "series-1-2026-12-14",
+          "courseSlug": "phil-198",
+          "kind": "class",
+          "title": "Philosophy 198 — Memory",
+          "startsAt": "2026-12-14T11:00:00",
+          "endsAt": "2026-12-14T12:15:00",
+          "location": "Kravis 321",
+          "generatedBy": "syllabus",
+          "seriesId": "series-1"
+        },
+        {
+          "id": "series-1-2026-12-16",
+          "courseSlug": "phil-198",
+          "kind": "class",
+          "title": "Philosophy 198 — Memory",
+          "startsAt": "2026-12-16T11:00:00",
+          "endsAt": "2026-12-16T12:15:00",
+          "location": "Kravis 321",
+          "generatedBy": "syllabus",
+          "seriesId": "series-1"
+        },
+        {
+          "id": "series-2-2026-09-07",
+          "courseSlug": "phil-198",
+          "kind": "office-hours",
+          "title": "Office Hours — Professor Amy Kind",
+          "startsAt": "2026-09-07T13:30:00",
+          "endsAt": "2026-09-07T15:30:00",
+          "location": "Kravis 282",
+          "generatedBy": "syllabus",
+          "seriesId": "series-2"
+        },
+        {
+          "id": "series-2-2026-09-14",
+          "courseSlug": "phil-198",
+          "kind": "office-hours",
+          "title": "Office Hours — Professor Amy Kind",
+          "startsAt": "2026-09-14T13:30:00",
+          "endsAt": "2026-09-14T15:30:00",
+          "location": "Kravis 282",
+          "generatedBy": "syllabus",
+          "seriesId": "series-2"
+        },
+        {
+          "id": "series-2-2026-09-21",
+          "courseSlug": "phil-198",
+          "kind": "office-hours",
+          "title": "Office Hours — Professor Amy Kind",
+          "startsAt": "2026-09-21T13:30:00",
+          "endsAt": "2026-09-21T15:30:00",
+          "location": "Kravis 282",
+          "generatedBy": "syllabus",
+          "seriesId": "series-2"
+        },
+        {
+          "id": "series-2-2026-09-28",
+          "courseSlug": "phil-198",
+          "kind": "office-hours",
+          "title": "Office Hours — Professor Amy Kind",
+          "startsAt": "2026-09-28T13:30:00",
+          "endsAt": "2026-09-28T15:30:00",
+          "location": "Kravis 282",
+          "generatedBy": "syllabus",
+          "seriesId": "series-2"
+        },
+        {
+          "id": "series-2-2026-10-05",
+          "courseSlug": "phil-198",
+          "kind": "office-hours",
+          "title": "Office Hours — Professor Amy Kind",
+          "startsAt": "2026-10-05T13:30:00",
+          "endsAt": "2026-10-05T15:30:00",
+          "location": "Kravis 282",
+          "generatedBy": "syllabus",
+          "seriesId": "series-2"
+        },
+        {
+          "id": "series-2-2026-10-12",
+          "courseSlug": "phil-198",
+          "kind": "office-hours",
+          "title": "Office Hours — Professor Amy Kind",
+          "startsAt": "2026-10-12T13:30:00",
+          "endsAt": "2026-10-12T15:30:00",
+          "location": "Kravis 282",
+          "generatedBy": "syllabus",
+          "seriesId": "series-2"
+        },
+        {
+          "id": "series-2-2026-10-19",
+          "courseSlug": "phil-198",
+          "kind": "office-hours",
+          "title": "Office Hours — Professor Amy Kind",
+          "startsAt": "2026-10-19T13:30:00",
+          "endsAt": "2026-10-19T15:30:00",
+          "location": "Kravis 282",
+          "generatedBy": "syllabus",
+          "seriesId": "series-2"
+        },
+        {
+          "id": "series-2-2026-10-26",
+          "courseSlug": "phil-198",
+          "kind": "office-hours",
+          "title": "Office Hours — Professor Amy Kind",
+          "startsAt": "2026-10-26T13:30:00",
+          "endsAt": "2026-10-26T15:30:00",
+          "location": "Kravis 282",
+          "generatedBy": "syllabus",
+          "seriesId": "series-2"
+        },
+        {
+          "id": "series-2-2026-11-02",
+          "courseSlug": "phil-198",
+          "kind": "office-hours",
+          "title": "Office Hours — Professor Amy Kind",
+          "startsAt": "2026-11-02T13:30:00",
+          "endsAt": "2026-11-02T15:30:00",
+          "location": "Kravis 282",
+          "generatedBy": "syllabus",
+          "seriesId": "series-2"
+        },
+        {
+          "id": "series-2-2026-11-09",
+          "courseSlug": "phil-198",
+          "kind": "office-hours",
+          "title": "Office Hours — Professor Amy Kind",
+          "startsAt": "2026-11-09T13:30:00",
+          "endsAt": "2026-11-09T15:30:00",
+          "location": "Kravis 282",
+          "generatedBy": "syllabus",
+          "seriesId": "series-2"
+        },
+        {
+          "id": "series-2-2026-11-16",
+          "courseSlug": "phil-198",
+          "kind": "office-hours",
+          "title": "Office Hours — Professor Amy Kind",
+          "startsAt": "2026-11-16T13:30:00",
+          "endsAt": "2026-11-16T15:30:00",
+          "location": "Kravis 282",
+          "generatedBy": "syllabus",
+          "seriesId": "series-2"
+        },
+        {
+          "id": "series-2-2026-11-23",
+          "courseSlug": "phil-198",
+          "kind": "office-hours",
+          "title": "Office Hours — Professor Amy Kind",
+          "startsAt": "2026-11-23T13:30:00",
+          "endsAt": "2026-11-23T15:30:00",
+          "location": "Kravis 282",
+          "generatedBy": "syllabus",
+          "seriesId": "series-2"
+        },
+        {
+          "id": "series-2-2026-11-30",
+          "courseSlug": "phil-198",
+          "kind": "office-hours",
+          "title": "Office Hours — Professor Amy Kind",
+          "startsAt": "2026-11-30T13:30:00",
+          "endsAt": "2026-11-30T15:30:00",
+          "location": "Kravis 282",
+          "generatedBy": "syllabus",
+          "seriesId": "series-2"
+        },
+        {
+          "id": "series-2-2026-12-07",
+          "courseSlug": "phil-198",
+          "kind": "office-hours",
+          "title": "Office Hours — Professor Amy Kind",
+          "startsAt": "2026-12-07T13:30:00",
+          "endsAt": "2026-12-07T15:30:00",
+          "location": "Kravis 282",
+          "generatedBy": "syllabus",
+          "seriesId": "series-2"
+        },
+        {
+          "id": "series-2-2026-12-14",
+          "courseSlug": "phil-198",
+          "kind": "office-hours",
+          "title": "Office Hours — Professor Amy Kind",
+          "startsAt": "2026-12-14T13:30:00",
+          "endsAt": "2026-12-14T15:30:00",
+          "location": "Kravis 282",
+          "generatedBy": "syllabus",
+          "seriesId": "series-2"
+        },
+        {
+          "id": "oneoff-1",
+          "courseSlug": "phil-198",
+          "kind": "class",
+          "title": "In-Class Writing Assignment 1",
+          "startsAt": "2026-09-30T11:00",
+          "endsAt": "2026-09-30T12:15",
+          "location": "Kravis 321",
+          "generatedBy": "syllabus"
+        },
+        {
+          "id": "oneoff-2",
+          "courseSlug": "phil-198",
+          "kind": "class",
+          "title": "Guest Speaker: Professor Basu — 'The Importance of Forgetting'",
+          "startsAt": "2026-10-26T11:00",
+          "endsAt": "2026-10-26T12:15",
+          "location": "Kravis 321",
+          "generatedBy": "syllabus"
+        },
+        {
+          "id": "oneoff-3",
+          "courseSlug": "phil-198",
+          "kind": "class",
+          "title": "Ath Dinner with Professor Sharda Umanath",
+          "startsAt": "2026-11-12T17:30",
+          "endsAt": "2026-11-12T20:00",
+          "location": "Athenaeum",
+          "generatedBy": "syllabus"
+        },
+        {
+          "id": "oneoff-4",
+          "courseSlug": "phil-198",
+          "kind": "class",
+          "title": "Final Exam — In-Class Writing Assignment 2",
+          "startsAt": "2026-12-18T09:00",
+          "endsAt": "2026-12-18T11:00",
+          "location": "Kravis 321",
+          "generatedBy": "syllabus"
+        },
+        {
+          "id": "due-ASG-1",
+          "courseSlug": "phil-198",
+          "kind": "exam",
+          "title": "In-Class Writing Assignment 1",
+          "startsAt": "2026-09-30",
+          "endsAt": "2026-09-30",
+          "assignmentId": "ASG-1",
+          "generatedBy": "syllabus"
+        },
+        {
+          "id": "due-ASG-2",
+          "courseSlug": "phil-198",
+          "kind": "exam",
+          "title": "In-Class Writing Assignment 2 (Final)",
+          "startsAt": "2026-12-18T09:00:00",
+          "endsAt": "2026-12-18T09:00:00",
+          "assignmentId": "ASG-2",
+          "generatedBy": "syllabus"
+        },
+        {
+          "id": "due-ASG-7",
+          "courseSlug": "phil-198",
+          "kind": "deadline",
+          "title": "Ath Dinner and Critical Response Paper",
+          "startsAt": "2026-11-12T20:00:00",
+          "endsAt": "2026-11-12T20:00:00",
+          "assignmentId": "ASG-7",
+          "generatedBy": "syllabus"
+        },
+        {
+          "id": "due-ASG-8",
+          "courseSlug": "phil-198",
+          "kind": "deadline",
+          "title": "Guest Speaker Critical Response Paper",
+          "startsAt": "2026-10-26",
+          "endsAt": "2026-10-26",
+          "assignmentId": "ASG-8",
+          "generatedBy": "syllabus"
+        },
+        {
+          "id": "due-ASG-9",
+          "courseSlug": "phil-198",
+          "kind": "deadline",
+          "title": "Extra Credit: Memory Meme/Joke Submission",
+          "startsAt": "2026-09-02",
+          "endsAt": "2026-09-02",
+          "assignmentId": "ASG-9",
+          "generatedBy": "syllabus"
+        }
+      ],
+      "tasks": [
+        {
+          "key": "ING-1",
+          "title": "Complete In-Class Writing Assignment 1",
+          "status": "todo",
+          "description": "First in-class writing assignment using Electronic Bluebook Software, worth 100 points.",
+          "course": "PHIL 198",
+          "courseSlug": "phil-198",
+          "assignment": "In-Class Writing Assignment 1",
+          "assignmentId": "ASG-1",
+          "dueAt": "2026-09-30",
+          "due": "Sep 30",
+          "children": [
+            {
+              "key": "ING-1-1",
+              "title": "Install Electronic Bluebook Software",
+              "status": "todo",
+              "description": "Ensure laptop is set up and software works before exam day.",
+              "course": "PHIL 198",
+              "courseSlug": "phil-198",
+              "assignment": "In-Class Writing Assignment 1",
+              "assignmentId": "ASG-1"
+            },
+            {
+              "key": "ING-1-2",
+              "title": "Review course material to date",
+              "status": "todo",
+              "description": "Go over readings and notes from weeks prior to Sept. 30.",
+              "course": "PHIL 198",
+              "courseSlug": "phil-198",
+              "assignment": "In-Class Writing Assignment 1",
+              "assignmentId": "ASG-1"
+            }
+          ]
+        },
+        {
+          "key": "ING-2",
+          "title": "Prepare and deliver in-class presentation",
+          "status": "todo",
+          "description": "15-minute in-class presentation on assigned date, worth 80 points.",
+          "course": "PHIL 198",
+          "courseSlug": "phil-198",
+          "assignment": "Presentation",
+          "assignmentId": "ASG-3",
+          "children": [
+            {
+              "key": "ING-2-1",
+              "title": "Choose topic and research",
+              "status": "todo",
+              "description": "Select presentation topic once details are released in mid-September.",
+              "course": "PHIL 198",
+              "courseSlug": "phil-198",
+              "assignment": "Presentation",
+              "assignmentId": "ASG-3"
+            },
+            {
+              "key": "ING-2-2",
+              "title": "Draft presentation outline",
+              "status": "todo",
+              "description": "Organize key points and structure for the talk.",
+              "course": "PHIL 198",
+              "courseSlug": "phil-198",
+              "assignment": "Presentation",
+              "assignmentId": "ASG-3"
+            },
+            {
+              "key": "ING-2-3",
+              "title": "Practice delivery",
+              "status": "todo",
+              "description": "Rehearse timing to fit 15-minute limit.",
+              "course": "PHIL 198",
+              "courseSlug": "phil-198",
+              "assignment": "Presentation",
+              "assignmentId": "ASG-3"
+            }
+          ]
+        },
+        {
+          "key": "ING-3",
+          "title": "Write critical response papers for peer presentations",
+          "status": "todo",
+          "description": "Submit critical response papers for three other students' presentations, 20 points each.",
+          "course": "PHIL 198",
+          "courseSlug": "phil-198",
+          "children": [
+            {
+              "key": "ING-3-1",
+              "title": "Attend and take notes on peer presentations",
+              "status": "todo",
+              "description": "Record key arguments and questions during each presentation.",
+              "course": "PHIL 198",
+              "courseSlug": "phil-198"
+            },
+            {
+              "key": "ING-3-2",
+              "title": "Draft response paper",
+              "status": "todo",
+              "description": "Write critical analysis for each selected presentation.",
+              "course": "PHIL 198",
+              "courseSlug": "phil-198"
+            }
+          ]
+        },
+        {
+          "key": "ING-4",
+          "title": "Attend Ath Dinner and write response paper",
+          "status": "todo",
+          "description": "Mandatory class dinner featuring Professor Sharda Umanath's talk, followed by a response paper worth 20 points.",
+          "course": "PHIL 198",
+          "courseSlug": "phil-198",
+          "assignment": "Ath Dinner and Critical Response Paper",
+          "assignmentId": "ASG-7",
+          "dueAt": "2026-11-12",
+          "due": "Nov 12",
+          "children": [
+            {
+              "key": "ING-4-1",
+              "title": "Attend Ath Dinner",
+              "status": "todo",
+              "description": "Mandatory attendance Thursday, Nov. 12, 5:30–8 pm.",
+              "course": "PHIL 198",
+              "courseSlug": "phil-198",
+              "assignment": "Ath Dinner and Critical Response Paper",
+              "assignmentId": "ASG-7"
+            },
+            {
+              "key": "ING-4-2",
+              "title": "Draft response paper",
+              "status": "todo",
+              "description": "Address content and themes of Professor Umanath's talk.",
+              "course": "PHIL 198",
+              "courseSlug": "phil-198",
+              "assignment": "Ath Dinner and Critical Response Paper",
+              "assignmentId": "ASG-7"
+            }
+          ]
+        },
+        {
+          "key": "ING-5",
+          "title": "Write critical response paper on guest speaker discussion",
+          "status": "todo",
+          "description": "Response paper addressing discussion with Professor Basu on her paper 'The Importance of Forgetting,' worth 20 points.",
+          "course": "PHIL 198",
+          "courseSlug": "phil-198",
+          "assignment": "Guest Speaker Critical Response Paper",
+          "assignmentId": "ASG-8",
+          "dueAt": "2026-10-26",
+          "due": "Oct 26",
+          "children": [
+            {
+              "key": "ING-5-1",
+              "title": "Read 'The Importance of Forgetting'",
+              "status": "todo",
+              "description": "Complete assigned reading before Oct. 26 class.",
+              "course": "PHIL 198",
+              "courseSlug": "phil-198",
+              "assignment": "Guest Speaker Critical Response Paper",
+              "assignmentId": "ASG-8"
+            },
+            {
+              "key": "ING-5-2",
+              "title": "Draft response paper",
+              "status": "todo",
+              "description": "Reflect on discussion and Q&A with Professor Basu.",
+              "course": "PHIL 198",
+              "courseSlug": "phil-198",
+              "assignment": "Guest Speaker Critical Response Paper",
+              "assignmentId": "ASG-8"
+            }
+          ]
+        },
+        {
+          "key": "ING-6",
+          "title": "Complete In-Class Writing Assignment 2 (Final Exam)",
+          "status": "todo",
+          "description": "Second in-class writing assignment during scheduled final exam time, worth 120 points.",
+          "course": "PHIL 198",
+          "courseSlug": "phil-198",
+          "dueAt": "2026-12-18T09:00:00",
+          "due": "Dec 18",
+          "children": [
+            {
+              "key": "ING-6-1",
+              "title": "Review full semester material",
+              "status": "todo",
+              "description": "Study all readings, notes, and discussions from the course.",
+              "course": "PHIL 198",
+              "courseSlug": "phil-198"
+            },
+            {
+              "key": "ING-6-2",
+              "title": "Confirm Bluebook software setup",
+              "status": "todo",
+              "description": "Test software again before final exam period.",
+              "course": "PHIL 198",
+              "courseSlug": "phil-198"
+            }
+          ]
+        }
+      ],
+      "warnings": [
+        {
+          "severity": "warn",
+          "field": "course.termStartsAt",
+          "message": "Add term start and end dates so class meetings can be placed on the calendar."
+        }
+      ],
+      "recurrence": [
+        {
+          "kind": "class",
+          "title": "Philosophy 198 — Memory",
+          "days": [
+            1,
+            3
+          ],
+          "start": "11:00",
+          "end": "12:15",
+          "location": "Kravis 321",
+          "skipDates": []
+        },
+        {
+          "kind": "office-hours",
+          "title": "Office Hours — Professor Amy Kind",
+          "days": [
+            1
+          ],
+          "start": "13:30",
+          "end": "15:30",
+          "location": "Kravis 282",
+          "skipDates": []
+        }
+      ]
+    },
+    "appliedAt": "2026-09-05T03:46:48.417Z"
+  }
+]

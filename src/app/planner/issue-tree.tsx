@@ -172,9 +172,9 @@ function Row({
           </span>
         ) : null}
 
-        {issue.project ? (
+        {issue.artifact ? (
           <span className="max-w-[120px] shrink-0 truncate text-[11.5px] leading-4 text-[#9A9A98]">
-            {issue.project}
+            {issue.artifact}
           </span>
         ) : null}
 

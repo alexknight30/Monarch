@@ -2,11 +2,9 @@
 
 import { Suspense, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import {
-  ChatHistoryPane,
-  HistoryButton,
-} from "@/components/chat-history-pane";
+import { ChatHistoryPane } from "@/components/chat-history-pane";
 import { AIChatInput } from "@/components/ui/ai-chat-input";
+import { HistoryIcon } from "@/components/ui/history";
 import {
   getActiveChatId,
   getChatThread,
@@ -15,12 +13,13 @@ import {
   type ChatThread,
 } from "@/lib/chat-history";
 import { QUICK_ACTIONS } from "@/lib/mock-data";
+import { setPendingChat } from "@/lib/pending-chat";
 import { useViewDataset } from "@/components/view-provider";
 
 const iconProps = {
   fill: "none",
-  stroke: "#3D3D3D",
-  strokeWidth: 1.7,
+  stroke: "#1A1A1A",
+  strokeWidth: 1.5,
   strokeLinecap: "round" as const,
   strokeLinejoin: "round" as const,
 };
@@ -58,25 +57,35 @@ function ActionIcon({ name }: { name: (typeof QUICK_ACTIONS)[number]["icon"] }) 
     case "upload":
       return (
         <svg width="15" height="15" viewBox="0 0 24 24" className="shrink-0">
-          <rect x="3" y="3" width="18" height="18" rx="4" {...iconProps} />
+          <rect x="3" y="3" width="18" height="18" {...iconProps} />
           <path d="M3 14h4l1.5 2.5h7L17 14h4" {...iconProps} />
         </svg>
       );
   }
 }
 
+const HOME_PILLS = QUICK_ACTIONS.filter((action) =>
+  ["New study guide", "Practice quiz", "Office hours"].includes(action.label),
+);
+
+const HOME_PILL_PROMPTS: Record<string, string> = {
+  "New study guide": "Make me a study guide",
+  "Practice quiz": "Create a practice quiz",
+  "Office hours": "When are office hours?",
+};
+
 function HomeScreen() {
   const router = useRouter();
   const searchParams = useSearchParams();
   // Logo uses /?home=1 so we always show the landing, even from an open chat.
   const forceLanding = searchParams.get("home") === "1";
-  const { user, homeStats } = useViewDataset();
+  const { user } = useViewDataset();
   const [historyOpen, setHistoryOpen] = useState(false);
   const [threads, setThreads] = useState<ChatThread[]>([]);
   const [activeId, setActiveId] = useState<string | null>(null);
   const [ready, setReady] = useState(false);
 
-  // Resume the last chat when using the Home nav item — not the logo.
+  // Resume the last chat when using the Chat nav item — not the logo.
   useEffect(() => {
     if (forceLanding) {
       setActiveChatId(null);
@@ -106,97 +115,77 @@ function HomeScreen() {
     <div className="flex h-full min-h-0 flex-1 bg-white">
       <div className="relative min-w-0 flex-1 overflow-y-auto">
         {!historyOpen ? (
-          <div className="absolute top-[88px] right-6 z-10 flex h-12 items-center">
-            <HistoryButton
-              onClick={() => {
-                setThreads(listChatThreads());
-                setActiveId(getActiveChatId());
-                setHistoryOpen(true);
-              }}
-            />
-          </div>
+          <button
+            type="button"
+            aria-label="Chat history"
+            onClick={() => {
+              setThreads(listChatThreads());
+              setActiveId(getActiveChatId());
+              setHistoryOpen(true);
+            }}
+            className="absolute top-10 right-7 z-10 flex size-11 cursor-pointer items-center justify-center rounded-md text-[#1A1A1A] transition-colors hover:bg-[#FAFAFA]"
+          >
+            <HistoryIcon size={20} />
+          </button>
         ) : null}
 
-        <div className="flex flex-col items-center pt-[88px] pb-16">
-          {/* Greeting */}
+        <div className="flex min-h-full flex-col items-center pt-[156px] pb-14">
           <div className="flex flex-col items-center gap-3.5">
             <div className="flex items-baseline gap-3">
-              <h1 className="font-display text-[40px] leading-[48px] tracking-[-0.015em] text-[#0A0A0A]">
+              <h1 className="[font-family:var(--font-neuton),Georgia,serif] text-[55px] leading-[64px] tracking-[-0.015em] text-[#1A1A1A]">
                 Good afternoon,
               </h1>
-              <span className="font-display text-[40px] leading-[48px] tracking-[-0.015em] text-[#A0A0A0]">
+              <span className="[font-family:var(--font-neuton),Georgia,serif] text-[55px] leading-[64px] tracking-[-0.015em] text-[#B3AFA5]">
                 {user.firstName}
               </span>
             </div>
-            <p className="text-sm leading-5 text-[#6B6B6B]">
+            <p className="text-xl leading-5 text-[#6B675F]">
               What are we working on today?
             </p>
           </div>
 
-          {/* Carousel dots */}
-          <div className="flex items-center gap-[7px] pt-[26px] pb-10">
-            {[0, 1, 2, 3, 4].map((i) => (
-              <span
-                key={i}
-                className={`h-0.5 w-[17px] shrink-0 rounded-sm ${
-                  i === 3 ? "bg-[#9A9A9A]" : "bg-[#E2E2E2]"
-                }`}
-              />
-            ))}
-          </div>
-
-          {/* Composer */}
-          <div className="w-[732px]">
+          <div className="mt-auto flex w-[732px] flex-col items-center">
             <AIChatInput
               onSubmit={(value, meta) => {
+                if (meta?.files?.length) {
+                  setPendingChat({
+                    text: value,
+                    skill: meta.skill,
+                    files: meta.files,
+                  });
+                  router.push("/chat");
+                  return;
+                }
                 const params = new URLSearchParams();
                 if (value) params.set("q", value);
                 if (meta?.skill) params.set("skill", meta.skill.command);
                 router.push(`/chat?${params.toString()}`);
               }}
-            />
-          </div>
-
-          {/* Quick actions */}
-          <div className="flex items-center justify-center gap-3 pt-11">
-            {QUICK_ACTIONS.map((action) => (
-              <button
-                key={action.label}
-                type="button"
-                className="flex h-[34px] items-center gap-[7px] rounded-md border border-[#E6E6E6] bg-white px-3 transition-colors hover:bg-[#FAFAFA]"
-              >
-                <ActionIcon name={action.icon} />
-                <span className="text-[13px] leading-4 text-[#1A1A1A]">
-                  {action.label}
-                </span>
-              </button>
-            ))}
-          </div>
-
-          {/* Stats */}
-          <div className="grid w-[732px] grid-cols-3 gap-3 pt-12">
-            {homeStats.map((stat) => (
-              <div
-                key={stat.label}
-                className="flex h-25 flex-col justify-between rounded-md border border-[#E6E6E6] bg-white p-[15px]"
-              >
-                <span className="text-[13px] leading-4 text-[#5E5E5E]">
-                  {stat.label}
-                </span>
-                <div className="flex items-baseline gap-1.5">
-                  <span
-                    className={`shrink-0 text-[22px] font-medium leading-7 tracking-[-0.02em] ${
-                      stat.muted ? "text-[#C4C4C4]" : "text-[#0A0A0A]"
-                    }`}
-                  >
-                    {stat.value}
-                  </span>
-                  <span className="text-xs leading-4 text-[#7A7A7A]">
-                    {stat.note}
-                  </span>
+              expandedRow={
+                <div className="flex items-center gap-2">
+                  {HOME_PILLS.map((action) => (
+                    <button
+                      key={action.label}
+                      type="button"
+                      onClick={(event) => {
+                        event.stopPropagation();
+                        const prompt =
+                          HOME_PILL_PROMPTS[action.label] ?? action.label;
+                        router.push(
+                          `/chat?q=${encodeURIComponent(prompt)}`,
+                        );
+                      }}
+                      className="flex h-[34px] cursor-pointer items-center gap-[7px] rounded-full border border-[#E6E6E6] bg-white px-3.5 transition-colors hover:bg-[#FAFAFA]"
+                    >
+                      <ActionIcon name={action.icon} />
+                      <span className="text-[13px] leading-4 text-[#1A1A1A]">
+                        {action.label}
+                      </span>
+                    </button>
+                  ))}
                 </div>
-              </div>
-            ))}
+              }
+            />
           </div>
         </div>
       </div>

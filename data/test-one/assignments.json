@@ -1,0 +1,199 @@
+[
+  {
+    "id": "ASG-1",
+    "courseSlug": "psyc-179",
+    "title": "Participation & Reading Responses",
+    "type": "discussion",
+    "dueAt": null,
+    "weight": 10,
+    "description": "Weekly 150-word reading responses due before class",
+    "source": {
+      "documentId": "DOC-3",
+      "quote": "Participation & Reading Responses 10% Weekly 150-word reading responses due before class",
+      "page": 1
+    },
+    "status": "upcoming"
+  },
+  {
+    "id": "ASG-2",
+    "courseSlug": "psyc-179",
+    "title": "Reading Response #1",
+    "type": "reading",
+    "dueAt": "2026-09-11",
+    "weight": null,
+    "description": "Reading response due Friday of Week 2",
+    "source": {
+      "documentId": "DOC-3",
+      "quote": "Reading response #1 due Fri",
+      "page": 3
+    },
+    "status": "upcoming"
+  },
+  {
+    "id": "ASG-3",
+    "courseSlug": "psyc-179",
+    "title": "Reading Response #2",
+    "type": "reading",
+    "dueAt": "2026-10-02",
+    "weight": null,
+    "description": "Reading response due Friday of Week 5",
+    "source": {
+      "documentId": "DOC-3",
+      "quote": "Reading response #2 due Fri",
+      "page": 3
+    },
+    "status": "upcoming"
+  },
+  {
+    "id": "ASG-4",
+    "courseSlug": "psyc-179",
+    "title": "Reading Response #3",
+    "type": "reading",
+    "dueAt": "2026-11-13",
+    "weight": null,
+    "description": "Reading response due Friday of Week 11",
+    "source": {
+      "documentId": "DOC-3",
+      "quote": "Reading response #3 due Fri",
+      "page": 3
+    },
+    "status": "upcoming"
+  },
+  {
+    "id": "ASG-5",
+    "courseSlug": "psyc-179",
+    "title": "Problem Sets (3)",
+    "type": "problem-set",
+    "dueAt": null,
+    "weight": 15,
+    "description": "Short quantitative/conceptual sets on memory, attention, and neuroimaging",
+    "source": {
+      "documentId": "DOC-3",
+      "quote": "Problem Sets (3) 15% Short quantitative/conceptual sets on memory, attention, and neuroimaging",
+      "page": 1
+    },
+    "status": "upcoming"
+  },
+  {
+    "id": "ASG-6",
+    "courseSlug": "psyc-179",
+    "title": "Problem Set 1",
+    "type": "problem-set",
+    "dueAt": "2026-09-25",
+    "weight": null,
+    "description": "Assigned Monday of Week 4, due Friday",
+    "source": {
+      "documentId": "DOC-3",
+      "quote": "Problem Set 1 assigned Mon, due Fri",
+      "page": 3
+    },
+    "status": "upcoming"
+  },
+  {
+    "id": "ASG-7",
+    "courseSlug": "psyc-179",
+    "title": "Problem Set 2",
+    "type": "problem-set",
+    "dueAt": "2026-10-30",
+    "weight": null,
+    "description": "Due Friday of Week 9",
+    "source": {
+      "documentId": "DOC-3",
+      "quote": "Problem Set 2 due Fri",
+      "page": 3
+    },
+    "status": "upcoming"
+  },
+  {
+    "id": "ASG-8",
+    "courseSlug": "psyc-179",
+    "title": "Problem Set 3",
+    "type": "problem-set",
+    "dueAt": "2026-12-04",
+    "weight": null,
+    "description": "Due Friday of Week 13",
+    "source": {
+      "documentId": "DOC-3",
+      "quote": "Problem Set 3 due Fri",
+      "page": 3
+    },
+    "status": "upcoming"
+  },
+  {
+    "id": "ASG-9",
+    "courseSlug": "psyc-179",
+    "title": "Midterm Exam",
+    "type": "exam",
+    "dueAt": "2026-10-09",
+    "weight": 20,
+    "description": "In-class midterm exam covering material through long-term memory systems",
+    "source": {
+      "documentId": "DOC-3",
+      "quote": "Midterm Exam: Fri, Oct 9",
+      "page": 3
+    },
+    "status": "upcoming"
+  },
+  {
+    "id": "ASG-10",
+    "courseSlug": "psyc-179",
+    "title": "Research Proposal, Stage 1 (topic + question)",
+    "type": "paper",
+    "dueAt": "2026-10-16",
+    "weight": null,
+    "description": "First stage of the original mini-study design; topic and research question",
+    "source": {
+      "documentId": "DOC-3",
+      "quote": "Research Proposal, Stage 1 (topic + question) due Fri",
+      "page": 3
+    },
+    "status": "upcoming"
+  },
+  {
+    "id": "ASG-11",
+    "courseSlug": "psyc-179",
+    "title": "Research Proposal, Stage 2 (full design)",
+    "type": "paper",
+    "dueAt": "2026-11-20",
+    "weight": 20,
+    "description": "Second and final stage of the original mini-study design, submitted in full",
+    "source": {
+      "documentId": "DOC-3",
+      "quote": "Research Proposal, Stage 2 (full design) due Fri",
+      "page": 3
+    },
+    "status": "upcoming"
+  },
+  {
+    "id": "ASG-12",
+    "courseSlug": "psyc-179",
+    "title": "Class Presentation",
+    "type": "presentation",
+    "dueAt": "2026-12-11",
+    "weight": 10,
+    "description": "10-minute presentation of research proposal during the final week of instruction",
+    "source": {
+      "documentId": "DOC-3",
+      "quote": "Class Presentations: Wed–Fri.",
+      "page": 3
+    },
+    "status": "upcoming",
+    "needsReview": true
+  },
+  {
+    "id": "ASG-13",
+    "courseSlug": "psyc-179",
+    "title": "Final Exam",
+    "type": "exam",
+    "dueAt": null,
+    "weight": 25,
+    "description": "Cumulative final exam scheduled during the Final Exam Period (Dec. 14–18); exact date/time to be assigned by Registrar",
+    "source": {
+      "documentId": "DOC-3",
+      "quote": "Cumulative final exam (date/time to be assigned by Registrar)",
+      "page": 4
+    },
+    "status": "upcoming",
+    "needsReview": true
+  }
+]

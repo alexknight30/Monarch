@@ -7,6 +7,7 @@ import LoginScreen from "./login-screen";
 
 /** The hidden view switcher stays reachable without signing in. */
 const UNGATED = ["/admin"];
+const AUTH_KEY = "monarch.signed-in";
 
 const BOOT_MS = 2500;
 const FADE_MS = 400;
@@ -14,17 +15,41 @@ const LOADER_SIZE = 112;
 
 type Boot = "idle" | "loading" | "fading" | "done";
 
+function readSignedIn() {
+  try {
+    return window.sessionStorage.getItem(AUTH_KEY) === "1";
+  } catch {
+    return false;
+  }
+}
+
+function persistSignedIn() {
+  try {
+    window.sessionStorage.setItem(AUTH_KEY, "1");
+  } catch {
+    /* private mode / blocked storage — stay in-memory for this visit */
+  }
+}
+
 /**
  * Gates the app behind the login screen.
  *
- * Auth lives in component state only — deliberately not localStorage or a
- * cookie — so a hard refresh or a first load always lands on login, and
- * client-side navigation within a session does not.
+ * Sign-in is kept in sessionStorage so a refresh stays in the app, while a
+ * new tab or a closed session still lands on login.
  */
 export default function LoginGate({ children }: { children: ReactNode }) {
   const [signedIn, setSignedIn] = useState(false);
   const [boot, setBoot] = useState<Boot>("idle");
+  const [ready, setReady] = useState(false);
   const pathname = usePathname();
+
+  useEffect(() => {
+    if (readSignedIn()) {
+      setSignedIn(true);
+      setBoot("done");
+    }
+    setReady(true);
+  }, []);
 
   useEffect(() => {
     if (boot !== "loading") return;
@@ -40,10 +65,15 @@ export default function LoginGate({ children }: { children: ReactNode }) {
 
   if (UNGATED.includes(pathname)) return <>{children}</>;
 
+  if (!ready) {
+    return <div className="flex h-full min-h-0 flex-1 bg-white" />;
+  }
+
   if (!signedIn) {
     return (
       <LoginScreen
         onSignIn={() => {
+          persistSignedIn();
           setSignedIn(true);
           setBoot("loading");
         }}

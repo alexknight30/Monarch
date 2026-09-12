@@ -1,0 +1,311 @@
+[
+  {
+    "kind": "document",
+    "slug": "orgo-ii-reaction-maps",
+    "title": "Orgo II Reaction Maps",
+    "shortTitle": "Orgo II Reaction Maps",
+    "course": "CHEM 122",
+    "due": "due next Sunday",
+    "status": "Draft",
+    "savedAt": "Saved just now",
+    "description": "Build and drill reaction mechanism maps for CHEM 122. Every answer should show the electron-pushing steps, not just the product.",
+    "createdBy": "Sam Levine",
+    "updated": "Just now",
+    "visibility": "Private",
+    "instructions": "Always draw the mechanism before naming the product. Use IUPAC names. When I get something wrong, ask me a leading question instead of correcting me outright.",
+    "context": [
+      {
+        "name": "CHEM 122 syllabus.pdf",
+        "meta": "PDF · 240 KB"
+      },
+      {
+        "name": "Carey Ch. 8–11 notes.md",
+        "meta": "Markdown · 18 KB"
+      },
+      {
+        "name": "Midterm 1 review key.pdf",
+        "meta": "PDF · 1.1 MB"
+      }
+    ],
+    "scheduled": [
+      {
+        "name": "Weekly mechanism drill",
+        "cadence": "Sundays · 7:00 PM"
+      }
+    ],
+    "chats": [
+      {
+        "title": "E1 vs E2 on secondary carbons",
+        "snippet": "Walk me through why heat favors E1 here…",
+        "when": "2 hours ago"
+      },
+      {
+        "title": "Grignard practice set",
+        "snippet": "Generate 10 problems from Ch. 10 at midterm difficulty.",
+        "when": "Yesterday"
+      },
+      {
+        "title": "Aldol condensation map",
+        "snippet": "Draw the full mechanism with electron arrows.",
+        "when": "5 days ago"
+      }
+    ],
+    "blocks": [
+      {
+        "id": "b1",
+        "text": "E1 vs E2 — quick map. Secondary alkyl halide + strong base + heat: watch the competition. Heat and a polar protic solvent tip toward E1; a bulky strong base tips toward E2."
+      },
+      {
+        "id": "b2",
+        "highlight": true,
+        "text": "For every product I write, show the electron-pushing steps first. Name the substrate and the leaving group before naming the alkene."
+      },
+      {
+        "id": "b3",
+        "text": "Open questions: when does rearrangement beat a clean E2 on a secondary carbon? Drill set for Sunday."
+      }
+    ],
+    "thread": [
+      {
+        "role": "user",
+        "content": "Why does heat favor E1 on a secondary carbon here?"
+      },
+      {
+        "role": "assistant",
+        "content": "Heat helps the unimolecular path because E1 has a higher activation energy to form the carbocation — once that barrier is cleared, entropy favors losing the leaving group and a proton. E2 still competes if the base is strong and unhindered; say which base you're using and we can weigh them.",
+        "sources": [
+          "Carey Ch. 8 — §8.5",
+          "Midterm 1 review key — Q4"
+        ]
+      }
+    ],
+    "bodyHtml": "<p>E1 vs E2 — quick map. Secondary alkyl halide + strong base + heat: watch the competition. Heat and a polar protic solvent tip toward E1; a bulky strong base tips toward E2.</p><p><mark data-color=\"#F1EFE7\" style=\"background-color: rgb(241, 239, 231); color: inherit;\">For every product I write, show the electron-pushing steps first. Name the substrate and the leaving group before naming the alkene.</mark></p><p>Open questions: when does rearrangement beat a clean E2 on a secondary carbon? Drill set for Sunday.</p>"
+  },
+  {
+    "kind": "paper",
+    "slug": "thesis-lit-review",
+    "title": "Thesis Lit Review",
+    "description": "Track sources for my senior thesis on municipal broadband. Keep a running annotated bibliography and flag contradicting findings.",
+    "createdBy": "Sam Levine",
+    "updated": "Jul 15",
+    "visibility": "Private",
+    "instructions": "Cite in Chicago notes-bibliography. Never summarize a source I haven't uploaded. Flag when two sources disagree and say how.",
+    "context": [
+      {
+        "name": "Annotated bibliography.docx",
+        "meta": "Word · 96 KB"
+      },
+      {
+        "name": "Crawford 2019 — Broadband.pdf",
+        "meta": "PDF · 3.4 MB"
+      }
+    ],
+    "scheduled": [],
+    "chats": [
+      {
+        "title": "Gaps in the 2018–2022 literature",
+        "snippet": "What hasn't been studied about rural rollout?",
+        "when": "Jul 15"
+      },
+      {
+        "title": "Chapter 2 outline",
+        "snippet": "Turn my notes into a five-section outline.",
+        "when": "Jul 9"
+      }
+    ]
+  },
+  {
+    "kind": "document",
+    "slug": "stat-140-problem-sets",
+    "title": "Stat 140 Problem Sets",
+    "shortTitle": "Stat 140 Problem Sets",
+    "course": "STAT 140",
+    "due": "due Thursday 4:00pm",
+    "status": "Draft",
+    "savedAt": "Saved Jun 15",
+    "description": "Weekly problem sets for Intro to Statistical Inference. Show the work, then check my answer against it.",
+    "createdBy": "Sam Levine",
+    "updated": "Jun 15",
+    "visibility": "Shared",
+    "instructions": "Solve it yourself first, then compare to my attempt and point at the exact step where I diverged.",
+    "context": [
+      {
+        "name": "STAT 140 problem set 7.pdf",
+        "meta": "PDF · 180 KB"
+      }
+    ],
+    "scheduled": [
+      {
+        "name": "Problem set check-in",
+        "cadence": "Thursdays · 4:00 PM"
+      }
+    ],
+    "chats": [
+      {
+        "title": "Confidence interval intuition",
+        "snippet": "Why isn't it a 95% chance the mean is in there?",
+        "when": "Jun 15"
+      }
+    ],
+    "blocks": [
+      {
+        "id": "b1",
+        "text": "Problem set 7 — confidence intervals. For each interval I build: state the parameter, the estimator, and whether I'm using z or t."
+      },
+      {
+        "id": "b2",
+        "text": "A 95% CI is not \"95% chance the mean is in this interval.\" It's: if we repeated the sampling process, 95% of such intervals would cover the true mean."
+      }
+    ],
+    "thread": []
+  },
+  {
+    "kind": "paper",
+    "slug": "gov-201-seminar-prep",
+    "title": "Gov 201 Seminar Prep",
+    "description": "Prep discussion questions and counterarguments before each Thursday seminar on comparative institutions.",
+    "createdBy": "Priya Raman",
+    "updated": "Apr 20",
+    "visibility": "Shared",
+    "instructions": null,
+    "context": [
+      {
+        "name": "Week 9 readings.pdf",
+        "meta": "PDF · 820 KB"
+      }
+    ],
+    "scheduled": [
+      {
+        "name": "Seminar prep",
+        "cadence": "Wednesdays · 8:00 PM"
+      }
+    ],
+    "chats": [
+      {
+        "title": "Steelman the federalist position",
+        "snippet": "Give me the strongest version of the argument.",
+        "when": "Apr 20"
+      }
+    ]
+  },
+  {
+    "kind": "document",
+    "slug": "marshall-plan-response",
+    "title": "The Marshall Plan and the limits of postwar generosity",
+    "shortTitle": "Response paper — Ch. 4",
+    "course": "HIST 210",
+    "due": "due Friday 5:00pm",
+    "status": "Draft",
+    "savedAt": "Saved 2 min ago",
+    "description": "HIST 210 response paper on the Marshall Plan's conditions and postwar cooperation.",
+    "createdBy": "Sam Levine",
+    "updated": "2 min ago",
+    "visibility": "Private",
+    "instructions": null,
+    "context": [],
+    "scheduled": [],
+    "chats": [],
+    "blocks": [
+      {
+        "id": "b1",
+        "text": "In the spring of 1947, Secretary of State George Marshall stood at Harvard and described a Europe that was, in his words, running out of the means to pay for what it needed to live. The speech is remembered as an act of generosity. It was also an act of accounting."
+      },
+      {
+        "id": "b2",
+        "text": "American factories had spent four years building for a war that had ended, and the countries best positioned to buy that output were the same countries least able to afford it. Aid solved a European problem and an American one at the same time, which is precisely why it passed a Congress that had spent the previous year cutting nearly everything else."
+      },
+      {
+        "id": "b3",
+        "highlight": true,
+        "text": "The plan's conditions mattered more than its dollars. Recipients had to open their books, coordinate purchasing, and settle on shared production targets — obligations that quietly rebuilt the habit of cooperation that the war had broken."
+      },
+      {
+        "id": "b4",
+        "text": "Whether that outcome was the point or the byproduct is still argued over, and the answer depends a great deal on"
+      }
+    ],
+    "thread": [
+      {
+        "role": "user",
+        "content": "Is this claim too strong without a source?"
+      },
+      {
+        "role": "assistant",
+        "content": "A little, yes. \"Quietly rebuilt the habit of cooperation\" is an interpretive claim, and right now it reads as settled fact.\n\nTwo of your assigned readings argue this directly — Hogan on the OEEC, and Milward's counterargument. Attributing it to them makes the sentence stronger, not weaker.",
+        "sources": [
+          "Hogan, ch. 3 — p. 88",
+          "Milward, ch. 1 — p. 12"
+        ]
+      }
+    ]
+  },
+  {
+    "kind": "document",
+    "slug": "cs-51-office-hours-notes",
+    "title": "CS 51 Office Hours Notes",
+    "shortTitle": "CS 51 OH Notes",
+    "course": "CS 51",
+    "due": "",
+    "status": "Draft",
+    "savedAt": "Saved Apr 1",
+    "description": "Turn messy office-hours scribbles into clean notes with runnable OCaml examples for each concept.",
+    "createdBy": "Sam Levine",
+    "updated": "Apr 1",
+    "visibility": "Private",
+    "instructions": "Every explanation gets a minimal runnable example. No pseudocode.",
+    "context": [],
+    "scheduled": [],
+    "chats": [],
+    "blocks": [
+      {
+        "id": "b1",
+        "text": "Fold vs. map — from OH. map preserves length; fold collapses a list into one value. Start every example with the type signature."
+      },
+      {
+        "id": "b2",
+        "text": "(* map: ('a -> 'b) -> 'a list -> 'b list *)\nlet rec map f = function\n  | [] -> []\n  | x :: xs -> f x :: map f xs"
+      }
+    ],
+    "thread": []
+  },
+  {
+    "kind": "document",
+    "slug": "spring-course-planning",
+    "title": "Spring Course Planning",
+    "shortTitle": "Spring Course Planning",
+    "course": "",
+    "due": "registration opens Mar 30",
+    "status": "Draft",
+    "savedAt": "Saved Mar 26",
+    "description": "Compare spring schedules against major requirements and flag conflicts before registration opens.",
+    "createdBy": "Sam Levine",
+    "updated": "Mar 26",
+    "visibility": "Private",
+    "instructions": "Check every proposal against the degree audit before recommending it.",
+    "context": [
+      {
+        "name": "Degree audit — Fall 2026.pdf",
+        "meta": "PDF · 210 KB"
+      }
+    ],
+    "scheduled": [],
+    "chats": [
+      {
+        "title": "Three schedules, ranked",
+        "snippet": "Build me options that all clear the major requirement.",
+        "when": "Mar 26"
+      }
+    ],
+    "blocks": [
+      {
+        "id": "b1",
+        "text": "Constraints: no Tuesday mornings, keep Wed free for lab, need one more elective toward the major."
+      },
+      {
+        "id": "b2",
+        "text": "Option A clears the audit with room for a language. Option B front-loads requirements. Option C is the stretch schedule — flag conflicts before recommending it."
+      }
+    ],
+    "thread": []
+  }
+]

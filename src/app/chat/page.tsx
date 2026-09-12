@@ -13,7 +13,11 @@ import {
   ChatHistoryPane,
   HistoryButton,
 } from "@/components/chat-history-pane";
+import { Button } from "@/components/ui/button";
 import { AIChatInput } from "@/components/ui/ai-chat-input";
+import { ChatAttachmentChips } from "@/components/ui/chat-attachment-chips";
+import { PlusSignIcon } from "@/components/ui/plus-sign";
+import { DiagramCard } from "@/components/ui/diagram-card";
 import { MermaidDiagram } from "@/components/ui/mermaid-diagram";
 import { ShiningText } from "@/components/ui/shining-text";
 import { ThinkingMark } from "@/components/ui/thinking-mark";
@@ -27,9 +31,29 @@ import {
   titleFromMessages,
   type ChatThread,
   type ChatTurn,
+  type SavedDiagram,
 } from "@/lib/chat-history";
+import {
+  parseDiagramBlock,
+  replaceDiagramBlock,
+  type DiagramDetail,
+  type DiagramSpec,
+} from "@/lib/diagram";
+import {
+  buildChatRequest,
+  contentForApi,
+  metaFromFile,
+} from "@/lib/chat-attachments";
+import { consumeChatSse } from "@/lib/chat-sse";
+import { takePendingChat } from "@/lib/pending-chat";
 import { getSkillByCommand, type Skill } from "@/lib/skills";
-import { useViewDataset } from "@/components/view-provider";
+import {
+  completeBlockCount,
+  splitContentBlocks,
+  StreamingBlocks,
+} from "@/components/ui/streaming-blocks";
+import { useViewDataset, useViewId } from "@/components/view-provider";
+import { reportCopy } from "@/lib/integrity";
 
 const FOLLOW_UP_PLACEHOLDERS = ["Ask a follow-up…"];
 
@@ -71,10 +95,30 @@ function renderInlineMarkdown(text: string) {
   });
 }
 
-/** Render markdown lines, mermaid fences, and `- item` bullet lists. */
-function renderMessageContent(text: string) {
+/**
+ * Diagram wiring for an assistant turn. Passed down so the card can report
+ * intent without knowing about routes or thread storage.
+ */
+type DiagramHandlers = {
+  savedDiagrams?: SavedDiagram[];
+  onSave?: (blockIndex: number, spec: DiagramSpec) => Promise<void>;
+  onChangeDetail?: (
+    blockIndex: number,
+    spec: DiagramSpec,
+    detail: DiagramDetail,
+  ) => Promise<void>;
+};
+
+/** Prose stays at reading width; diagrams get the full thread column. */
+const PROSE = "max-w-[640px]";
+
+/** Render markdown lines, diagram/mermaid fences, and `- item` bullet lists. */
+function renderMessageContent(text: string, handlers?: DiagramHandlers) {
   const lines = text.split("\n");
   const elements: ReactNode[] = [];
+  // Counts ```diagram fences in document order — must stay in step with
+  // replaceDiagramBlock in lib/diagram.ts, which scans the same way.
+  let diagramIndex = 0;
   let i = 0;
 
   while (i < lines.length) {
@@ -89,6 +133,35 @@ function renderMessageContent(text: string) {
       }
       if (i < lines.length) i += 1;
       const code = body.join("\n");
+
+      if (lang === "diagram") {
+        const blockIndex = diagramIndex;
+        diagramIndex += 1;
+        const spec = parseDiagramBlock(code);
+        if (spec) {
+          const saved = handlers?.savedDiagrams?.find(
+            (d) => d.blockIndex === blockIndex,
+          );
+          const onSave = handlers?.onSave;
+          const onChangeDetail = handlers?.onChangeDetail;
+          elements.push(
+            <DiagramCard
+              key={`dgm-${elements.length}`}
+              spec={spec}
+              savedSlug={saved?.slug ?? null}
+              onSave={onSave ? () => onSave(blockIndex, spec) : undefined}
+              onChangeDetail={
+                onChangeDetail
+                  ? (detail) => onChangeDetail(blockIndex, spec, detail)
+                  : undefined
+              }
+            />,
+          );
+          continue;
+        }
+        // Unparseable spec — fall through and show the raw block.
+      }
+
       if (lang === "mermaid") {
         elements.push(
           <MermaidDiagram key={`mmd-${elements.length}`} chart={code} />,
@@ -97,7 +170,7 @@ function renderMessageContent(text: string) {
         elements.push(
           <pre
             key={`code-${elements.length}`}
-            className="my-2 overflow-x-auto rounded-lg bg-[#F7F7F5] px-3 py-2 text-[13px] leading-5 text-[#0A0A0A]"
+            className={`my-2 overflow-x-auto rounded-lg bg-[#F7F7F5] px-3 py-2 text-[13px] leading-5 text-[#0A0A0A] ${PROSE}`}
           >
             {code}
           </pre>,
@@ -117,7 +190,7 @@ function renderMessageContent(text: string) {
       elements.push(
         <ul
           key={`ul-${elements.length}`}
-          className="my-1 list-disc space-y-1 pl-5 marker:text-[#0A0A0A]"
+          className={`my-1 list-disc space-y-1 pl-5 marker:text-[#0A0A0A] ${PROSE}`}
         >
           {items.map((item, j) => (
             <li key={j} className="pl-0.5 leading-[25px]">
@@ -143,7 +216,7 @@ function renderMessageContent(text: string) {
       elements.push(
         <span
           key={`text-${elements.length}`}
-          className="whitespace-pre-wrap"
+          className={`whitespace-pre-wrap ${PROSE}`}
         >
           {renderInlineMarkdown(chunkText)}
         </span>,
@@ -151,10 +224,37 @@ function renderMessageContent(text: string) {
     }
   }
 
-  return <div className="flex flex-col">{elements}</div>;
+  return <div className="flex w-full flex-col">{elements}</div>;
 }
 
-function LumisMark() {
+function handlersForBlock(
+  handlers: DiagramHandlers | undefined,
+  priorBlocks: string[],
+): DiagramHandlers | undefined {
+  if (!handlers) return undefined;
+  const offset = priorBlocks.reduce(
+    (count, block) =>
+      count + (block.match(/^```diagram\s*$/m) ? 1 : 0),
+    0,
+  );
+  return {
+    savedDiagrams: handlers.savedDiagrams
+      ?.filter((diagram) => diagram.blockIndex >= offset)
+      .map((diagram) => ({
+        ...diagram,
+        blockIndex: diagram.blockIndex - offset,
+      })),
+    onSave: handlers.onSave
+      ? (blockIndex, spec) => handlers.onSave!(blockIndex + offset, spec)
+      : undefined,
+    onChangeDetail: handlers.onChangeDetail
+      ? (blockIndex, spec, detail) =>
+          handlers.onChangeDetail!(blockIndex + offset, spec, detail)
+      : undefined,
+  };
+}
+
+function MonarchMark() {
   return (
     <svg width="17" height="17" viewBox="0 0 100 100" className="shrink-0">
       <path
@@ -169,11 +269,15 @@ function LumisMark() {
 
 function ChatScreen() {
   const { user } = useViewDataset();
+  const viewId = useViewId();
   const router = useRouter();
   const searchParams = useSearchParams();
   const initialPrompt = searchParams.get("q")?.trim() ?? "";
   const initialSkillCommand = searchParams.get("skill")?.trim() ?? "";
   const threadParam = searchParams.get("id")?.trim() ?? "";
+  const courseSlugParam = searchParams.get("course")?.trim() ?? "";
+  const courseCodeParam = searchParams.get("code")?.trim() ?? "";
+  const courseTitleParam = searchParams.get("title")?.trim() ?? "";
 
   const [threadId, setThreadId] = useState<string | null>(null);
   const [threadTitle, setThreadTitle] = useState("New chat");
@@ -182,6 +286,19 @@ function ChatScreen() {
   const [error, setError] = useState<string | null>(null);
   const [historyOpen, setHistoryOpen] = useState(false);
   const [threads, setThreads] = useState<ChatThread[]>([]);
+  const [course, setCourse] = useState<{
+    slug: string;
+    code: string;
+    title: string;
+  } | null>(() =>
+    courseSlugParam
+      ? {
+          slug: courseSlugParam,
+          code: courseCodeParam || courseSlugParam,
+          title: courseTitleParam,
+        }
+      : null,
+  );
 
   const endRef = useRef<HTMLDivElement>(null);
   const threadScrollRef = useRef<HTMLDivElement>(null);
@@ -227,6 +344,15 @@ function ChatScreen() {
     setThreadTitle(existing.title);
     setMessages(existing.messages);
     setError(null);
+    setCourse(
+      existing.courseSlug
+        ? {
+            slug: existing.courseSlug,
+            code: existing.courseCode || existing.courseSlug,
+            title: existing.courseTitle || "",
+          }
+        : null,
+    );
   }, [threadParam]);
 
   // Persist the active thread whenever messages / title change.
@@ -241,10 +367,17 @@ function ChatScreen() {
       updatedAt: Date.now(),
       titleGenerated:
         titleGeneratedRef.current || Boolean(previous?.titleGenerated),
+      ...(course
+        ? {
+            courseSlug: course.slug,
+            courseCode: course.code,
+            courseTitle: course.title,
+          }
+        : {}),
     });
     setActiveChatId(threadId);
     refreshThreads();
-  }, [threadId, threadTitle, messages, refreshThreads]);
+  }, [threadId, threadTitle, messages, course, refreshThreads]);
 
   // Keep resume pointer in sync when opening an existing thread from ?id=.
   useEffect(() => {
@@ -290,16 +423,22 @@ function ChatScreen() {
       history: ChatTurn[],
       existingId: string | null,
       skill?: Skill | null,
+      files?: File[],
     ) => {
       const displayText = skill
         ? text
           ? `/${skill.command} ${text}`
           : `/${skill.command}`
         : text;
+      const attachments = files?.length ? files.map(metaFromFile) : undefined;
 
       const nextMessages: ChatTurn[] = [
         ...history,
-        { role: "user", content: displayText },
+        {
+          role: "user",
+          content: displayText,
+          ...(attachments ? { attachments } : {}),
+        },
       ];
 
       const id = existingId ?? createThreadId();
@@ -309,7 +448,13 @@ function ChatScreen() {
         activeThreadRef.current = id;
         setThreadId(id);
         setThreadTitle(titleFromMessages(nextMessages));
-        router.replace(`/chat?id=${encodeURIComponent(id)}`);
+        const params = new URLSearchParams({ id });
+        if (course?.slug) {
+          params.set("course", course.slug);
+          if (course.code) params.set("code", course.code);
+          if (course.title) params.set("title", course.title);
+        }
+        router.replace(`/chat?${params.toString()}`);
       }
 
       setMessages(nextMessages);
@@ -317,39 +462,92 @@ function ChatScreen() {
       setIsLoading(true);
 
       try {
-        const res = await fetch("/api/chat", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            message: displayText,
-            messages: nextMessages,
-            skill: skill
-              ? {
-                  command: skill.command,
-                  prompt: skill.prompt,
+        const res = await fetch(
+          "/api/chat",
+          buildChatRequest(
+            {
+              message: contentForApi({
+                content: displayText,
+                attachments,
+              }),
+              messages: nextMessages.map((turn) => ({
+                role: turn.role,
+                content: contentForApi(turn),
+              })),
+              skill: skill
+                ? {
+                    command: skill.command,
+                    prompt: skill.prompt,
+                    toolName: skill.toolName,
+                  }
+                : undefined,
+              ...(course?.slug ? { courseSlug: course.slug } : {}),
+            },
+            files,
+          ),
+        );
+
+        const contentType = res.headers.get("content-type") ?? "";
+
+        if (!res.ok) {
+          const data = (await res.json().catch(() => ({}))) as { error?: string };
+          throw new Error(data.error || "Chat request failed.");
+        }
+
+        if (contentType.includes("text/event-stream")) {
+          let assembled = "";
+          await consumeChatSse(res, {
+            onDelta: (text) => {
+              assembled += text;
+              setMessages((prev) => {
+                const last = prev.at(-1);
+                if (last?.role === "assistant") {
+                  return [...prev.slice(0, -1), { ...last, content: assembled }];
                 }
-              : undefined,
-          }),
-        });
+                return [...prev, { role: "assistant", content: assembled }];
+              });
+            },
+            onDone: (meta) => {
+              if (meta.actions?.length) {
+                setMessages((prev) => {
+                  const last = prev.at(-1);
+                  if (last?.role !== "assistant") return prev;
+                  return [...prev.slice(0, -1), { ...last, actions: meta.actions }];
+                });
+              }
+            },
+          });
+          if (!assembled.trim()) throw new Error("Empty response from model.");
+          if (!titleGeneratedRef.current) {
+            void generateTitle(
+              id,
+              contentForApi({ content: displayText, attachments }),
+              assembled,
+            );
+          }
+        } else {
+          const data = (await res.json()) as {
+            message?: ChatTurn;
+            actions?: ChatTurn["actions"];
+            error?: string;
+          };
 
-        const data = (await res.json()) as {
-          message?: ChatTurn;
-          actions?: ChatTurn["actions"];
-          error?: string;
-        };
+          if (!data.message?.content) throw new Error("Empty response from model.");
 
-        if (!res.ok) throw new Error(data.error || "Chat request failed.");
-        if (!data.message?.content) throw new Error("Empty response from model.");
+          const reply = data.message.content;
+          const actions = data.actions?.length ? data.actions : undefined;
+          setMessages((prev) => [
+            ...prev,
+            { role: "assistant", content: reply, ...(actions ? { actions } : {}) },
+          ]);
 
-        const reply = data.message.content;
-        const actions = data.actions?.length ? data.actions : undefined;
-        setMessages((prev) => [
-          ...prev,
-          { role: "assistant", content: reply, ...(actions ? { actions } : {}) },
-        ]);
-
-        if (!titleGeneratedRef.current) {
-          void generateTitle(id, displayText, reply);
+          if (!titleGeneratedRef.current) {
+            void generateTitle(
+              id,
+              contentForApi({ content: displayText, attachments }),
+              reply,
+            );
+          }
         }
       } catch (err) {
         setError(err instanceof Error ? err.message : "Something went wrong.");
@@ -357,12 +555,24 @@ function ChatScreen() {
         setIsLoading(false);
       }
     },
-    [router, generateTitle],
+    [router, generateTitle, course],
   );
 
   // Fire the prompt carried over from the home composer.
   useEffect(() => {
     if (sentInitial.current || threadParam) return;
+    const pending = takePendingChat();
+    if (pending) {
+      sentInitial.current = true;
+      void send(
+        pending.text,
+        [],
+        null,
+        pending.skill ?? null,
+        pending.files,
+      );
+      return;
+    }
     if (!initialPrompt && !initialSkillCommand) return;
     sentInitial.current = true;
     const skill = initialSkillCommand
@@ -398,9 +608,24 @@ function ChatScreen() {
     setThreadTitle(existing.title);
     setMessages(existing.messages);
     setError(null);
+    setCourse(
+      existing.courseSlug
+        ? {
+            slug: existing.courseSlug,
+            code: existing.courseCode || existing.courseSlug,
+            title: existing.courseTitle || "",
+          }
+        : null,
+    );
     setHistoryOpen(false);
     setActiveChatId(existing.id);
-    router.replace(`/chat?id=${encodeURIComponent(id)}`);
+    const params = new URLSearchParams({ id });
+    if (existing.courseSlug) {
+      params.set("course", existing.courseSlug);
+      if (existing.courseCode) params.set("code", existing.courseCode);
+      if (existing.courseTitle) params.set("title", existing.courseTitle);
+    }
+    router.replace(`/chat?${params.toString()}`);
   };
 
   const startNewChat = () => {
@@ -415,6 +640,7 @@ function ChatScreen() {
     setError(null);
     setIsLoading(false);
     setHistoryOpen(false);
+    setCourse(null);
     setActiveChatId(null);
     router.replace("/chat");
   };
@@ -422,6 +648,117 @@ function ChatScreen() {
   const lastAssistantIndex = messages.reduce(
     (acc, msg, i) => (msg.role === "assistant" ? i : acc),
     -1,
+  );
+
+  useEffect(() => {
+    const onCopy = () => {
+      const selection = window.getSelection();
+      if (!selection || selection.isCollapsed) return;
+      const anchor = selection.anchorNode;
+      if (!anchor) return;
+      const el =
+        anchor instanceof Element ? anchor : anchor.parentElement;
+      const turn = el?.closest("[data-assistant-turn]");
+      if (!turn) return;
+      reportCopy(
+        viewId,
+        "chat",
+        turn.getAttribute("data-assistant-turn") ?? undefined,
+      );
+    };
+    document.addEventListener("copy", onCopy);
+    return () => document.removeEventListener("copy", onCopy);
+  }, [viewId]);
+
+  /**
+   * Promote a diagram to an artifact. The resulting slug is recorded on the turn
+   * so the button stays in its saved state across reloads instead of offering a
+   * duplicate save.
+   */
+  const saveDiagram = useCallback(
+    async (messageIndex: number, blockIndex: number, spec: DiagramSpec) => {
+      const res = await fetch(`/api/${viewId}/artifacts`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          kind: "diagram",
+          title: spec.title,
+          description: spec.caption,
+          spec,
+          source: {
+            ...(threadId ? { threadId } : {}),
+            threadTitle: threadTitle,
+          },
+        }),
+      });
+
+      const data = (await res.json().catch(() => ({}))) as {
+        artifact?: { slug: string };
+        error?: string;
+      };
+      if (!res.ok || !data.artifact?.slug) {
+        throw new Error(data.error || "Could not save this diagram.");
+      }
+
+      const slug = data.artifact.slug;
+      setMessages((prev) =>
+        prev.map((msg, i) => {
+          if (i !== messageIndex) return msg;
+          const rest = (msg.savedDiagrams ?? []).filter(
+            (d) => d.blockIndex !== blockIndex,
+          );
+          return { ...msg, savedDiagrams: [...rest, { blockIndex, slug }] };
+        }),
+      );
+    },
+    [viewId, threadId, threadTitle],
+  );
+
+  /**
+   * Re-render a diagram at a new depth via a real tool call, then swap the spec
+   * back into the message so the change persists with the thread.
+   */
+  const changeDiagramDetail = useCallback(
+    async (
+      messageIndex: number,
+      blockIndex: number,
+      spec: DiagramSpec,
+      detail: DiagramDetail,
+    ) => {
+      const source = messages[messageIndex]?.content ?? "";
+      const res = await fetch("/api/chat/diagram", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          spec,
+          detail,
+          // The caption gives the model the surrounding context without
+          // shipping the whole thread.
+          source: source.split("```")[0]?.trim() || undefined,
+        }),
+      });
+
+      const data = (await res.json().catch(() => ({}))) as {
+        spec?: DiagramSpec;
+        error?: string;
+      };
+      if (!res.ok || !data.spec) {
+        throw new Error(data.error || "Could not redraw this diagram.");
+      }
+
+      const next = data.spec;
+      setMessages((prev) =>
+        prev.map((msg, i) =>
+          i === messageIndex
+            ? {
+                ...msg,
+                content: replaceDiagramBlock(msg.content, blockIndex, next),
+              }
+            : msg,
+        ),
+      );
+    },
+    [messages],
   );
 
   return (
@@ -446,22 +783,10 @@ function ChatScreen() {
           </div>
           {!historyOpen && (
             <div className="flex shrink-0 items-center gap-2">
-              <button
-                type="button"
-                onClick={startNewChat}
-                className="flex h-[30px] items-center gap-1.5 rounded-md border border-[#E6E6E6] px-3 text-xs leading-4 font-medium text-[#3D3D3D] transition-colors hover:bg-[#FAFAFA]"
-              >
-                <svg width="13" height="13" viewBox="0 0 24 24" className="shrink-0">
-                  <path
-                    d="M12 5v14M5 12h14"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="1.9"
-                    strokeLinecap="round"
-                  />
-                </svg>
+              <Button variant="secondary" size="s" onClick={startNewChat}>
+                <PlusSignIcon size={13} />
                 New chat
-              </button>
+              </Button>
               <HistoryButton
                 onClick={() => {
                   refreshThreads();
@@ -479,14 +804,25 @@ function ChatScreen() {
         >
           {messages.length === 0 && !isLoading && !error ? (
             <div className="flex h-full items-center justify-center px-6">
-              <div className="flex items-baseline gap-3">
-                <h1 className="font-display text-[40px] leading-[48px] tracking-[-0.015em] text-[#0A0A0A]">
-                  Good afternoon,
-                </h1>
-                <span className="font-display text-[40px] leading-[48px] tracking-[-0.015em] text-[#A0A0A0]">
-                  {user.firstName}
-                </span>
-              </div>
+              {course ? (
+                <div className="flex flex-col items-center text-center">
+                  <p className="text-[13px] leading-4 font-medium tracking-[0.02em] text-[#9A9A98]">
+                    {course.code}
+                  </p>
+                  <h1 className="font-display pt-2 text-[40px] leading-[48px] tracking-[-0.015em] text-[#0A0A0A]">
+                    {course.title || "New chat"}
+                  </h1>
+                </div>
+              ) : (
+                <div className="flex items-baseline gap-3">
+                  <h1 className="font-display text-[40px] leading-[48px] tracking-[-0.015em] text-[#0A0A0A]">
+                    Good afternoon,
+                  </h1>
+                  <span className="font-display text-[40px] leading-[48px] tracking-[-0.015em] text-[#A0A0A0]">
+                    {user.firstName}
+                  </span>
+                </div>
+              )}
             </div>
           ) : (
             <div className="flex flex-col items-center px-6 pt-10 pb-8">
@@ -494,14 +830,25 @@ function ChatScreen() {
                 {messages.map((msg, i) =>
                   msg.role === "user" ? (
                     <div key={i} className="flex justify-end">
-                      <div className="max-w-[520px] rounded-2xl bg-[#F5F5F5] px-4 py-[11px]">
-                        <p className="text-[15px] leading-[23px] whitespace-pre-wrap text-[#0A0A0A]">
-                          {renderUserMessage(msg.content)}
-                        </p>
+                      <div className="flex max-w-[520px] flex-col items-end gap-2">
+                        {msg.attachments?.length ? (
+                          <ChatAttachmentChips attachments={msg.attachments} />
+                        ) : null}
+                        {msg.content.trim() ? (
+                          <div className="rounded-2xl bg-[#F5F5F5] px-4 py-[11px]">
+                            <p className="text-[15px] leading-[23px] whitespace-pre-wrap text-[#0A0A0A]">
+                              {renderUserMessage(msg.content)}
+                            </p>
+                          </div>
+                        ) : null}
                       </div>
                     </div>
                   ) : (
-                    <div key={i} className="flex flex-col items-start gap-3.5">
+                    <div
+                      key={i}
+                      data-assistant-turn={String(i)}
+                      className="flex flex-col items-start gap-3.5"
+                    >
                       {msg.actions?.length ? (
                         <div className="flex flex-wrap gap-1.5">
                           {msg.actions.map((action, j) => (
@@ -514,15 +861,41 @@ function ChatScreen() {
                           ))}
                         </div>
                       ) : null}
-                      <div className="max-w-[640px] text-[15px] leading-[25px] text-[#0A0A0A]">
-                        {renderMessageContent(msg.content)}
+                      <div className="w-full text-[15px] leading-[25px] text-[#0A0A0A]">
+                        <StreamingBlocks
+                          text={msg.content}
+                          streaming={isLoading && i === lastAssistantIndex}
+                          renderBlock={(block, index) =>
+                            renderMessageContent(
+                              block,
+                              handlersForBlock(
+                                {
+                                  savedDiagrams: msg.savedDiagrams,
+                                  onSave: (blockIndex, spec) =>
+                                    saveDiagram(i, blockIndex, spec),
+                                  onChangeDetail: (blockIndex, spec, detail) =>
+                                    changeDiagramDetail(
+                                      i,
+                                      blockIndex,
+                                      spec,
+                                      detail,
+                                    ),
+                                },
+                                splitContentBlocks(msg.content).slice(0, index),
+                              ),
+                            )
+                          }
+                        />
                       </div>
-                      {!isLoading && i === lastAssistantIndex && <LumisMark />}
+                      {!isLoading && i === lastAssistantIndex && <MonarchMark />}
                     </div>
                   ),
                 )}
 
-                {isLoading && (
+                {isLoading &&
+                  (messages.at(-1)?.role !== "assistant" ||
+                    completeBlockCount(messages.at(-1)?.content ?? "", true) ===
+                      0) && (
                   <div className="flex items-center gap-2.5">
                     <ThinkingMark />
                     <ShiningText text="Thinking…" />
@@ -544,13 +917,38 @@ function ChatScreen() {
         {/* Composer dock */}
         <div className="shrink-0 px-6 pt-2 pb-[26px]">
           <div className="mx-auto w-full max-w-[732px]">
+            {course ? (
+              <div className="mb-2.5 flex">
+                <span className="inline-flex items-center gap-1.5 rounded-full bg-[#F1F1EF] py-1 pr-1.5 pl-2.5 text-[12px] leading-4 text-[#3D3D3D]">
+                  {course.code}
+                  <button
+                    type="button"
+                    aria-label={`Remove ${course.code} context`}
+                    onClick={() => setCourse(null)}
+                    className="flex size-4 items-center justify-center rounded-full text-[#8A8A8A] hover:bg-[#E6E6E4] hover:text-[#1A1A1A]"
+                  >
+                    ×
+                  </button>
+                </span>
+              </div>
+            ) : null}
             <AIChatInput
               autoFocus
               disabled={isLoading}
               staticPlaceholder
-              placeholders={FOLLOW_UP_PLACEHOLDERS}
+              placeholders={
+                course
+                  ? [`Ask about ${course.code}…`]
+                  : FOLLOW_UP_PLACEHOLDERS
+              }
               onSubmit={(value, meta) =>
-                void send(value, messages, threadId, meta?.skill ?? null)
+                void send(
+                  value,
+                  messages,
+                  threadId,
+                  meta?.skill ?? null,
+                  meta?.files,
+                )
               }
             />
           </div>

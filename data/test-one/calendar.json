@@ -1,0 +1,122 @@
+[
+  {
+    "id": "oneoff-1",
+    "courseSlug": "psyc-179",
+    "kind": "class",
+    "title": "Midterm Exam",
+    "startsAt": "2026-10-09T10:00:00",
+    "endsAt": "2026-10-09T10:50:00",
+    "location": "Roberts Hall, Room 104",
+    "generatedBy": "syllabus"
+  },
+  {
+    "id": "oneoff-2",
+    "courseSlug": "psyc-179",
+    "kind": "class",
+    "title": "Final Exam",
+    "startsAt": "2026-12-14T00:00:00",
+    "endsAt": "2026-12-18T23:59:59",
+    "location": "TBA (Registrar-assigned)",
+    "generatedBy": "syllabus"
+  },
+  {
+    "id": "due-ASG-2",
+    "courseSlug": "psyc-179",
+    "kind": "deadline",
+    "title": "Reading Response #1",
+    "startsAt": "2026-09-11",
+    "endsAt": "2026-09-11",
+    "assignmentId": "ASG-2",
+    "generatedBy": "syllabus"
+  },
+  {
+    "id": "due-ASG-3",
+    "courseSlug": "psyc-179",
+    "kind": "deadline",
+    "title": "Reading Response #2",
+    "startsAt": "2026-10-02",
+    "endsAt": "2026-10-02",
+    "assignmentId": "ASG-3",
+    "generatedBy": "syllabus"
+  },
+  {
+    "id": "due-ASG-4",
+    "courseSlug": "psyc-179",
+    "kind": "deadline",
+    "title": "Reading Response #3",
+    "startsAt": "2026-11-13",
+    "endsAt": "2026-11-13",
+    "assignmentId": "ASG-4",
+    "generatedBy": "syllabus"
+  },
+  {
+    "id": "due-ASG-6",
+    "courseSlug": "psyc-179",
+    "kind": "deadline",
+    "title": "Problem Set 1",
+    "startsAt": "2026-09-25",
+    "endsAt": "2026-09-25",
+    "assignmentId": "ASG-6",
+    "generatedBy": "syllabus"
+  },
+  {
+    "id": "due-ASG-7",
+    "courseSlug": "psyc-179",
+    "kind": "deadline",
+    "title": "Problem Set 2",
+    "startsAt": "2026-10-30",
+    "endsAt": "2026-10-30",
+    "assignmentId": "ASG-7",
+    "generatedBy": "syllabus"
+  },
+  {
+    "id": "due-ASG-8",
+    "courseSlug": "psyc-179",
+    "kind": "deadline",
+    "title": "Problem Set 3",
+    "startsAt": "2026-12-04",
+    "endsAt": "2026-12-04",
+    "assignmentId": "ASG-8",
+    "generatedBy": "syllabus"
+  },
+  {
+    "id": "due-ASG-9",
+    "courseSlug": "psyc-179",
+    "kind": "exam",
+    "title": "Midterm Exam",
+    "startsAt": "2026-10-09",
+    "endsAt": "2026-10-09",
+    "assignmentId": "ASG-9",
+    "generatedBy": "syllabus"
+  },
+  {
+    "id": "due-ASG-10",
+    "courseSlug": "psyc-179",
+    "kind": "deadline",
+    "title": "Research Proposal, Stage 1 (topic + question)",
+    "startsAt": "2026-10-16",
+    "endsAt": "2026-10-16",
+    "assignmentId": "ASG-10",
+    "generatedBy": "syllabus"
+  },
+  {
+    "id": "due-ASG-11",
+    "courseSlug": "psyc-179",
+    "kind": "deadline",
+    "title": "Research Proposal, Stage 2 (full design)",
+    "startsAt": "2026-11-20",
+    "endsAt": "2026-11-20",
+    "assignmentId": "ASG-11",
+    "generatedBy": "syllabus"
+  },
+  {
+    "id": "due-ASG-12",
+    "courseSlug": "psyc-179",
+    "kind": "deadline",
+    "title": "Class Presentation",
+    "startsAt": "2026-12-11",
+    "endsAt": "2026-12-11",
+    "assignmentId": "ASG-12",
+    "generatedBy": "syllabus"
+  }
+]

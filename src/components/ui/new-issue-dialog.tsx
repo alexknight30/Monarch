@@ -22,8 +22,8 @@ const STATUSES: PlannerStatus[] = ["todo", "in-progress", "backlog", "done"];
 const DUE_DATES = ["Aug 9", "Aug 11", "Aug 12", "Aug 21", "Aug 28", "Sep 4"];
 
 type TaskMeta = {
-  classes: string[];
-  projects: string[];
+  courses: string[];
+  artifacts: string[];
   assignments: string[];
 };
 
@@ -246,17 +246,17 @@ export function NewIssueDialog({ open, onClose }: NewIssueDialogProps) {
   const [description, setDescription] = useState("");
   const [status, setStatus] = useState<PlannerStatus>("todo");
   const [course, setCourse] = useState<string | null>(null);
-  const [project, setProject] = useState<string | null>(null);
+  const [artifact, setArtifact] = useState<string | null>(null);
   const [assignment, setAssignment] = useState<string | null>(null);
   const [due, setDue] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [menu, setMenu] = useState<
-    null | "status" | "class" | "project" | "assignment" | "due"
+    null | "status" | "course" | "artifact" | "assignment" | "due"
   >(null);
   const [meta, setMeta] = useState<TaskMeta>({
-    classes: [],
-    projects: [],
+    courses: [],
+    artifacts: [],
     assignments: [],
   });
 
@@ -273,7 +273,7 @@ export function NewIssueDialog({ open, onClose }: NewIssueDialogProps) {
     };
   }, [open, onClose, saving]);
 
-  // Load class / project / assignment options for the active user/view only.
+  // Load course / artifact / assignment options for the active user/view only.
   useEffect(() => {
     if (!open) return;
     let cancelled = false;
@@ -285,25 +285,25 @@ export function NewIssueDialog({ open, onClose }: NewIssueDialogProps) {
         if (!res.ok || cancelled) return;
 
         const next: TaskMeta = {
-          classes: Array.isArray(data.classes) ? data.classes : [],
-          projects: Array.isArray(data.projects) ? data.projects : [],
+          courses: Array.isArray(data.courses) ? data.courses : [],
+          artifacts: Array.isArray(data.artifacts) ? data.artifacts : [],
           assignments: Array.isArray(data.assignments) ? data.assignments : [],
         };
         setMeta(next);
 
         // Drop selections that don't belong to this user.
         setCourse((current) =>
-          current && next.classes.includes(current) ? current : null,
+          current && next.courses.includes(current) ? current : null,
         );
-        setProject((current) =>
-          current && next.projects.includes(current) ? current : null,
+        setArtifact((current) =>
+          current && next.artifacts.includes(current) ? current : null,
         );
         setAssignment((current) =>
           current && next.assignments.includes(current) ? current : null,
         );
       } catch {
         if (!cancelled) {
-          setMeta({ classes: [], projects: [], assignments: [] });
+          setMeta({ courses: [], artifacts: [], assignments: [] });
         }
       }
     })();
@@ -320,7 +320,7 @@ export function NewIssueDialog({ open, onClose }: NewIssueDialogProps) {
     setDescription("");
     setStatus("todo");
     setCourse(null);
-    setProject(null);
+    setArtifact(null);
     setAssignment(null);
     setDue(null);
     setMenu(null);
@@ -344,7 +344,7 @@ export function NewIssueDialog({ open, onClose }: NewIssueDialogProps) {
           title: title.trim(),
           status,
           course,
-          project,
+          artifact,
           assignment,
           due,
           description: description.trim() || undefined,
@@ -475,11 +475,11 @@ export function NewIssueDialog({ open, onClose }: NewIssueDialogProps) {
           </ChipMenu>
 
           <ChipMenu
-            open={menu === "class"}
-            onToggle={() => setMenu(menu === "class" ? null : "class")}
+            open={menu === "course"}
+            onToggle={() => setMenu(menu === "course" ? null : "course")}
             onClose={() => setMenu(null)}
             active={Boolean(course)}
-            label={course ?? "Class"}
+            label={course ?? "Course"}
             icon={
               <svg width="13" height="13" viewBox="0 0 24 24" className="shrink-0">
                 <path
@@ -506,14 +506,14 @@ export function NewIssueDialog({ open, onClose }: NewIssueDialogProps) {
                 setMenu(null);
               }}
             >
-              No class
+              No course
             </MenuItem>
-            {meta.classes.length === 0 ? (
+            {meta.courses.length === 0 ? (
               <div className="px-3 py-2 text-[13px] leading-4 text-[#9A9A98]">
-                No classes yet
+                No courses yet
               </div>
             ) : (
-              meta.classes.map((c) => (
+              meta.courses.map((c) => (
                 <MenuItem
                   key={c}
                   active={course === c}
@@ -529,11 +529,11 @@ export function NewIssueDialog({ open, onClose }: NewIssueDialogProps) {
           </ChipMenu>
 
           <ChipMenu
-            open={menu === "project"}
-            onToggle={() => setMenu(menu === "project" ? null : "project")}
+            open={menu === "artifact"}
+            onToggle={() => setMenu(menu === "artifact" ? null : "artifact")}
             onClose={() => setMenu(null)}
-            active={Boolean(project)}
-            label={project ?? "Project"}
+            active={Boolean(artifact)}
+            label={artifact ?? "Artifact"}
             icon={
               <svg width="13" height="13" viewBox="0 0 24 24" className="shrink-0">
                 <rect
@@ -556,25 +556,25 @@ export function NewIssueDialog({ open, onClose }: NewIssueDialogProps) {
             }
           >
             <MenuItem
-              active={!project}
+              active={!artifact}
               onClick={() => {
-                setProject(null);
+                setArtifact(null);
                 setMenu(null);
               }}
             >
-              No project
+              No artifact
             </MenuItem>
-            {meta.projects.length === 0 ? (
+            {meta.artifacts.length === 0 ? (
               <div className="px-3 py-2 text-[13px] leading-4 text-[#9A9A98]">
-                No projects yet
+                No artifacts yet
               </div>
             ) : (
-              meta.projects.map((p) => (
+              meta.artifacts.map((p) => (
                 <MenuItem
                   key={p}
-                  active={project === p}
+                  active={artifact === p}
                   onClick={() => {
-                    setProject(p);
+                    setArtifact(p);
                     setMenu(null);
                   }}
                 >

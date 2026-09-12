@@ -1,0 +1,6 @@
+{
+  "version": 3,
+  "sources": [],
+  "sections": [
+    {"offset": {"line": 1, "column": 0}, "map": {"version":3,"sources":["turbopack:///[project]/app/globals.css"],"sourcesContent":["*,\n*::before,\n*::after {\n  box-sizing: border-box;\n}\n\nhtml,\nbody {\n  margin: 0;\n  padding: 0;\n  background: #ffffff;\n  color: #0a0a0a;\n  -webkit-font-smoothing: antialiased;\n  -moz-osx-font-smoothing: grayscale;\n  font-synthesis: none;\n}\n\nbutton {\n  font: inherit;\n  color: inherit;\n  border: 0;\n  background: none;\n  cursor: pointer;\n}\n"],"names":[],"mappings":"AAAA;;;;AAMA;;;;;;;;;;AAWA"}}]
+}

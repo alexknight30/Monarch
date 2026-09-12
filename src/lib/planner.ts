@@ -6,13 +6,17 @@
  * stay under their parent regardless of status, the way Linear does it.
  */
 
+import type { TagId } from "@/lib/objects/tags";
+
 export type PlannerStatus = "in-progress" | "todo" | "backlog" | "done";
 
+/** @deprecated Use tagIds. Kept so older JSON still parses. */
 export type PlannerLabel = "Reading" | "Problem set" | "Exam" | "Writing" | "Lab";
 
 export type PlannerPriority = "none" | "urgent" | "high" | "medium" | "low";
 
 export type PlannerIssue = {
+  id: string;
   /** Short human key, e.g. "LMS-11". */
   key: string;
   title: string;
@@ -20,11 +24,17 @@ export type PlannerIssue = {
   description?: string;
   priority?: PlannerPriority;
   labels?: PlannerLabel[];
-  /** Course / class code, e.g. "CHEM 122". */
+  tagIds?: TagId[];
+  /** Course code, e.g. "CHEM 122". */
   course?: string;
-  project?: string;
+  artifact?: string;
+  artifactId?: string;
   assignment?: string;
   due?: string;
+  assignmentId?: string;
+  courseId?: string;
+  courseSlug?: string;
+  dueAt?: string;
   children?: PlannerIssue[];
 };
 
@@ -177,15 +187,18 @@ export function groupIssues(
   if (mode === "course") {
     const buckets = new Map<string, PlannerIssue[]>();
     for (const issue of issues) {
-      const key = issue.course?.trim() || "No course";
+      const key =
+        issue.course?.trim() && issue.course.trim() !== "Unassigned"
+          ? issue.course.trim()
+          : "Unassigned";
       const list = buckets.get(key);
       if (list) list.push(issue);
       else buckets.set(key, [issue]);
     }
     return [...buckets.entries()]
       .sort(([a], [b]) => {
-        if (a === "No course") return 1;
-        if (b === "No course") return -1;
+        if (a === "Unassigned") return 1;
+        if (b === "Unassigned") return -1;
         return a.localeCompare(b);
       })
       .map(([label, groupIssues]) => ({
@@ -211,8 +224,20 @@ export function groupIssues(
 
 /* ------------------------------------------------------------------ seed --- */
 
+type SeedIssue = Omit<PlannerIssue, "id" | "children"> & {
+  children?: SeedIssue[];
+};
+
+function stampIssueIds(issues: SeedIssue[]): PlannerIssue[] {
+  return issues.map((issue) => ({
+    ...issue,
+    id: issue.key,
+    children: issue.children ? stampIssueIds(issue.children) : undefined,
+  }));
+}
+
 /** Seed tree for the Mock One view. Blank views get an empty array. */
-export const PLANNER_ISSUES: PlannerIssue[] = [
+export const PLANNER_ISSUES: PlannerIssue[] = stampIssueIds([
   {
     key: "LMS-11",
     title: "Organic chemistry midterm prep",
@@ -346,4 +371,4 @@ export const PLANNER_ISSUES: PlannerIssue[] = [
       { key: "LMS-71", title: "Drill unit 3 vocab", status: "done", course: "SPAN 101" },
     ],
   },
-];
+]);

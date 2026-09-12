@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { resolveApiView } from "@/lib/api-view";
-import { listClasses, listPlanner, listProjects } from "@/lib/local-db";
+import { listCourses, listPlanner, listArtifacts } from "@/lib/local-db";
 import { flatten } from "@/lib/planner";
 import { getViewDataset } from "@/lib/views";
 
@@ -18,9 +18,9 @@ export async function GET(_request: Request, context: RouteContext) {
   if ("error" in resolved) return resolved.error;
 
   const { viewId } = resolved;
-  const [classes, projects, planner] = await Promise.all([
-    listClasses(viewId),
-    listProjects(viewId),
+  const [courses, artifacts, planner] = await Promise.all([
+    listCourses(viewId),
+    listArtifacts(viewId),
     listPlanner(viewId),
   ]);
 
@@ -36,8 +36,8 @@ export async function GET(_request: Request, context: RouteContext) {
   );
 
   return NextResponse.json({
-    classes: classes.map((c) => c.code),
-    projects: projects.map((p) => p.title),
+    courses: courses.map((c) => c.code),
+    artifacts: artifacts.map((a) => a.title),
     assignments,
   });
 }

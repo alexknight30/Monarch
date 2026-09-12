@@ -2,8 +2,17 @@
 
 import * as React from "react";
 import { useState, useEffect, useRef } from "react";
-import { Lightbulb, Mic, Globe, Paperclip, Send, X } from "lucide-react";
+import { Lightbulb, Mic, Globe, Send, X } from "lucide-react";
 import { AnimatePresence, motion, type Variants } from "motion/react";
+import { ChatAttachmentChips } from "@/components/ui/chat-attachment-chips";
+import { File01Icon } from "@/components/ui/file-01";
+import {
+  ATTACH_ACCEPT,
+  MAX_ATTACHMENTS,
+  MAX_ATTACHMENT_BYTES,
+  isSupportedAttachment,
+  metaFromFile,
+} from "@/lib/chat-attachments";
 import { filterSkills, listSkills, type Skill } from "@/lib/skills";
 
 const PLACEHOLDERS = [
@@ -19,6 +28,7 @@ const PLACEHOLDERS = [
 
 export type ChatSubmitMeta = {
   skill?: Skill;
+  files?: File[];
 };
 
 type AIChatInputProps = {
@@ -32,6 +42,10 @@ type AIChatInputProps = {
   autoFocus?: boolean;
   /** Blocks input while the caller is awaiting a reply. */
   disabled?: boolean;
+  /** Compact composer for side panels (e.g. document chat). */
+  size?: "default" | "compact";
+  /** Replaces the Think / Search row in the expanded composer. */
+  expandedRow?: React.ReactNode;
 };
 
 /** Detect an open slash-command query (`/` at start of the field). */
@@ -48,7 +62,10 @@ const AIChatInput = ({
   staticPlaceholder = false,
   autoFocus = false,
   disabled = false,
+  size = "default",
+  expandedRow,
 }: AIChatInputProps) => {
+  const compact = size === "compact";
   const [placeholderIndex, setPlaceholderIndex] = useState(0);
   const [showPlaceholder, setShowPlaceholder] = useState(true);
   const [isActive, setIsActive] = useState(false);
@@ -60,6 +77,11 @@ const AIChatInput = ({
   const [highlight, setHighlight] = useState(0);
   const wrapperRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [files, setFiles] = useState<File[]>([]);
+  const [attachError, setAttachError] = useState<string | null>(null);
+  const [isDraggingFile, setIsDraggingFile] = useState(false);
+  const dragDepthRef = useRef(0);
 
   const query = selectedSkill ? null : slashQuery(inputValue);
   const menuOpen = query !== null;
@@ -76,7 +98,7 @@ const AIChatInput = ({
 
   // Cycle placeholder text when input is inactive (skip when static)
   useEffect(() => {
-    if (staticPlaceholder || isActive || inputValue || selectedSkill) return;
+    if (staticPlaceholder || isActive || inputValue || selectedSkill || files.length) return;
 
     const interval = setInterval(() => {
       setShowPlaceholder(false);
@@ -92,6 +114,7 @@ const AIChatInput = ({
     isActive,
     inputValue,
     selectedSkill,
+    files.length,
     placeholders.length,
   ]);
 
@@ -102,15 +125,49 @@ const AIChatInput = ({
         wrapperRef.current &&
         !wrapperRef.current.contains(event.target as Node)
       ) {
-        if (!inputValue && !selectedSkill) setIsActive(false);
+        if (!inputValue && !selectedSkill && files.length === 0) setIsActive(false);
       }
     };
 
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, [inputValue, selectedSkill]);
+  }, [inputValue, selectedSkill, files.length]);
 
   const handleActivate = () => setIsActive(true);
+
+  const addFiles = (incoming: FileList | File[]) => {
+    const next: File[] = [...files];
+    let error: string | null = null;
+
+    for (const file of Array.from(incoming)) {
+      if (!isSupportedAttachment(file.name, file.type)) {
+        error = `${file.name} isn’t a supported type. Use PDF, an image, or a text file.`;
+        continue;
+      }
+      if (file.size > MAX_ATTACHMENT_BYTES) {
+        error = `${file.name} is larger than 10 MB.`;
+        continue;
+      }
+      if (next.length >= MAX_ATTACHMENTS) {
+        error = `You can attach up to ${MAX_ATTACHMENTS} files.`;
+        break;
+      }
+      const duplicate = next.some(
+        (existing) =>
+          existing.name === file.name &&
+          existing.size === file.size &&
+          existing.lastModified === file.lastModified,
+      );
+      if (duplicate) continue;
+      next.push(file);
+    }
+
+    setAttachError(error);
+    if (next.length !== files.length) {
+      setFiles(next);
+      setIsActive(true);
+    }
+  };
 
   const applySkill = (skill: Skill) => {
     setSelectedSkill(skill);
@@ -132,24 +189,38 @@ const AIChatInput = ({
       return;
     }
     const value = inputValue.trim();
-    if (!value && !selectedSkill) return;
-    onSubmit?.(value, selectedSkill ? { skill: selectedSkill } : undefined);
+    if (!value && !selectedSkill && files.length === 0) return;
+    onSubmit?.(value, {
+      ...(selectedSkill ? { skill: selectedSkill } : {}),
+      ...(files.length ? { files: [...files] } : {}),
+    });
     setInputValue("");
     setSelectedSkill(null);
+    setFiles([]);
+    setAttachError(null);
     setIsActive(false);
   };
 
-  const canSend = Boolean(selectedSkill || inputValue.trim()) && !disabled;
+  const canSend =
+    Boolean(selectedSkill || inputValue.trim() || files.length) && !disabled;
+  const hasComposerContent = Boolean(
+    isActive || inputValue || selectedSkill || files.length,
+  );
 
   const containerVariants: Variants = {
     collapsed: {
-      height: 68,
-      boxShadow: "0 2px 8px 0 rgba(0,0,0,0.08)",
+      height: compact ? 48 : 68,
+      boxShadow: compact
+        ? "0 1px 4px 0 rgba(0,0,0,0.06)"
+        : "0 2px 8px 0 rgba(0,0,0,0.08)",
       transition: { type: "spring", stiffness: 120, damping: 18 },
     },
     expanded: {
-      height: 128,
-      boxShadow: "0 8px 32px 0 rgba(0,0,0,0.16)",
+      height: files.length ? "auto" : compact ? 96 : 128,
+      minHeight: compact ? 96 : 128,
+      boxShadow: compact
+        ? "0 4px 16px 0 rgba(0,0,0,0.10)"
+        : "0 8px 32px 0 rgba(0,0,0,0.16)",
       transition: { type: "spring", stiffness: 120, damping: 18 },
     },
   };
@@ -189,13 +260,17 @@ const AIChatInput = ({
   };
 
   const showPlaceholderText =
-    !isActive && !inputValue && !selectedSkill && !menuOpen;
+    !isActive && !inputValue && !selectedSkill && !menuOpen && files.length === 0;
 
   return (
     <div className="relative flex w-full items-center justify-center text-black">
       {/* Slash skill menu — sits above the composer like Claude */}
       {menuOpen ? (
-        <div className="absolute bottom-[calc(100%+8px)] left-1/2 z-50 w-full max-w-3xl -translate-x-1/2 px-2">
+        <div
+          className={`absolute bottom-[calc(100%+8px)] left-1/2 z-50 w-full -translate-x-1/2 px-2 ${
+            compact ? "max-w-none" : "max-w-3xl"
+          }`}
+        >
           <div className="overflow-hidden rounded-xl border border-[#E6E6E6] bg-white shadow-[0_8px_28px_rgba(0,0,0,0.12)]">
             {filtered.length === 0 ? (
               <p className="px-3.5 py-3 text-sm text-[#9A9A98]">
@@ -236,23 +311,82 @@ const AIChatInput = ({
 
       <motion.div
         ref={wrapperRef}
-        className="w-full max-w-3xl"
+        className={`w-full ${compact ? "max-w-none" : "max-w-3xl"}`}
         variants={containerVariants}
-        animate={isActive || inputValue || selectedSkill ? "expanded" : "collapsed"}
+        animate={hasComposerContent ? "expanded" : "collapsed"}
         initial="collapsed"
-        style={{ overflow: "hidden", borderRadius: 32, background: "#fff" }}
+        style={{
+          overflow: "hidden",
+          borderRadius: compact ? 22 : 32,
+          background: "#fff",
+          border: compact
+            ? isDraggingFile
+              ? "1px solid #B8B4A8"
+              : "1px solid #ECECEC"
+            : isDraggingFile
+              ? "1px solid #D4D0C4"
+              : undefined,
+        }}
         onClick={handleActivate}
+        onDragEnter={(event) => {
+          event.preventDefault();
+          dragDepthRef.current += 1;
+          setIsDraggingFile(true);
+          setIsActive(true);
+        }}
+        onDragLeave={(event) => {
+          event.preventDefault();
+          dragDepthRef.current = Math.max(0, dragDepthRef.current - 1);
+          if (dragDepthRef.current === 0) setIsDraggingFile(false);
+        }}
+        onDragOver={(event) => event.preventDefault()}
+        onDrop={(event) => {
+          event.preventDefault();
+          event.stopPropagation();
+          dragDepthRef.current = 0;
+          setIsDraggingFile(false);
+          if (event.dataTransfer.files.length > 0) {
+            addFiles(event.dataTransfer.files);
+          }
+        }}
       >
-        <div className="flex h-full w-full flex-col items-stretch">
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept={ATTACH_ACCEPT}
+          multiple
+          hidden
+          onChange={(event) => {
+            if (event.target.files) addFiles(event.target.files);
+            event.currentTarget.value = "";
+          }}
+        />
+        <div
+          className={`flex h-full w-full flex-col items-stretch ${
+            files.length ? (compact ? "pb-2" : "pb-3") : ""
+          }`}
+        >
           {/* Input Row */}
-          <div className="flex w-full max-w-3xl items-center gap-2 rounded-full bg-white p-3">
+          <div
+            className={`flex w-full items-center gap-1.5 rounded-full bg-white ${
+              compact ? "max-w-none p-1.5" : "max-w-3xl p-3 gap-2"
+            }`}
+          >
             <button
-              className="rounded-full p-3 transition hover:bg-gray-100"
-              title="Attach file"
+              className={`inline-flex items-center justify-center rounded-full transition hover:bg-gray-100 disabled:opacity-50 ${
+                compact ? "p-2" : "p-3"
+              }`}
+              title="Attach a file"
+              aria-label="Attach a file"
               type="button"
-              tabIndex={-1}
+              disabled={disabled}
+              onClick={(event) => {
+                event.stopPropagation();
+                if (disabled) return;
+                fileInputRef.current?.click();
+              }}
             >
-              <Paperclip size={20} />
+              <File01Icon size={compact ? 16 : 20} />
             </button>
 
             {/* Text Input & Placeholder */}
@@ -328,7 +462,9 @@ const AIChatInput = ({
                     }
                   }}
                   disabled={disabled}
-                  className="w-full flex-1 rounded-md border-0 bg-transparent py-2 text-base font-normal outline-0 disabled:opacity-60"
+                  className={`w-full flex-1 rounded-md border-0 bg-transparent font-normal outline-0 disabled:opacity-60 ${
+                    compact ? "py-1.5 text-sm" : "py-2 text-base"
+                  }`}
                   style={{ position: "relative", zIndex: 1 }}
                   onFocus={handleActivate}
                   placeholder={
@@ -339,10 +475,18 @@ const AIChatInput = ({
                         : undefined
                   }
                 />
-                <div className="pointer-events-none absolute top-0 left-0 flex h-full w-full items-center px-3 py-2">
+                <div
+                  className={`pointer-events-none absolute top-0 left-0 flex h-full w-full items-center ${
+                    compact ? "px-2 py-1.5" : "px-3 py-2"
+                  }`}
+                >
                   {staticPlaceholder ? (
                     showPlaceholderText && (
-                      <span className="pointer-events-none absolute top-1/2 left-0 -translate-y-1/2 truncate text-gray-400 select-none">
+                      <span
+                        className={`pointer-events-none absolute top-1/2 left-0 -translate-y-1/2 truncate text-gray-400 select-none ${
+                          compact ? "text-sm" : ""
+                        }`}
+                      >
                         {placeholders[0]}
                       </span>
                     )
@@ -383,15 +527,19 @@ const AIChatInput = ({
             </div>
 
             <button
-              className="rounded-full p-3 transition hover:bg-gray-100"
+              className={`rounded-full transition hover:bg-gray-100 ${
+                compact ? "p-2" : "p-3"
+              }`}
               title="Voice input"
               type="button"
               tabIndex={-1}
             >
-              <Mic size={20} />
+              <Mic size={compact ? 16 : 20} />
             </button>
             <button
-              className="flex items-center justify-center gap-1 rounded-full bg-black p-3 font-medium text-white hover:bg-zinc-700 disabled:opacity-50 disabled:hover:bg-black"
+              className={`flex items-center justify-center gap-1 rounded-full bg-black font-medium text-white hover:bg-zinc-700 disabled:opacity-50 disabled:hover:bg-black ${
+                compact ? "p-2" : "p-3"
+              }`}
               title="Send"
               type="button"
               disabled={!canSend}
@@ -400,13 +548,33 @@ const AIChatInput = ({
                 handleSubmit();
               }}
             >
-              <Send size={18} />
+              <Send size={compact ? 14 : 18} />
             </button>
           </div>
 
+          {files.length > 0 || attachError ? (
+            <div
+              className={`flex flex-col ${compact ? "gap-1 px-2.5 pb-1" : "gap-1.5 px-4 pb-1"}`}
+            >
+              <ChatAttachmentChips
+                attachments={files.map(metaFromFile)}
+                compact={compact}
+                onRemove={(index) => {
+                  setFiles((prev) => prev.filter((_, i) => i !== index));
+                  setAttachError(null);
+                }}
+              />
+              {attachError ? (
+                <p className="text-[12px] leading-4 text-[#B42318]">{attachError}</p>
+              ) : null}
+            </div>
+          ) : null}
+
           {/* Expanded Controls */}
           <motion.div
-            className="flex w-full items-center justify-start px-4 text-sm"
+            className={`flex w-full items-center justify-start ${
+              compact ? "px-2.5 text-xs" : "px-4 text-sm"
+            }`}
             variants={{
               hidden: {
                 opacity: 0,
@@ -422,15 +590,17 @@ const AIChatInput = ({
               },
             }}
             initial="hidden"
-            animate={
-              isActive || inputValue || selectedSkill ? "visible" : "hidden"
-            }
-            style={{ marginTop: 8 }}
+            animate={hasComposerContent ? "visible" : "hidden"}
+            style={{ marginTop: compact ? 4 : 8 }}
           >
-            <div className="flex items-center gap-3">
+            <div className={`flex items-center ${compact ? "gap-1.5" : "gap-3"}`}>
+              {expandedRow ?? (
+                <>
               {/* Think Toggle */}
               <button
-                className={`group flex items-center gap-1 rounded-full px-4 py-2 font-medium transition-all ${
+                className={`group flex items-center gap-1 rounded-full font-medium transition-all ${
+                  compact ? "px-2.5 py-1" : "px-4 py-2"
+                } ${
                   thinkActive
                     ? "bg-blue-600/10 text-blue-950 outline outline-blue-600/60"
                     : "bg-gray-100 text-gray-700 hover:bg-gray-200"
@@ -444,14 +614,16 @@ const AIChatInput = ({
               >
                 <Lightbulb
                   className="transition-all group-hover:fill-yellow-300"
-                  size={18}
+                  size={compact ? 14 : 18}
                 />
                 Think
               </button>
 
               {/* Deep Search Toggle */}
               <motion.button
-                className={`flex items-center justify-start gap-1 overflow-hidden rounded-full px-4 py-2 font-medium whitespace-nowrap transition ${
+                className={`flex items-center justify-start gap-1 overflow-hidden rounded-full font-medium whitespace-nowrap transition ${
+                  compact ? "px-2.5 py-1" : "px-4 py-2"
+                } ${
                   deepSearchActive
                     ? "bg-blue-600/10 text-blue-950 outline outline-blue-600/60"
                     : "bg-gray-100 text-gray-700 hover:bg-gray-200"
@@ -464,12 +636,12 @@ const AIChatInput = ({
                 }}
                 initial={false}
                 animate={{
-                  width: deepSearchActive ? 125 : 36,
-                  paddingLeft: deepSearchActive ? 8 : 9,
+                  width: deepSearchActive ? (compact ? 108 : 125) : compact ? 30 : 36,
+                  paddingLeft: deepSearchActive ? (compact ? 6 : 8) : compact ? 7 : 9,
                 }}
               >
                 <div className="flex-1">
-                  <Globe size={18} />
+                  <Globe size={compact ? 14 : 18} />
                 </div>
                 <motion.span
                   className="pb-[2px]"
@@ -481,6 +653,8 @@ const AIChatInput = ({
                   Deep Search
                 </motion.span>
               </motion.button>
+                </>
+              )}
             </div>
           </motion.div>
         </div>

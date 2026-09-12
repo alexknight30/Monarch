@@ -1,6 +1,10 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Copy01Icon } from "@/components/ui/copy-01";
+import { IconButton } from "@/components/ui/icon-button";
+import { TextTabs } from "@/components/ui/text-tabs";
 import {
   addCustomSkill,
   listSkills,
@@ -144,21 +148,8 @@ export default function SettingsClient({
           Manage your profile, plan usage, skills, and developer access.
         </p>
 
-        <div className="flex items-center gap-1.5 pt-[30px]">
-          {TABS.map((item) => (
-            <button
-              key={item}
-              type="button"
-              onClick={() => setTab(item)}
-              className={`flex h-[34px] items-center rounded-lg px-3.5 text-sm leading-[18px] ${
-                tab === item
-                  ? "bg-[#F1F1EF] text-[#0A0A0A]"
-                  : "text-[#5E5E5E] hover:bg-[#F7F7F5]"
-              }`}
-            >
-              {item}
-            </button>
-          ))}
+        <div className="pt-[30px]">
+          <TextTabs items={TABS} value={tab} onChange={setTab} />
         </div>
 
         {tab === "Student info" ? (
@@ -177,16 +168,11 @@ export default function SettingsClient({
                 hint="Assigned by your registrar."
               />
               <Field label="Major" value={student.major} />
-              <Field label="Class year" value={student.year} />
+              <Field label="Course year" value={student.year} />
             </div>
             <Field label="School" value={student.school} />
             <div className="flex justify-end pt-2">
-              <button
-                type="button"
-                className="flex h-10 items-center justify-center rounded-lg bg-[#141414] px-5 text-sm font-medium leading-[18px] text-white hover:bg-[#000000]"
-              >
-                Save changes
-              </button>
+              <Button>Save changes</Button>
             </div>
           </section>
         ) : null}
@@ -238,7 +224,7 @@ export default function SettingsClient({
                 Personal API key
               </h2>
               <p className="pt-1.5 text-[13px] leading-[18px] text-[#9A9A98]">
-                Use this key to call Lumis from your own scripts and course tools.
+                Use this key to call Monarch from your own scripts and course tools.
                 Keep it private — anyone with it can act as you.
               </p>
             </div>
@@ -254,20 +240,14 @@ export default function SettingsClient({
                   value={revealed ? apiKey : masked}
                   className="h-10 min-w-0 flex-1 rounded-lg border border-[#E6E6E6] bg-[#FAFAFA] px-3 font-mono text-[13px] leading-[18px] text-[#0A0A0A] outline-none"
                 />
-                <button
-                  type="button"
-                  onClick={() => setRevealed((v) => !v)}
-                  className="flex h-10 shrink-0 items-center rounded-lg border border-[#E6E6E6] px-3.5 text-sm leading-[18px] text-[#0A0A0A] hover:bg-[#FAFAFA]"
-                >
+                <Button variant="secondary" onClick={() => setRevealed((v) => !v)}>
                   {revealed ? "Hide" : "Reveal"}
-                </button>
-                <button
-                  type="button"
+                </Button>
+                <IconButton
+                  icon={Copy01Icon}
+                  label={copied ? "Copied" : "Copy"}
                   onClick={copyKey}
-                  className="flex h-10 shrink-0 items-center rounded-lg border border-[#E6E6E6] px-3.5 text-sm leading-[18px] text-[#0A0A0A] hover:bg-[#FAFAFA]"
-                >
-                  {copied ? "Copied" : "Copy"}
-                </button>
+                />
               </div>
             </label>
 
@@ -275,13 +255,7 @@ export default function SettingsClient({
               <p className="text-[13px] leading-[18px] text-[#9A9A98]">
                 Regenerating immediately invalidates the previous key.
               </p>
-              <button
-                type="button"
-                onClick={regenerate}
-                className="flex h-10 shrink-0 items-center justify-center rounded-lg bg-[#141414] px-5 text-sm font-medium leading-[18px] text-white hover:bg-[#000000]"
-              >
-                Regenerate
-              </button>
+              <Button onClick={regenerate}>Regenerate</Button>
             </div>
           </section>
         ) : null}
@@ -415,8 +389,8 @@ export default function SettingsClient({
                   </p>
                 ) : null}
                 <div className="flex justify-end gap-2">
-                  <button
-                    type="button"
+                  <Button
+                    variant="ghost"
                     onClick={() => {
                       setAddingSkill(false);
                       setSkillError(null);
@@ -427,12 +401,10 @@ export default function SettingsClient({
                         prompt: "",
                       });
                     }}
-                    className="flex h-10 items-center rounded-lg px-4 text-sm leading-[18px] text-[#5E5E5E] hover:bg-[#F7F7F5]"
                   >
                     Cancel
-                  </button>
-                  <button
-                    type="button"
+                  </Button>
+                  <Button
                     onClick={() => {
                       try {
                         addCustomSkill(skillForm);
@@ -453,21 +425,16 @@ export default function SettingsClient({
                         );
                       }
                     }}
-                    className="flex h-10 items-center justify-center rounded-lg bg-[#141414] px-5 text-sm font-medium leading-[18px] text-white hover:bg-[#000000]"
                   >
                     Save skill
-                  </button>
+                  </Button>
                 </div>
               </div>
             ) : (
               <div className="flex justify-end border-t border-[#EFEFED] pt-5">
-                <button
-                  type="button"
-                  onClick={() => setAddingSkill(true)}
-                  className="flex h-10 items-center justify-center rounded-lg bg-[#141414] px-5 text-sm font-medium leading-[18px] text-white hover:bg-[#000000]"
-                >
+                <Button onClick={() => setAddingSkill(true)}>
                   Add custom skill
-                </button>
+                </Button>
               </div>
             )}
           </section>

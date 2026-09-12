@@ -1,0 +1,70 @@
+[
+  {
+    "slug": "phil-198",
+    "code": "PHIL 198",
+    "title": "Memory",
+    "description": "An advanced philosophy seminar exploring the nature of memory and its role in personal identity, responsibility, extended cognition, collective remembrance, and nostalgia, supplemented by readings from memory science and relevant films, literature, and podcasts.",
+    "instructor": "Professor Amy Kind",
+    "schedule": "MW · 11:00 AM–12:15 PM",
+    "term": "Fall 2026",
+    "instructorEmail": "akind@cmc.edu",
+    "instructorOffice": "Kravis 282",
+    "meetings": [
+      {
+        "kind": "lecture",
+        "days": [
+          1,
+          3
+        ],
+        "start": "11:00",
+        "end": "12:15",
+        "location": "Kravis 321"
+      }
+    ],
+    "officeHours": [
+      {
+        "host": "Professor Amy Kind",
+        "day": 1,
+        "start": "13:30",
+        "end": "15:30",
+        "location": "Kravis 282",
+        "mode": "in-person"
+      }
+    ],
+    "grading": [
+      {
+        "component": "In-Class Writing Assignment 1",
+        "weight": 100
+      },
+      {
+        "component": "In-Class Writing Assignment 2 (Final)",
+        "weight": 120
+      },
+      {
+        "component": "Presentation",
+        "weight": 80
+      },
+      {
+        "component": "Presentation Critical Response Papers (3)",
+        "weight": 60
+      },
+      {
+        "component": "Ath Dinner Critical Response Paper",
+        "weight": 20
+      },
+      {
+        "component": "Guest Speaker Critical Response Paper",
+        "weight": 20
+      }
+    ],
+    "policies": {
+      "late": "Late work is accepted for all out-of-class assignments but a late penalty will be assigned; students should contact the professor first if circumstances warrant an extension and waiver of the penalty.",
+      "attendance": "Every student gets three free absences for illness or unavoidable conflicts; each additional absence results in a 2-point deduction to the course grade. Late arrivals or early departures of more than 10 minutes count as absences. The Ath Dinner on Nov. 12 is mandatory.",
+      "ai": "Work written in part or in full by AI, or prepared with AI assistance at any stage (brainstorming, drafting, editing), is not considered the student's own work and is prohibited; violations will be reported to the Academic Standards Committee.",
+      "integrity": "The highest standards of academic integrity are required; work must be the student's own original work. Plagiarism or use of others' work without attribution, or violations involving AI use, will be reported to the Academic Standards Committee and may result in a zero, failing the course, probation, suspension, or dismissal."
+    },
+    "sourceDocumentId": "DOC-1",
+    "termStartsAt": "2026-09-02",
+    "termEndsAt": "2026-12-18"
+  }
+]

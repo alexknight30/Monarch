@@ -4,12 +4,14 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useViewId } from "@/components/view-provider";
 import {
-  createClassForView,
-  createProjectForView,
+  createArtifactForView,
+  createCourseForView,
 } from "@/components/ui/create-entity";
+import { IconButton } from "@/components/ui/icon-button";
 import { NewIssueDialog } from "@/components/ui/new-issue-dialog";
+import { PlusSignIcon } from "@/components/ui/plus-sign";
 
-export type BlankCreateKind = "issue" | "project" | "class";
+export type BlankCreateKind = "issue" | "artifact" | "course";
 
 type BlankEmptyPlusProps = {
   /** Accessible label for the centered plus button. */
@@ -19,7 +21,7 @@ type BlankEmptyPlusProps = {
   onCreate?: () => void;
 };
 
-/** Centered plus for blank planner / classes / projects. */
+/** Centered plus for blank planner / courses / artifacts. */
 export function BlankEmptyPlus({
   addLabel,
   createKind = "issue",
@@ -43,9 +45,9 @@ export function BlankEmptyPlus({
     setBusy(true);
     try {
       const created =
-        createKind === "project"
-          ? await createProjectForView(viewId)
-          : await createClassForView(viewId);
+        createKind === "artifact"
+          ? await createArtifactForView(viewId)
+          : await createCourseForView(viewId);
       if (created) router.refresh();
     } catch (err) {
       window.alert(err instanceof Error ? err.message : "Could not create.");
@@ -57,23 +59,13 @@ export function BlankEmptyPlus({
   return (
     <>
       <div className="flex min-h-0 flex-1 items-center justify-center">
-        <button
-          type="button"
-          aria-label={addLabel}
+        <IconButton
+          icon={PlusSignIcon}
+          label={addLabel}
+          size="l"
           onClick={handleClick}
           disabled={busy}
-          className="flex h-18 w-18 items-center justify-center rounded-full border border-[#E6E6E6] bg-white text-[#0A0A0A] transition-colors hover:bg-[#FAFAFA] disabled:opacity-50"
-        >
-          <svg width="28" height="28" viewBox="0 0 24 24" className="shrink-0">
-            <path
-              d="M12 5v14M5 12h14"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="1.8"
-              strokeLinecap="round"
-            />
-          </svg>
-        </button>
+        />
       </div>
 
       {createKind === "issue" ? (

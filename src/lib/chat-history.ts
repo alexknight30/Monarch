@@ -1,7 +1,19 @@
+import type { ChatAttachmentMeta } from "@/lib/chat-attachments";
+import { readViewIdFromDocument } from "@/lib/views";
+
 export type ChatTurnAction = {
   tool: string;
   summary: string;
   key?: string;
+};
+
+/**
+ * A diagram from this turn that's been promoted to an artifact.
+ * `blockIndex` is the position of the ```diagram fence within the message.
+ */
+export type SavedDiagram = {
+  blockIndex: number;
+  slug: string;
 };
 
 export type ChatTurn = {
@@ -9,6 +21,10 @@ export type ChatTurn = {
   content: string;
   /** Planner mutations the model ran for this assistant turn. */
   actions?: ChatTurnAction[];
+  /** Keeps the save button idempotent across reloads. */
+  savedDiagrams?: SavedDiagram[];
+  /** Files attached to this user turn (metadata only — bytes are not persisted). */
+  attachments?: ChatAttachmentMeta[];
 };
 
 export type ChatThread = {
@@ -18,20 +34,22 @@ export type ChatThread = {
   updatedAt: number;
   /** True once the model has named this thread (vs a provisional first-prompt title). */
   titleGenerated?: boolean;
+  /** Course this thread was started from, when opened from a course page. */
+  courseSlug?: string;
+  courseCode?: string;
+  courseTitle?: string;
 };
-
-import { readViewIdFromDocument } from "@/lib/views";
 
 /**
  * Threads are scoped to the active admin view, so switching views gives you
  * that persona's history rather than a shared pile.
  */
 function storageKey() {
-  return `lumis.chat.threads.${readViewIdFromDocument()}`;
+  return `monarch.chat.threads.${readViewIdFromDocument()}`;
 }
 
 function activeChatKey() {
-  return `lumis.chat.active.${readViewIdFromDocument()}`;
+  return `monarch.chat.active.${readViewIdFromDocument()}`;
 }
 
 function canUseStorage() {
@@ -110,9 +128,12 @@ export function createThreadId(): string {
 }
 
 export function titleFromMessages(messages: ChatTurn[]): string {
-  const firstUser = messages.find((m) => m.role === "user")?.content?.trim();
-  if (!firstUser) return "New chat";
-  return firstUser.length > 60 ? `${firstUser.slice(0, 57)}…` : firstUser;
+  const firstUser = messages.find((m) => m.role === "user");
+  const text = firstUser?.content?.trim();
+  if (text) return text.length > 60 ? `${text.slice(0, 57)}…` : text;
+  const fileName = firstUser?.attachments?.[0]?.name?.trim();
+  if (fileName) return fileName;
+  return "New chat";
 }
 
 export function snippetFromMessages(messages: ChatTurn[]): string {

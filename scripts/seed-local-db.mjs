@@ -11,8 +11,18 @@ import path from "path";
 import { fileURLToPath } from "url";
 
 const root = path.join(path.dirname(fileURLToPath(import.meta.url)), "..", "data");
-const views = ["mock-one", "alex-knight", "alex-seager"];
-const files = ["planner.json", "projects.json", "classes.json"];
+const views = ["mock-one", "alex-knight", "alex-seager", "test-one"];
+const files = [
+  "planner.json",
+  "artifacts.json",
+  "courses.json",
+  "assignments.json",
+  "calendar.json",
+  "documents.json",
+  "ingestRuns.json",
+  "links.json",
+  "memory.json",
+];
 
 async function exists(p) {
   try {
@@ -36,7 +46,13 @@ for (const view of views) {
       console.log("skip", path.relative(root, target), "(app seeds on first read)");
       continue;
     }
-    await writeFile(target, "[]\n", "utf8");
+    await writeFile(
+      target,
+      file === "memory.json"
+        ? `${JSON.stringify({ summary: "", events: [], copyFlags: [] }, null, 2)}\n`
+        : "[]\n",
+      "utf8",
+    );
     console.log("write", path.relative(root, target));
   }
 }

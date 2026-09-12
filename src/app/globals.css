@@ -1,7 +1,7 @@
 @import "tailwindcss";
 
 @theme inline {
-  --color-background: #ffffff;
+  --color-background: #f5f3ee;
   --color-foreground: #0a0a0a;
   --color-muted: #f5f5f5;
   --color-muted-foreground: #6b6b6b;
@@ -18,4 +18,122 @@ body {
   color: var(--color-foreground);
   font-family: var(--font-sans);
   font-synthesis: none;
+}
+
+/* Offset-plate buttons — face drops onto the rest plate when pressed.
+   Same motion as the website CTA. */
+.plated {
+  display: inline-flex;
+  padding: 0 4px 4px 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.plated-plate {
+  position: absolute;
+  top: 4px;
+  left: 4px;
+  right: 0;
+  bottom: 0;
+  pointer-events: none;
+  background: #ffffff;
+  border: 1.5px solid #1a1a1a;
+}
+
+.plated-face {
+  position: relative;
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: #ffffff;
+  border: 1.5px solid #1a1a1a;
+  transform: translate(0, 0);
+  transition: transform 160ms cubic-bezier(0.22, 1.4, 0.36, 1);
+  will-change: transform;
+}
+
+.plated:hover .plated-face {
+  transform: translate(1px, 1px);
+  transition-duration: 120ms;
+}
+
+.plated:active .plated-face {
+  transform: translate(4px, 4px);
+  transition-duration: 55ms;
+  transition-timing-function: cubic-bezier(0.2, 0, 0.2, 1);
+}
+
+@keyframes chat-block-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.chat-block-in {
+  animation: chat-block-in 480ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* TipTap document editor */
+.doc-editor {
+  font-family: "Times New Roman", Times, serif;
+  line-height: 1.15;
+  font-size: 24px; /* true 18pt, +6 on-screen */
+}
+.doc-editor p {
+  margin: 0 0 0.4em;
+}
+.doc-editor h1 {
+  font-size: 1.75em;
+  font-weight: 600;
+  margin: 0 0 0.6em;
+  letter-spacing: -0.02em;
+}
+.doc-editor h2 {
+  font-size: 1.4em;
+  font-weight: 600;
+  margin: 0 0 0.55em;
+}
+.doc-editor h3 {
+  font-size: 1.2em;
+  font-weight: 600;
+  margin: 0 0 0.5em;
+}
+.doc-editor ul {
+  list-style: disc;
+  padding-left: 1.4em;
+  margin: 0 0 0.4em;
+}
+.doc-editor ol {
+  list-style: decimal;
+  padding-left: 1.4em;
+  margin: 0 0 0.4em;
+}
+.doc-editor li {
+  margin: 0.2em 0;
+}
+.doc-editor a {
+  color: #175cd3;
+  text-decoration: underline;
+}
+.doc-editor img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 4px;
+  margin: 0.75em 0;
+}
+.doc-editor p.is-editor-empty:first-child::before {
+  color: #c4c4c0;
+  content: attr(data-placeholder);
+  float: left;
+  height: 0;
+  pointer-events: none;
 }

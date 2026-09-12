@@ -1,0 +1,338 @@
+[
+  {
+    "key": "LMS-1",
+    "title": "Complete Problem Set 1",
+    "status": "todo",
+    "description": "Short quantitative/conceptual set on attention",
+    "course": "PSYC 179",
+    "courseSlug": "psyc-179",
+    "assignment": "Problem Sets (3)",
+    "assignmentId": "ASG-5",
+    "dueAt": "2026-09-25",
+    "due": "Sep 25",
+    "children": [
+      {
+        "key": "LMS-2",
+        "title": "Review assigned readings",
+        "status": "todo",
+        "description": "Review Posner & Petersen (1990) excerpt",
+        "course": "PSYC 179",
+        "courseSlug": "psyc-179",
+        "assignment": "Problem Sets (3)",
+        "assignmentId": "ASG-5"
+      },
+      {
+        "key": "LMS-3",
+        "title": "Complete problems",
+        "status": "todo",
+        "description": "Work through problem set questions",
+        "course": "PSYC 179",
+        "courseSlug": "psyc-179",
+        "assignment": "Problem Sets (3)",
+        "assignmentId": "ASG-5"
+      },
+      {
+        "key": "LMS-4",
+        "title": "Review before submission",
+        "status": "todo",
+        "description": "Check answers and formatting",
+        "course": "PSYC 179",
+        "courseSlug": "psyc-179",
+        "assignment": "Problem Sets (3)",
+        "assignmentId": "ASG-5"
+      }
+    ]
+  },
+  {
+    "key": "LMS-5",
+    "title": "Complete Problem Set 2",
+    "status": "todo",
+    "description": "Short quantitative/conceptual set on memory",
+    "course": "PSYC 179",
+    "courseSlug": "psyc-179",
+    "assignment": "Problem Sets (3)",
+    "assignmentId": "ASG-5",
+    "dueAt": "2026-10-30",
+    "due": "Oct 30",
+    "children": [
+      {
+        "key": "LMS-6",
+        "title": "Review assigned readings",
+        "status": "todo",
+        "description": "Review LeDoux (1996) excerpt and memory materials",
+        "course": "PSYC 179",
+        "courseSlug": "psyc-179",
+        "assignment": "Problem Sets (3)",
+        "assignmentId": "ASG-5"
+      },
+      {
+        "key": "LMS-7",
+        "title": "Complete problems",
+        "status": "todo",
+        "description": "Work through problem set questions",
+        "course": "PSYC 179",
+        "courseSlug": "psyc-179",
+        "assignment": "Problem Sets (3)",
+        "assignmentId": "ASG-5"
+      },
+      {
+        "key": "LMS-8",
+        "title": "Review before submission",
+        "status": "todo",
+        "description": "Check answers and formatting",
+        "course": "PSYC 179",
+        "courseSlug": "psyc-179",
+        "assignment": "Problem Sets (3)",
+        "assignmentId": "ASG-5"
+      }
+    ]
+  },
+  {
+    "key": "LMS-9",
+    "title": "Complete Problem Set 3",
+    "status": "todo",
+    "description": "Short quantitative/conceptual set on neuroimaging",
+    "course": "PSYC 179",
+    "courseSlug": "psyc-179",
+    "assignment": "Problem Sets (3)",
+    "assignmentId": "ASG-5",
+    "dueAt": "2026-12-04",
+    "due": "Dec 4",
+    "children": [
+      {
+        "key": "LMS-10",
+        "title": "Review assigned readings",
+        "status": "todo",
+        "description": "Review selected articles on comparative/artificial cognition",
+        "course": "PSYC 179",
+        "courseSlug": "psyc-179",
+        "assignment": "Problem Sets (3)",
+        "assignmentId": "ASG-5"
+      },
+      {
+        "key": "LMS-11",
+        "title": "Complete problems",
+        "status": "todo",
+        "description": "Work through problem set questions",
+        "course": "PSYC 179",
+        "courseSlug": "psyc-179",
+        "assignment": "Problem Sets (3)",
+        "assignmentId": "ASG-5"
+      },
+      {
+        "key": "LMS-12",
+        "title": "Review before submission",
+        "status": "todo",
+        "description": "Check answers and formatting",
+        "course": "PSYC 179",
+        "courseSlug": "psyc-179",
+        "assignment": "Problem Sets (3)",
+        "assignmentId": "ASG-5"
+      }
+    ]
+  },
+  {
+    "key": "LMS-13",
+    "title": "Prepare for Midterm Exam",
+    "status": "todo",
+    "description": "In-class midterm exam covering material through Week 6",
+    "course": "PSYC 179",
+    "courseSlug": "psyc-179",
+    "assignment": "Midterm Exam",
+    "assignmentId": "ASG-9",
+    "dueAt": "2026-10-09",
+    "due": "Oct 9",
+    "children": [
+      {
+        "key": "LMS-14",
+        "title": "Review lecture notes",
+        "status": "todo",
+        "description": "Consolidate notes from Weeks 1-6",
+        "course": "PSYC 179",
+        "courseSlug": "psyc-179",
+        "assignment": "Midterm Exam",
+        "assignmentId": "ASG-9"
+      },
+      {
+        "key": "LMS-15",
+        "title": "Review readings",
+        "status": "todo",
+        "description": "Revisit Gazzaniga chapters and Squire (1992) excerpt",
+        "course": "PSYC 179",
+        "courseSlug": "psyc-179",
+        "assignment": "Midterm Exam",
+        "assignmentId": "ASG-9"
+      },
+      {
+        "key": "LMS-16",
+        "title": "Practice/self-test",
+        "status": "todo",
+        "description": "Work through practice questions and key concepts",
+        "course": "PSYC 179",
+        "courseSlug": "psyc-179",
+        "assignment": "Midterm Exam",
+        "assignmentId": "ASG-9"
+      }
+    ]
+  },
+  {
+    "key": "LMS-17",
+    "title": "Submit Research Proposal Stage 1",
+    "status": "todo",
+    "description": "Topic and research question submission",
+    "course": "PSYC 179",
+    "courseSlug": "psyc-179",
+    "dueAt": "2026-10-16",
+    "due": "Oct 16",
+    "children": [
+      {
+        "key": "LMS-18",
+        "title": "Brainstorm topic",
+        "status": "todo",
+        "description": "Identify area of interest and research question",
+        "course": "PSYC 179",
+        "courseSlug": "psyc-179"
+      },
+      {
+        "key": "LMS-19",
+        "title": "Draft proposal topic statement",
+        "status": "todo",
+        "description": "Write and refine topic + question",
+        "course": "PSYC 179",
+        "courseSlug": "psyc-179"
+      },
+      {
+        "key": "LMS-20",
+        "title": "Submit stage 1",
+        "status": "todo",
+        "description": "Finalize and submit by deadline",
+        "course": "PSYC 179",
+        "courseSlug": "psyc-179"
+      }
+    ]
+  },
+  {
+    "key": "LMS-21",
+    "title": "Submit Research Proposal Stage 2",
+    "status": "todo",
+    "description": "Full research design submission",
+    "course": "PSYC 179",
+    "courseSlug": "psyc-179",
+    "dueAt": "2026-11-20",
+    "due": "Nov 20",
+    "children": [
+      {
+        "key": "LMS-22",
+        "title": "Draft full study design",
+        "status": "todo",
+        "description": "Develop methodology, hypotheses, and procedures",
+        "course": "PSYC 179",
+        "courseSlug": "psyc-179"
+      },
+      {
+        "key": "LMS-23",
+        "title": "Incorporate feedback",
+        "status": "todo",
+        "description": "Revise based on Stage 1 feedback",
+        "course": "PSYC 179",
+        "courseSlug": "psyc-179"
+      },
+      {
+        "key": "LMS-24",
+        "title": "Finalize and submit",
+        "status": "todo",
+        "description": "Complete full proposal for submission",
+        "course": "PSYC 179",
+        "courseSlug": "psyc-179"
+      }
+    ]
+  },
+  {
+    "key": "LMS-25",
+    "title": "Prepare Class Presentation",
+    "status": "todo",
+    "description": "10-minute presentation of research proposal during final week",
+    "course": "PSYC 179",
+    "courseSlug": "psyc-179",
+    "assignment": "Class Presentation",
+    "assignmentId": "ASG-12",
+    "dueAt": "2026-12-11",
+    "due": "Dec 11",
+    "children": [
+      {
+        "key": "LMS-26",
+        "title": "Prepare slides",
+        "status": "todo",
+        "description": "Create presentation slides summarizing research proposal",
+        "course": "PSYC 179",
+        "courseSlug": "psyc-179",
+        "assignment": "Class Presentation",
+        "assignmentId": "ASG-12"
+      },
+      {
+        "key": "LMS-27",
+        "title": "Rehearse presentation",
+        "status": "todo",
+        "description": "Practice timing and delivery",
+        "course": "PSYC 179",
+        "courseSlug": "psyc-179",
+        "assignment": "Class Presentation",
+        "assignmentId": "ASG-12"
+      },
+      {
+        "key": "LMS-28",
+        "title": "Deliver presentation",
+        "status": "todo",
+        "description": "Present during Week 14 class session",
+        "course": "PSYC 179",
+        "courseSlug": "psyc-179",
+        "assignment": "Class Presentation",
+        "assignmentId": "ASG-12"
+      }
+    ]
+  },
+  {
+    "key": "LMS-29",
+    "title": "Prepare for Final Exam",
+    "status": "todo",
+    "description": "Cumulative final exam during Final Exam Period (Dec 14-18)",
+    "course": "PSYC 179",
+    "courseSlug": "psyc-179",
+    "assignment": "Final Exam",
+    "assignmentId": "ASG-13",
+    "dueAt": "2026-12-18",
+    "due": "Dec 18",
+    "children": [
+      {
+        "key": "LMS-30",
+        "title": "Review all course materials",
+        "status": "todo",
+        "description": "Consolidate notes across entire semester",
+        "course": "PSYC 179",
+        "courseSlug": "psyc-179",
+        "assignment": "Final Exam",
+        "assignmentId": "ASG-13"
+      },
+      {
+        "key": "LMS-31",
+        "title": "Review readings",
+        "status": "todo",
+        "description": "Revisit key articles and textbook chapters",
+        "course": "PSYC 179",
+        "courseSlug": "psyc-179",
+        "assignment": "Final Exam",
+        "assignmentId": "ASG-13"
+      },
+      {
+        "key": "LMS-32",
+        "title": "Practice/self-test",
+        "status": "todo",
+        "description": "Work through cumulative practice questions",
+        "course": "PSYC 179",
+        "courseSlug": "psyc-179",
+        "assignment": "Final Exam",
+        "assignmentId": "ASG-13"
+      }
+    ]
+  }
+]

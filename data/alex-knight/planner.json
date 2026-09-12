@@ -1,70 +1,200 @@
 [
   {
-    "key": "LMS-14",
-    "title": "Misc",
+    "key": "LMS-1",
+    "title": "Complete In-Class Writing Assignment 1",
     "status": "todo",
+    "description": "First in-class writing assignment using Electronic Bluebook Software, worth 100 points.",
+    "course": "PHIL 198",
+    "courseSlug": "phil-198",
+    "assignment": "In-Class Writing Assignment 1",
+    "assignmentId": "ASG-1",
+    "dueAt": "2026-09-30",
+    "due": "Sep 30",
     "children": [
       {
-        "key": "LMS-15",
-        "title": "Get jeans",
-        "status": "todo"
+        "key": "LMS-2",
+        "title": "Install Electronic Bluebook Software",
+        "status": "todo",
+        "description": "Ensure laptop is set up and software works before exam day.",
+        "course": "PHIL 198",
+        "courseSlug": "phil-198",
+        "assignment": "In-Class Writing Assignment 1",
+        "assignmentId": "ASG-1"
       },
       {
-        "key": "LMS-16",
-        "title": "Do laundry",
-        "status": "todo"
+        "key": "LMS-3",
+        "title": "Review course material to date",
+        "status": "todo",
+        "description": "Go over readings and notes from weeks prior to Sept. 30.",
+        "course": "PHIL 198",
+        "courseSlug": "phil-198",
+        "assignment": "In-Class Writing Assignment 1",
+        "assignmentId": "ASG-1"
       }
-    ],
-    "course": "Life"
+    ]
   },
   {
-    "key": "LMS-6",
-    "title": "Arden",
+    "key": "LMS-4",
+    "title": "Prepare and deliver in-class presentation",
     "status": "todo",
+    "description": "15-minute in-class presentation on assigned date, worth 80 points.",
+    "course": "PHIL 198",
+    "courseSlug": "phil-198",
+    "assignment": "Presentation",
+    "assignmentId": "ASG-3",
     "children": [
       {
-        "key": "LMS-7",
-        "title": "Apple build",
+        "key": "LMS-5",
+        "title": "Choose topic and research",
         "status": "todo",
-        "course": "Arden"
+        "description": "Select presentation topic once details are released in mid-September.",
+        "course": "PHIL 198",
+        "courseSlug": "phil-198",
+        "assignment": "Presentation",
+        "assignmentId": "ASG-3"
       },
       {
-        "key": "LMS-8",
-        "title": "Supabase + render + proccess scaling check",
+        "key": "LMS-6",
+        "title": "Draft presentation outline",
         "status": "todo",
-        "course": "Arden"
+        "description": "Organize key points and structure for the talk.",
+        "course": "PHIL 198",
+        "courseSlug": "phil-198",
+        "assignment": "Presentation",
+        "assignmentId": "ASG-3"
       },
+      {
+        "key": "LMS-7",
+        "title": "Practice delivery",
+        "status": "todo",
+        "description": "Rehearse timing to fit 15-minute limit.",
+        "course": "PHIL 198",
+        "courseSlug": "phil-198",
+        "assignment": "Presentation",
+        "assignmentId": "ASG-3"
+      }
+    ]
+  },
+  {
+    "key": "LMS-8",
+    "title": "Write critical response papers for peer presentations",
+    "status": "todo",
+    "description": "Submit critical response papers for three other students' presentations, 20 points each.",
+    "course": "PHIL 198",
+    "courseSlug": "phil-198",
+    "children": [
       {
         "key": "LMS-9",
-        "title": "Dogfood setup",
+        "title": "Attend and take notes on peer presentations",
         "status": "todo",
-        "course": "Arden"
+        "description": "Record key arguments and questions during each presentation.",
+        "course": "PHIL 198",
+        "courseSlug": "phil-198"
       },
       {
         "key": "LMS-10",
-        "title": "Auth smoketests",
+        "title": "Draft response paper",
         "status": "todo",
-        "course": "Arden"
-      },
-      {
-        "key": "LMS-11",
-        "title": "New setup flow",
-        "status": "todo",
-        "course": "Arden"
-      },
+        "description": "Write critical analysis for each selected presentation.",
+        "course": "PHIL 198",
+        "courseSlug": "phil-198"
+      }
+    ]
+  },
+  {
+    "key": "LMS-11",
+    "title": "Attend Ath Dinner and write response paper",
+    "status": "todo",
+    "description": "Mandatory class dinner featuring Professor Sharda Umanath's talk, followed by a response paper worth 20 points.",
+    "course": "PHIL 198",
+    "courseSlug": "phil-198",
+    "assignment": "Ath Dinner and Critical Response Paper",
+    "assignmentId": "ASG-7",
+    "dueAt": "2026-11-12",
+    "due": "Nov 12",
+    "children": [
       {
         "key": "LMS-12",
-        "title": "Policies",
+        "title": "Attend Ath Dinner",
         "status": "todo",
-        "course": "Arden"
+        "description": "Mandatory attendance Thursday, Nov. 12, 5:30–8 pm.",
+        "course": "PHIL 198",
+        "courseSlug": "phil-198",
+        "assignment": "Ath Dinner and Critical Response Paper",
+        "assignmentId": "ASG-7"
       },
       {
-        "key": "LMS-17",
-        "title": "Keanu project doc",
+        "key": "LMS-13",
+        "title": "Draft response paper",
         "status": "todo",
-        "course": "Arden"
+        "description": "Address content and themes of Professor Umanath's talk.",
+        "course": "PHIL 198",
+        "courseSlug": "phil-198",
+        "assignment": "Ath Dinner and Critical Response Paper",
+        "assignmentId": "ASG-7"
       }
-    ],
-    "course": "Arden"
+    ]
+  },
+  {
+    "key": "LMS-14",
+    "title": "Write critical response paper on guest speaker discussion",
+    "status": "todo",
+    "description": "Response paper addressing discussion with Professor Basu on her paper 'The Importance of Forgetting,' worth 20 points.",
+    "course": "PHIL 198",
+    "courseSlug": "phil-198",
+    "assignment": "Guest Speaker Critical Response Paper",
+    "assignmentId": "ASG-8",
+    "dueAt": "2026-10-26",
+    "due": "Oct 26",
+    "children": [
+      {
+        "key": "LMS-15",
+        "title": "Read 'The Importance of Forgetting'",
+        "status": "todo",
+        "description": "Complete assigned reading before Oct. 26 class.",
+        "course": "PHIL 198",
+        "courseSlug": "phil-198",
+        "assignment": "Guest Speaker Critical Response Paper",
+        "assignmentId": "ASG-8"
+      },
+      {
+        "key": "LMS-16",
+        "title": "Draft response paper",
+        "status": "todo",
+        "description": "Reflect on discussion and Q&A with Professor Basu.",
+        "course": "PHIL 198",
+        "courseSlug": "phil-198",
+        "assignment": "Guest Speaker Critical Response Paper",
+        "assignmentId": "ASG-8"
+      }
+    ]
+  },
+  {
+    "key": "LMS-17",
+    "title": "Complete In-Class Writing Assignment 2 (Final Exam)",
+    "status": "todo",
+    "description": "Second in-class writing assignment during scheduled final exam time, worth 120 points.",
+    "course": "PHIL 198",
+    "courseSlug": "phil-198",
+    "dueAt": "2026-12-18T09:00:00",
+    "due": "Dec 18",
+    "children": [
+      {
+        "key": "LMS-18",
+        "title": "Review full semester material",
+        "status": "todo",
+        "description": "Study all readings, notes, and discussions from the course.",
+        "course": "PHIL 198",
+        "courseSlug": "phil-198"
+      },
+      {
+        "key": "LMS-19",
+        "title": "Confirm Bluebook software setup",
+        "status": "todo",
+        "description": "Test software again before final exam period.",
+        "course": "PHIL 198",
+        "courseSlug": "phil-198"
+      }
+    ]
   }
 ]

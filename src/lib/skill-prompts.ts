@@ -24,16 +24,8 @@ export function buildSkillUserMessage(opts: {
     );
   }
 
-  if (opts.command === "diagram") {
-    return (
-      `Create a clear diagram that helps represent and clarify the following reply. ` +
-      `Respond with one short sentence of context, then a single fenced Mermaid code block ` +
-      `using language tag mermaid (for example flowchart TD or sequenceDiagram). ` +
-      `Keep node labels short and readable. Do not wrap the diagram in extra explanation after the code block.\n\n` +
-      `---\n${source}\n---` +
-      extraBlock
-    );
-  }
+  // /diagram is handled by buildDiagramMessage in diagram-tool.ts — it needs a
+  // forced tool call, not a prose instruction, so it never routes through here.
 
   const instruction = opts.customPrompt?.trim();
   if (!instruction) {

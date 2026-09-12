@@ -1,0 +1,24 @@
+[
+  {
+    "id": "DOC-2",
+    "filename": "Phil164syllabusFA26v2.pdf",
+    "mime": "application/pdf",
+    "sizeBytes": 140757,
+    "storedPath": "/Users/alexknight/Desktop/Monarch/data/alex-knight/uploads/DOC-2.pdf",
+    "uploadedAt": "2026-09-12T02:24:34.093Z",
+    "kind": "syllabus",
+    "status": "failed"
+  },
+  {
+    "id": "DOC-1",
+    "filename": "Syllabus Advanced Seminar Memory f26.pdf",
+    "mime": "application/pdf",
+    "sizeBytes": 245950,
+    "storedPath": "/Users/alexknight/Desktop/Monarch/data/alex-knight/uploads/DOC-1.pdf",
+    "uploadedAt": "2026-09-05T03:45:55.364Z",
+    "kind": "syllabus",
+    "status": "applied",
+    "fileApiId": "file_0165Bo6KE9fVk3PQ98QmRBq1",
+    "courseSlug": "phil-198"
+  }
+]

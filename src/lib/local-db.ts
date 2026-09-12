@@ -1,17 +1,68 @@
 /**
  * Local file-backed store, one folder per admin view.
  *
- *   data/mock-one/{planner,projects,classes}.json
+ *   data/mock-one/{planner,artifacts,courses,assignments,calendar,documents,ingestRuns}.json
  *   data/alex-knight/...
  *   data/alex-seager/...
+ *   data/test-one/...
  *
- * Disk is the source of truth for those three collections. Missing files are
+ * Disk is the source of truth for those collections. Missing files are
  * seeded once from the in-memory mocks (mock-one) or empty arrays (blank views).
  */
 
 import { promises as fs } from "fs";
 import path from "path";
-import { CLASSES, PROJECTS, type CourseClass, type Project } from "@/lib/mock-data";
+import type { Assignment } from "@/lib/assignments";
+import type { StoredCalendarEvent } from "@/lib/calendar-events";
+import { normalizeDiagramSpec } from "@/lib/diagram";
+import { emptyDocumentContent } from "@/lib/documents";
+import {
+  ADMIN_USERS,
+  ADMIN_USER_FIELDS,
+  ARTIFACTS,
+  COURSES,
+  deriveSchedule,
+  isArtifactKind,
+  isTextArtifact,
+  type AdminUser,
+  type AdminUserField,
+  type Artifact,
+  type ArtifactKind,
+  type Course,
+  type CourseMeeting,
+  type CourseOfficeHour,
+  type DiagramArtifact,
+  type DocumentArtifact,
+  type FlashcardsArtifact,
+  type LessonArtifact,
+  type NotesArtifact,
+  type PracticeTestArtifact,
+  type ReadingArtifact,
+  type SlidesArtifact,
+} from "@/lib/mock-data";
+import {
+  emptyMemory,
+  type MemoryState,
+  type ObjectLink,
+  type ObjectRef,
+  type TagId,
+} from "@/lib/objects";
+import {
+  appendCopyFlag,
+  appendMemoryEvent,
+} from "@/lib/objects/memory";
+import {
+  ensureCourses,
+  normalizeArtifacts,
+  normalizeCalendar,
+  normalizeLinks,
+  normalizeMemory,
+  normalizePlanner,
+} from "@/lib/objects/normalize";
+import { canonLinkPair, newObjectId, refsEqual } from "@/lib/objects/types";
+import { UNASSIGNED_COURSE_ID } from "@/lib/objects/unassigned";
+import { sanitizeTagIds, tagsFromPlannerLabels } from "@/lib/objects/tags";
+import { linksFor } from "@/lib/objects/summaries";
 import {
   PLANNER_ISSUES,
   findIssue,
@@ -23,12 +74,24 @@ import {
   type PlannerPriority,
   type PlannerStatus,
 } from "@/lib/planner";
+import type {
+  IngestRun,
+  Proposal,
+  SourceDocument,
+} from "@/lib/source-documents";
+import { expandRecurrence, resolveRecurrence } from "@/lib/syllabus/materialize";
 import { VIEWS, type ViewId } from "@/lib/views";
 
 export type ViewStore = {
   planner: PlannerIssue[];
-  projects: Project[];
-  classes: CourseClass[];
+  artifacts: Artifact[];
+  courses: Course[];
+  assignments: Assignment[];
+  calendar: StoredCalendarEvent[];
+  documents: SourceDocument[];
+  ingestRuns: IngestRun[];
+  links: ObjectLink[];
+  memory: MemoryState;
 };
 
 const DATA_ROOT = path.join(process.cwd(), "data");
@@ -47,15 +110,30 @@ function filePath(viewId: ViewId, name: keyof ViewStore) {
   return path.join(viewDir(viewId), `${name}.json`);
 }
 
+function emptyExtras(): Pick<
+  ViewStore,
+  "assignments" | "calendar" | "documents" | "ingestRuns" | "links" | "memory"
+> {
+  return {
+    assignments: [],
+    calendar: [],
+    documents: [],
+    ingestRuns: [],
+    links: [],
+    memory: emptyMemory(),
+  };
+}
+
 function seedFor(viewId: ViewId): ViewStore {
   if (viewId === "mock-one") {
     return {
       planner: structuredClone(PLANNER_ISSUES),
-      projects: structuredClone(PROJECTS),
-      classes: structuredClone(CLASSES),
+      artifacts: structuredClone(ARTIFACTS),
+      courses: structuredClone(COURSES),
+      ...emptyExtras(),
     };
   }
-  return { planner: [], projects: [], classes: [] };
+  return { planner: [], artifacts: [], courses: [], ...emptyExtras() };
 }
 
 async function ensureFile(viewId: ViewId, name: keyof ViewStore) {
@@ -72,8 +150,14 @@ async function ensureFile(viewId: ViewId, name: keyof ViewStore) {
 
 export async function ensureViewStore(viewId: ViewId) {
   await ensureFile(viewId, "planner");
-  await ensureFile(viewId, "projects");
-  await ensureFile(viewId, "classes");
+  await ensureFile(viewId, "artifacts");
+  await ensureFile(viewId, "courses");
+  await ensureFile(viewId, "assignments");
+  await ensureFile(viewId, "calendar");
+  await ensureFile(viewId, "documents");
+  await ensureFile(viewId, "ingestRuns");
+  await ensureFile(viewId, "links");
+  await ensureFile(viewId, "memory");
 }
 
 async function readCollection<K extends keyof ViewStore>(
@@ -96,12 +180,44 @@ async function writeCollection<K extends keyof ViewStore>(
 
 export async function readViewStore(viewId: ViewId): Promise<ViewStore> {
   await ensureViewStore(viewId);
-  const [planner, projects, classes] = await Promise.all([
+  const [
+    plannerRaw,
+    artifactsRaw,
+    coursesRaw,
+    assignments,
+    calendarRaw,
+    documents,
+    ingestRuns,
+    linksRaw,
+    memoryRaw,
+  ] = await Promise.all([
     readCollection(viewId, "planner"),
-    readCollection(viewId, "projects"),
-    readCollection(viewId, "classes"),
+    readCollection(viewId, "artifacts"),
+    readCollection(viewId, "courses"),
+    readCollection(viewId, "assignments"),
+    readCollection(viewId, "calendar"),
+    readCollection(viewId, "documents"),
+    readCollection(viewId, "ingestRuns"),
+    readCollection(viewId, "links"),
+    readCollection(viewId, "memory"),
   ]);
-  return { planner, projects, classes };
+  const courses = ensureCourses(coursesRaw);
+  const artifacts = normalizeArtifacts(artifactsRaw, courses);
+  const planner = normalizePlanner(plannerRaw, courses, artifacts);
+  const calendar = normalizeCalendar(calendarRaw, courses);
+  const links = normalizeLinks(linksRaw);
+  const memory = normalizeMemory(memoryRaw);
+  return {
+    planner,
+    artifacts,
+    courses,
+    assignments,
+    calendar,
+    documents,
+    ingestRuns,
+    links,
+    memory,
+  };
 }
 
 /* ---------------------------------------------------------------- planner --- */
@@ -121,8 +237,11 @@ export type CreatePlannerIssueInput = {
   title: string;
   status?: PlannerStatus;
   label?: PlannerLabel | null;
+  tagIds?: TagId[];
   course?: string | null;
-  project?: string | null;
+  courseId?: string | null;
+  artifact?: string | null;
+  artifactId?: string | null;
   /** Assignment name, e.g. "Problem Set 7". */
   assignment?: string | null;
   due?: string | null;
@@ -136,26 +255,37 @@ export async function createPlannerIssue(
   const title = input.title.trim();
   if (!title) throw new Error("Title is required.");
 
-  const planner = await readCollection(viewId, "planner");
+  const store = await readViewStore(viewId);
   const description = input.description?.trim();
   const course = input.course?.trim() || undefined;
-  const project = input.project?.trim() || undefined;
+  const artifact = input.artifact?.trim() || undefined;
   const assignment = input.assignment?.trim() || undefined;
   const due = input.due?.trim() || undefined;
+  const courseId =
+    input.courseId?.trim() ||
+    store.courses.find((item) => item.code === course || item.slug === course)?.id ||
+    UNASSIGNED_COURSE_ID;
+  const key = nextIssueKey(store.planner);
   const issue: PlannerIssue = {
-    key: nextIssueKey(planner),
+    id: key,
+    key,
     title,
     status: input.status ?? "todo",
+    courseId,
+    tagIds: input.tagIds?.length
+      ? sanitizeTagIds(input.tagIds, "task")
+      : tagsFromPlannerLabels(input.label ? [input.label] : []),
     ...(description ? { description } : {}),
     ...(input.label ? { labels: [input.label] } : {}),
     ...(course ? { course } : {}),
-    ...(project ? { project } : {}),
+    ...(artifact ? { artifact } : {}),
+    ...(input.artifactId ? { artifactId: input.artifactId } : {}),
     ...(assignment ? { assignment } : {}),
     ...(due ? { due } : {}),
   };
 
-  planner.unshift(issue);
-  await writeCollection(viewId, "planner", planner);
+  store.planner.unshift(issue);
+  await writeCollection(viewId, "planner", store.planner);
   return issue;
 }
 
@@ -174,15 +304,18 @@ export type UpdatePlannerIssueInput = {
   status?: PlannerStatus;
   priority?: PlannerPriority;
   labels?: PlannerLabel[];
+  tagIds?: TagId[];
   course?: string | null;
-  project?: string | null;
+  courseId?: string | null;
+  artifact?: string | null;
+  artifactId?: string | null;
   assignment?: string | null;
   due?: string | null;
 };
 
 function applyOptionalString(
   updated: PlannerIssue,
-  key: "course" | "project" | "assignment" | "due" | "description",
+  key: "course" | "artifact" | "assignment" | "due" | "description",
   value: string | null | undefined,
 ) {
   if (value === undefined) return;
@@ -218,9 +351,20 @@ export async function updatePlannerIssue(
       else delete updated.labels;
     }
     applyOptionalString(updated, "course", input.course);
-    applyOptionalString(updated, "project", input.project);
+    applyOptionalString(updated, "artifact", input.artifact);
     applyOptionalString(updated, "assignment", input.assignment);
     applyOptionalString(updated, "due", input.due);
+    if (input.tagIds !== undefined) {
+      updated.tagIds = sanitizeTagIds(input.tagIds, "task");
+    }
+    if (input.courseId !== undefined) {
+      if (input.courseId?.trim()) updated.courseId = input.courseId.trim();
+      else updated.courseId = UNASSIGNED_COURSE_ID;
+    }
+    if (input.artifactId !== undefined) {
+      if (input.artifactId?.trim()) updated.artifactId = input.artifactId.trim();
+      else delete updated.artifactId;
+    }
     return updated;
   });
 
@@ -233,6 +377,7 @@ export async function updatePlannerIssue(
 export type CreateSubtaskInput = {
   title: string;
   status?: PlannerStatus;
+  description?: string;
 };
 
 export async function deletePlannerIssue(
@@ -244,6 +389,7 @@ export async function deletePlannerIssue(
   if (!existing) throw new Error("Task not found.");
 
   await writeCollection(viewId, "planner", removeIssue(planner, key));
+  await dropLinksFor(viewId, { kind: "task", id: existing.id || existing.key });
   return existing;
 }
 
@@ -259,11 +405,18 @@ export async function createSubtask(
   const parent = findIssue(planner, parentKey);
   if (!parent) throw new Error("Parent task not found.");
 
+  const description = input.description?.trim();
+  const key = nextIssueKey(planner);
   const child: PlannerIssue = {
-    key: nextIssueKey(planner),
+    id: key,
+    key,
     title,
     status: input.status ?? "todo",
+    courseId: parent.courseId ?? UNASSIGNED_COURSE_ID,
+    tagIds: parent.tagIds ?? [],
+    ...(description ? { description } : {}),
     ...(parent.course ? { course: parent.course } : {}),
+    ...(parent.courseSlug ? { courseSlug: parent.courseSlug } : {}),
   };
 
   const next = mapIssue(planner, parentKey, (issue) => ({
@@ -275,7 +428,7 @@ export async function createSubtask(
   return child;
 }
 
-/* --------------------------------------------------------------- projects --- */
+/* -------------------------------------------------------------- artifacts --- */
 
 function slugify(title: string) {
   const base = title
@@ -286,30 +439,43 @@ function slugify(title: string) {
   return base || "untitled";
 }
 
-function uniqueSlug(existing: Project[], title: string) {
+function uniqueSlug(existing: Artifact[], title: string) {
   const base = slugify(title);
-  if (!existing.some((p) => p.slug === base)) return base;
+  if (!existing.some((a) => a.slug === base)) return base;
   let n = 2;
-  while (existing.some((p) => p.slug === `${base}-${n}`)) n += 1;
+  while (existing.some((a) => a.slug === `${base}-${n}`)) n += 1;
   return `${base}-${n}`;
 }
 
-export type CreateProjectInput = {
+function parseArtifactKind(value: unknown): ArtifactKind {
+  if (typeof value === "string" && isArtifactKind(value)) return value;
+  if (value === "paper") return "reading";
+  return "document";
+}
+
+export type CreateArtifactInput = {
   title: string;
+  kind?: ArtifactKind;
   description?: string;
   createdBy?: string;
+  courseId?: string;
+  tagIds?: TagId[];
+  /** Required when kind is "diagram". */
+  spec?: unknown;
+  source?: { threadId?: string; threadTitle?: string };
+  bodyText?: string;
+  bodyHtml?: string;
 };
 
-export async function createProject(
-  viewId: ViewId,
-  input: CreateProjectInput,
-): Promise<Project> {
+function artifactShell(
+  existing: Artifact[],
+  input: CreateArtifactInput,
+): Omit<Artifact, "kind"> & { kind?: never } {
   const title = input.title.trim();
-  if (!title) throw new Error("Title is required.");
-
-  const projects = await readCollection(viewId, "projects");
-  const project: Project = {
-    slug: uniqueSlug(projects, title),
+  const slug = uniqueSlug(existing, title);
+  return {
+    id: slug,
+    slug,
     title,
     description: input.description?.trim() || "No description yet.",
     createdBy: input.createdBy?.trim() || "You",
@@ -319,60 +485,643 @@ export async function createProject(
     context: [],
     scheduled: [],
     chats: [],
+    courseId: input.courseId?.trim() || UNASSIGNED_COURSE_ID,
+    tagIds: sanitizeTagIds(input.tagIds, "artifact"),
+  };
+}
+
+export async function createArtifact(
+  viewId: ViewId,
+  input: CreateArtifactInput,
+): Promise<Artifact> {
+  const title = input.title.trim();
+  if (!title) throw new Error("Title is required.");
+
+  const artifacts = await readCollection(viewId, "artifacts");
+  const base = artifactShell(artifacts, input);
+  const kind = parseArtifactKind(input.kind);
+
+  let artifact: Artifact;
+  if (kind === "diagram") {
+    const spec = normalizeDiagramSpec(input.spec);
+    if (!spec) throw new Error("A diagram artifact needs a valid spec.");
+    artifact = {
+      ...base,
+      kind: "diagram",
+      description: input.description?.trim() || spec.caption || base.description,
+      spec,
+      ...(input.source?.threadId || input.source?.threadTitle
+        ? { source: input.source }
+        : {}),
+    } satisfies DiagramArtifact;
+  } else if (kind === "notes") {
+    artifact = {
+      ...base,
+      kind: "notes",
+      ...emptyDocumentContent(title),
+    } satisfies NotesArtifact;
+  } else if (kind === "reading") {
+    artifact = {
+      ...base,
+      kind: "reading",
+      bodyText: input.bodyText?.trim() || "",
+      ...(input.bodyHtml ? { bodyHtml: input.bodyHtml } : {}),
+      annotations: [],
+    } satisfies ReadingArtifact;
+  } else if (kind === "flashcards") {
+    artifact = {
+      ...base,
+      kind: "flashcards",
+      cards: [],
+    } satisfies FlashcardsArtifact;
+  } else if (kind === "practice-test") {
+    artifact = {
+      ...base,
+      kind: "practice-test",
+      items: [],
+    } satisfies PracticeTestArtifact;
+  } else if (kind === "lesson") {
+    artifact = {
+      ...base,
+      kind: "lesson",
+      blocks: [],
+    } satisfies LessonArtifact;
+  } else if (kind === "slides") {
+    artifact = {
+      ...base,
+      kind: "slides",
+      slides: [{ id: "s1", title, bodyHtml: "<p></p>" }],
+    } satisfies SlidesArtifact;
+  } else {
+    artifact = {
+      ...base,
+      kind: "document",
+      ...emptyDocumentContent(title),
+    } satisfies DocumentArtifact;
+  }
+
+  artifacts.unshift(artifact);
+  await writeCollection(viewId, "artifacts", artifacts);
+  return artifact;
+}
+
+export async function listArtifacts(viewId: ViewId) {
+  return readCollection(viewId, "artifacts");
+}
+
+export async function getArtifact(
+  viewId: ViewId,
+  slug: string,
+): Promise<Artifact | null> {
+  const artifacts = await readCollection(viewId, "artifacts");
+  return (
+    artifacts.find((a) => a.slug === slug || a.id === slug) ?? null
+  );
+}
+
+/**
+ * Replace a diagram artifact's spec. Backs the detail control on the artifact
+ * page — the reason a diagram is stored as a spec rather than an image is so
+ * this is a normal edit and not a re-export.
+ */
+export async function updateDiagramArtifact(
+  viewId: ViewId,
+  slug: string,
+  input: { spec: unknown },
+): Promise<Artifact> {
+  const spec = normalizeDiagramSpec(input.spec);
+  if (!spec) throw new Error("A diagram artifact needs a valid spec.");
+
+  const artifacts = await readCollection(viewId, "artifacts");
+  const index = artifacts.findIndex((a) => a.slug === slug || a.id === slug);
+  if (index < 0) throw new Error(`Artifact not found: ${slug}`);
+
+  const current = artifacts[index];
+  if (current.kind !== "diagram") {
+    throw new Error("Only diagram artifacts can be updated this way.");
+  }
+
+  const next: DiagramArtifact = { ...current, spec, updated: "Just now" };
+  artifacts[index] = next;
+  await writeCollection(viewId, "artifacts", artifacts);
+  return next;
+}
+
+export type UpdateDocumentArtifactInput = {
+  bodyHtml?: string;
+  title?: string;
+  shortTitle?: string;
+  savedAt?: string;
+  thread?: DocumentArtifact["thread"];
+  status?: DocumentArtifact["status"];
+};
+
+export async function updateDocumentArtifact(
+  viewId: ViewId,
+  slug: string,
+  input: UpdateDocumentArtifactInput,
+): Promise<Artifact> {
+  const artifacts = await readCollection(viewId, "artifacts");
+  const index = artifacts.findIndex((a) => a.slug === slug || a.id === slug);
+  if (index < 0) throw new Error(`Artifact not found: ${slug}`);
+
+  const current = artifacts[index];
+  if (!isTextArtifact(current)) {
+    throw new Error("Only document and notes artifacts can be updated this way.");
+  }
+
+  const next = {
+    ...current,
+    ...(input.title !== undefined ? { title: input.title.trim() || current.title } : {}),
+    ...(input.shortTitle !== undefined
+      ? { shortTitle: input.shortTitle.trim() || current.shortTitle }
+      : {}),
+    ...(input.bodyHtml !== undefined ? { bodyHtml: input.bodyHtml } : {}),
+    ...(input.savedAt !== undefined ? { savedAt: input.savedAt } : {}),
+    ...(input.thread !== undefined ? { thread: input.thread } : {}),
+    ...(input.status !== undefined ? { status: input.status } : {}),
+    updated: "Just now",
   };
 
-  projects.unshift(project);
-  await writeCollection(viewId, "projects", projects);
-  return project;
+  artifacts[index] = next;
+  await writeCollection(viewId, "artifacts", artifacts);
+  return next;
 }
 
-export async function listProjects(viewId: ViewId) {
-  return readCollection(viewId, "projects");
-}
+/* ---------------------------------------------------------------- courses --- */
 
-/* ---------------------------------------------------------------- classes --- */
-
-export type CreateClassInput = {
+export type CreateCourseInput = {
   code: string;
   title: string;
   description?: string;
   instructor?: string;
   schedule?: string;
   term?: string;
+  termStartsAt?: string;
+  termEndsAt?: string;
+  instructorEmail?: string;
+  instructorOffice?: string;
+  meetings?: CourseMeeting[];
+  officeHours?: CourseOfficeHour[];
+  grading?: Course["grading"];
+  policies?: Course["policies"];
+  sourceDocumentId?: string;
+  needsReview?: string[];
 };
 
-export async function createClass(
+export async function createCourse(
   viewId: ViewId,
-  input: CreateClassInput,
-): Promise<CourseClass> {
+  input: CreateCourseInput,
+): Promise<Course> {
   const code = input.code.trim();
   const title = input.title.trim();
   if (!code || !title) throw new Error("Code and title are required.");
 
-  const classes = await readCollection(viewId, "classes");
+  const courses = await readCollection(viewId, "courses");
   const slugBase = slugify(code);
   let slug = slugBase;
   let n = 2;
-  while (classes.some((c) => c.slug === slug)) {
+  while (courses.some((c) => c.slug === slug)) {
     slug = `${slugBase}-${n}`;
     n += 1;
   }
 
-  const course: CourseClass = {
+  const meetings = input.meetings;
+  const schedule =
+    input.schedule?.trim() ||
+    (meetings?.length ? deriveSchedule(meetings) : "Schedule TBD");
+
+  const course: Course = {
+    id: slug,
     slug,
     code,
     title,
     description: input.description?.trim() || "No description yet.",
     instructor: input.instructor?.trim() || "TBD",
-    schedule: input.schedule?.trim() || "Schedule TBD",
+    schedule,
     term: input.term?.trim() || "This term",
+    ...(input.termStartsAt ? { termStartsAt: input.termStartsAt } : {}),
+    ...(input.termEndsAt ? { termEndsAt: input.termEndsAt } : {}),
+    ...(input.instructorEmail ? { instructorEmail: input.instructorEmail } : {}),
+    ...(input.instructorOffice ? { instructorOffice: input.instructorOffice } : {}),
+    ...(meetings?.length ? { meetings } : {}),
+    ...(input.officeHours?.length ? { officeHours: input.officeHours } : {}),
+    ...(input.grading?.length ? { grading: input.grading } : {}),
+    ...(input.policies ? { policies: input.policies } : {}),
+    ...(input.sourceDocumentId ? { sourceDocumentId: input.sourceDocumentId } : {}),
+    ...(input.needsReview?.length ? { needsReview: input.needsReview } : {}),
   };
 
-  classes.unshift(course);
-  await writeCollection(viewId, "classes", classes);
+  courses.unshift(course);
+  await writeCollection(viewId, "courses", courses);
   return course;
 }
 
-export async function listClasses(viewId: ViewId) {
-  return readCollection(viewId, "classes");
+export async function listCourses(viewId: ViewId) {
+  return readCollection(viewId, "courses");
+}
+
+export async function listAssignments(viewId: ViewId) {
+  return readCollection(viewId, "assignments");
+}
+
+export async function listCalendarEvents(viewId: ViewId) {
+  return readCollection(viewId, "calendar");
+}
+
+export async function listSourceDocuments(viewId: ViewId) {
+  return readCollection(viewId, "documents");
+}
+
+export async function getSourceDocument(viewId: ViewId, id: string) {
+  const documents = await listSourceDocuments(viewId);
+  return documents.find((document) => document.id === id) ?? null;
+}
+
+export async function createSourceDocument(
+  viewId: ViewId,
+  input: Omit<SourceDocument, "id" | "uploadedAt" | "status" | "kind"> & {
+    kind?: SourceDocument["kind"];
+    status?: SourceDocument["status"];
+  },
+): Promise<SourceDocument> {
+  const documents = await readCollection(viewId, "documents");
+  const id = nextPrefixed(documents.map((item) => item.id), "DOC");
+  const document: SourceDocument = {
+    id,
+    filename: input.filename,
+    mime: input.mime,
+    sizeBytes: input.sizeBytes,
+    storedPath: input.storedPath,
+    uploadedAt: new Date().toISOString(),
+    kind: input.kind ?? "syllabus",
+    status: input.status ?? "uploaded",
+    ...(input.fileApiId ? { fileApiId: input.fileApiId } : {}),
+    ...(input.courseSlug ? { courseSlug: input.courseSlug } : {}),
+  };
+  documents.unshift(document);
+  await writeCollection(viewId, "documents", documents);
+  return document;
+}
+
+export async function updateSourceDocument(
+  viewId: ViewId,
+  id: string,
+  patch: Partial<SourceDocument>,
+): Promise<SourceDocument> {
+  const documents = await readCollection(viewId, "documents");
+  const index = documents.findIndex((document) => document.id === id);
+  if (index === -1) throw new Error("Document not found.");
+  const next = { ...documents[index], ...patch };
+  documents[index] = next;
+  await writeCollection(viewId, "documents", documents);
+  return next;
+}
+
+export async function createIngestRun(
+  viewId: ViewId,
+  documentId: string,
+): Promise<IngestRun> {
+  const runs = await readCollection(viewId, "ingestRuns");
+  const run: IngestRun = {
+    id: nextPrefixed(runs.map((item) => item.id), "RUN"),
+    documentId,
+    status: "running",
+    stages: [],
+  };
+  runs.unshift(run);
+  await writeCollection(viewId, "ingestRuns", runs);
+  return run;
+}
+
+export async function getIngestRun(viewId: ViewId, id: string) {
+  const runs = await readCollection(viewId, "ingestRuns");
+  return runs.find((run) => run.id === id) ?? null;
+}
+
+export async function updateIngestRun(
+  viewId: ViewId,
+  id: string,
+  patch: Partial<IngestRun>,
+): Promise<IngestRun> {
+  const runs = await readCollection(viewId, "ingestRuns");
+  const index = runs.findIndex((run) => run.id === id);
+  if (index === -1) throw new Error("Ingest run not found.");
+  const next = { ...runs[index], ...patch };
+  runs[index] = next;
+  await writeCollection(viewId, "ingestRuns", runs);
+  return next;
+}
+
+export function uploadsDir(viewId: ViewId) {
+  return path.join(viewDir(viewId), "uploads");
+}
+
+function nextPrefixed(ids: string[], prefix: string) {
+  let max = 0;
+  const pattern = new RegExp(`^${prefix}-(\\d+)$`);
+  for (const id of ids) {
+    const match = pattern.exec(id);
+    if (match) max = Math.max(max, Number(match[1]));
+  }
+  return `${prefix}-${max + 1}`;
+}
+
+function remintPlannerForest(
+  tasks: PlannerIssue[],
+  existing: PlannerIssue[],
+): PlannerIssue[] {
+  let cursor = existing;
+  const assign = (issue: PlannerIssue): PlannerIssue => {
+    const key = nextIssueKey(cursor);
+    const stub: PlannerIssue = { ...issue, key, id: key };
+    delete stub.children;
+    cursor = [...cursor, stub];
+    const children = (issue.children ?? []).map(assign);
+    return children.length ? { ...stub, children } : stub;
+  };
+  return tasks.map(assign);
+}
+
+export async function applyIngestProposal(
+  viewId: ViewId,
+  proposal: Proposal,
+): Promise<{ course: Course }> {
+  const store = await readViewStore(viewId);
+
+  const slugBase = slugify(proposal.course.code || proposal.course.slug);
+  let slug = slugBase;
+  let n = 2;
+  while (store.courses.some((course) => course.slug === slug)) {
+    slug = `${slugBase}-${n}`;
+    n += 1;
+  }
+
+  const course: Course = {
+    ...proposal.course,
+    id: slug,
+    slug,
+    schedule:
+      proposal.course.schedule ||
+      deriveSchedule(proposal.course.meetings) ||
+      "Schedule TBD",
+  };
+
+  const assignments = proposal.assignments.map((assignment) => ({
+    ...assignment,
+    courseSlug: slug,
+  }));
+
+  let calendar = proposal.calendarEvents.map((event) => ({
+    ...event,
+    courseSlug: slug,
+    courseId: slug,
+  }));
+
+  const recurrence = resolveRecurrence(proposal.recurrence, course);
+  if (course.termStartsAt && course.termEndsAt && recurrence.length > 0) {
+    calendar = [
+      ...expandRecurrence(
+        recurrence,
+        slug,
+        course.termStartsAt,
+        course.termEndsAt,
+      ),
+      ...calendar.filter((event) => !event.seriesId),
+    ];
+  }
+
+  const tasks = remintPlannerForest(
+    proposal.tasks.map((task) => ({
+      ...task,
+      id: task.id || task.key,
+      course: course.code,
+      courseSlug: slug,
+      courseId: slug,
+    })),
+    store.planner,
+  );
+
+  store.courses.unshift(course);
+  store.assignments = [...assignments, ...store.assignments];
+  store.calendar = [...calendar, ...store.calendar];
+  store.planner = [...tasks, ...store.planner];
+
+  const documents = store.documents.map((document) =>
+    document.id === proposal.documentId
+      ? { ...document, status: "applied" as const, courseSlug: slug }
+      : document,
+  );
+  const ingestRuns = store.ingestRuns.map((run) =>
+    run.id === proposal.runId
+      ? {
+          ...run,
+          status: "applied" as const,
+          proposal,
+          appliedAt: new Date().toISOString(),
+        }
+      : run,
+  );
+
+  await Promise.all([
+    writeCollection(viewId, "courses", store.courses),
+    writeCollection(viewId, "assignments", store.assignments),
+    writeCollection(viewId, "calendar", store.calendar),
+    writeCollection(viewId, "planner", store.planner),
+    writeCollection(viewId, "documents", documents),
+    writeCollection(viewId, "ingestRuns", ingestRuns),
+  ]);
+
+  return { course };
+}
+
+export async function patchArtifact(
+  viewId: ViewId,
+  slug: string,
+  patch: Record<string, unknown>,
+): Promise<Artifact> {
+  const store = await readViewStore(viewId);
+  const index = store.artifacts.findIndex((a) => a.slug === slug || a.id === slug);
+  if (index < 0) throw new Error(`Artifact not found: ${slug}`);
+  const merged = { ...store.artifacts[index], ...patch, updated: "Just now" };
+  const next = normalizeArtifacts([merged], store.courses)[0];
+  store.artifacts[index] = next;
+  await writeCollection(viewId, "artifacts", store.artifacts);
+  return next;
+}
+
+export async function listLinks(viewId: ViewId) {
+  const store = await readViewStore(viewId);
+  return store.links;
+}
+
+export async function listLinksFor(viewId: ViewId, ref: ObjectRef) {
+  const links = await listLinks(viewId);
+  return linksFor(links, ref);
+}
+
+async function dropLinksFor(viewId: ViewId, ref: ObjectRef) {
+  const links = await readCollection(viewId, "links");
+  const next = links.filter(
+    (link) => !refsEqual(link.a, ref) && !refsEqual(link.b, ref),
+  );
+  if (next.length !== links.length) {
+    await writeCollection(viewId, "links", next);
+  }
+}
+
+export async function linkObjects(
+  viewId: ViewId,
+  a: ObjectRef,
+  b: ObjectRef,
+): Promise<ObjectLink> {
+  if (refsEqual(a, b)) throw new Error("Cannot link an object to itself.");
+  const [left, right] = canonLinkPair(a, b);
+  const links = await readCollection(viewId, "links");
+  const existing = links.find(
+    (link) =>
+      refsEqual(link.a, left) && refsEqual(link.b, right),
+  );
+  if (existing) return existing;
+  const link: ObjectLink = {
+    id: newObjectId("lnk"),
+    a: left,
+    b: right,
+  };
+  links.unshift(link);
+  await writeCollection(viewId, "links", links);
+  return link;
+}
+
+export async function unlinkObjects(viewId: ViewId, id: string) {
+  const links = await readCollection(viewId, "links");
+  const next = links.filter((link) => link.id !== id);
+  await writeCollection(viewId, "links", next);
+}
+
+export async function readMemory(viewId: ViewId) {
+  const store = await readViewStore(viewId);
+  return store.memory;
+}
+
+export async function recordMemory(
+  viewId: ViewId,
+  event: { kind: "page" | "create" | "link" | "copy" | "note"; text: string },
+) {
+  const memory = await readCollection(viewId, "memory");
+  const next = appendMemoryEvent(normalizeMemory(memory), event);
+  await writeCollection(viewId, "memory", next);
+  return next;
+}
+
+export async function recordCopyFlag(
+  viewId: ViewId,
+  flag: { turn?: string; source?: "chat" | "document-paste" },
+) {
+  const memory = await readCollection(viewId, "memory");
+  const normalized = normalizeMemory(memory);
+  const withEvent = appendMemoryEvent(normalized, {
+    kind: "copy",
+    text: flag.turn
+      ? `Student copied ${flag.source === "document-paste" ? "into a document" : "from chat"} (${flag.turn})`
+      : "Student copied from chat",
+  });
+  const next = appendCopyFlag(withEvent, flag);
+  await writeCollection(viewId, "memory", next);
+  return next;
+}
+
+/* ------------------------------------------------------------ admin users --- */
+
+const ADMIN_USERS_PATH = path.join(DATA_ROOT, "admin-users.json");
+
+export type UpdateAdminUserInput = Partial<Pick<AdminUser, AdminUserField>>;
+
+async function ensureAdminUsersFile() {
+  await fs.mkdir(DATA_ROOT, { recursive: true });
+  try {
+    await fs.access(ADMIN_USERS_PATH);
+  } catch {
+    await fs.writeFile(
+      ADMIN_USERS_PATH,
+      `${JSON.stringify(structuredClone(ADMIN_USERS), null, 2)}\n`,
+      "utf8",
+    );
+  }
+}
+
+function isAdminUser(value: unknown): value is AdminUser {
+  if (!value || typeof value !== "object") return false;
+  const user = value as Record<string, unknown>;
+  return (
+    typeof user.id === "string" &&
+    ADMIN_USER_FIELDS.every((field) => typeof user[field] === "string")
+  );
+}
+
+async function writeAdminUsers(users: AdminUser[]) {
+  await fs.writeFile(
+    ADMIN_USERS_PATH,
+    `${JSON.stringify(users, null, 2)}\n`,
+    "utf8",
+  );
+}
+
+export async function listAdminUsers(): Promise<AdminUser[]> {
+  await ensureAdminUsersFile();
+  const raw = await fs.readFile(ADMIN_USERS_PATH, "utf8");
+  const parsed = JSON.parse(raw) as unknown;
+  if (!Array.isArray(parsed) || !parsed.every(isAdminUser)) {
+    return structuredClone(ADMIN_USERS);
+  }
+  return parsed;
+}
+
+function nextAdminUserId(users: AdminUser[]): string {
+  let max = 0;
+  for (const user of users) {
+    const match = /^user-(\d+)$/.exec(user.id);
+    if (match) max = Math.max(max, Number(match[1]));
+  }
+  return `user-${max + 1}`;
+}
+
+function blankAdminUser(id: string): AdminUser {
+  return {
+    id,
+    username: "",
+    role: "",
+    email: "",
+    courses: "",
+    lastUsed: "",
+    usage: "",
+  };
+}
+
+export async function createAdminUser(): Promise<AdminUser> {
+  const users = await listAdminUsers();
+  const user = blankAdminUser(nextAdminUserId(users));
+  users.push(user);
+  await writeAdminUsers(users);
+  return user;
+}
+
+export async function updateAdminUser(
+  id: string,
+  input: UpdateAdminUserInput,
+): Promise<AdminUser> {
+  const users = await listAdminUsers();
+  const index = users.findIndex((user) => user.id === id);
+  if (index === -1) throw new Error("User not found.");
+
+  const current = users[index];
+  const next: AdminUser = { ...current };
+  for (const field of ADMIN_USER_FIELDS) {
+    const value = input[field];
+    if (typeof value === "string") next[field] = value;
+  }
+
+  users[index] = next;
+  await writeAdminUsers(users);
+  return next;
 }

@@ -1,13 +1,29 @@
 import Anthropic from "@anthropic-ai/sdk";
 import { NextResponse } from "next/server";
+import type { DocumentChatContext } from "@/lib/document-tools";
 import {
-  executePlannerTool,
-  PLANNER_TOOLS,
-  type ChatToolAction,
-} from "@/lib/chat-tools";
-import { ACADEMIC_GUARDRAILS_SYSTEM } from "@/lib/guardrails";
+  formatDiagramBlock,
+  normalizeDiagramSpec,
+} from "@/lib/diagram";
+import {
+  DIAGRAM_TOOL,
+  DIAGRAM_TOOL_NAME,
+  buildDiagramMessage,
+  readDiagramToolInput,
+} from "@/lib/diagram-tool";
+import { buildPolicyText } from "@/lib/harness/policy";
+import { runHarnessStream } from "@/lib/harness/loop";
+import { toolCatalog } from "@/lib/harness/tools";
+import { buildSessionContext } from "@/lib/harness/session";
+import {
+  MAX_ATTACHMENTS,
+  filesToContentBlocks,
+  isSupportedAttachment,
+  stripAttachmentNote,
+} from "@/lib/chat-attachments";
 import { buildSkillUserMessage } from "@/lib/skill-prompts";
 import { getServerViewId } from "@/lib/views-server";
+import { BUILTIN_SKILLS } from "@/lib/skills";
 
 export const runtime = "nodejs";
 
@@ -19,18 +35,20 @@ type ChatMessage = {
 type SkillPayload = {
   command?: string;
   prompt?: string;
+  toolName?: string;
 };
 
 type ChatRequestBody = {
   message?: string;
   messages?: ChatMessage[];
   skill?: SkillPayload;
+  document?: DocumentChatContext;
+  courseSlug?: string;
 };
 
 const MAX_MESSAGE_LENGTH = 8000;
 const MAX_HISTORY = 20;
 const MAX_SKILL_PROMPT = 4000;
-const MAX_TOOL_ROUNDS = 6;
 
 function isChatMessage(value: unknown): value is ChatMessage {
   if (!value || typeof value !== "object") return false;
@@ -42,22 +60,77 @@ function isChatMessage(value: unknown): value is ChatMessage {
   );
 }
 
+function parseDocumentContext(
+  value: unknown,
+): DocumentChatContext | undefined {
+  if (!value || typeof value !== "object") return undefined;
+  const doc = value as DocumentChatContext;
+  if (typeof doc.slug !== "string" || !doc.slug.trim()) return undefined;
+  return {
+    slug: doc.slug.trim(),
+    ...(typeof doc.title === "string" ? { title: doc.title } : {}),
+    ...(typeof doc.bodyHtml === "string" ? { bodyHtml: doc.bodyHtml } : {}),
+    ...(typeof doc.bodyText === "string" ? { bodyText: doc.bodyText } : {}),
+    ...(typeof doc.selection === "string" ? { selection: doc.selection } : {}),
+  };
+}
+
+async function parseChatRequest(request: Request): Promise<{
+  body: ChatRequestBody;
+  files: File[];
+}> {
+  const contentType = request.headers.get("content-type") ?? "";
+  if (contentType.includes("multipart/form-data")) {
+    const form = await request.formData();
+    const raw = form.get("payload");
+    if (typeof raw !== "string") {
+      throw new Error("Invalid multipart payload.");
+    }
+    const body = JSON.parse(raw) as ChatRequestBody;
+    const files = form
+      .getAll("files")
+      .filter((value): value is File => value instanceof File);
+    return { body, files };
+  }
+
+  const body = (await request.json()) as ChatRequestBody;
+  return { body, files: [] };
+}
+
+async function contentBlocksForFiles(files: File[]) {
+  if (files.length > MAX_ATTACHMENTS) {
+    throw new Error(`You can attach up to ${MAX_ATTACHMENTS} files.`);
+  }
+  for (const file of files) {
+    if (!isSupportedAttachment(file.name, file.type)) {
+      throw new Error(`${file.name} isn’t a supported file type.`);
+    }
+  }
+  return filesToContentBlocks(files);
+}
+
 export async function POST(request: Request) {
-  const apiKey = process.env.ANTHROPIC_API_KEY;
-  if (!apiKey) {
+  let body: ChatRequestBody;
+  let uploadedFiles: File[] = [];
+  try {
+    const parsed = await parseChatRequest(request);
+    body = parsed.body;
+    uploadedFiles = parsed.files;
+  } catch {
+    return NextResponse.json({ error: "Invalid request body." }, { status: 400 });
+  }
+
+  let fileBlocks: Anthropic.ContentBlockParam[] = [];
+  try {
+    fileBlocks = await contentBlocksForFiles(uploadedFiles);
+  } catch (err) {
     return NextResponse.json(
-      { error: "ANTHROPIC_API_KEY is not configured." },
-      { status: 500 },
+      { error: err instanceof Error ? err.message : "Could not read that file." },
+      { status: 400 },
     );
   }
 
-  let body: ChatRequestBody;
-  try {
-    body = (await request.json()) as ChatRequestBody;
-  } catch {
-    return NextResponse.json({ error: "Invalid JSON body." }, { status: 400 });
-  }
-
+  const document = parseDocumentContext(body.document);
   const history = Array.isArray(body.messages)
     ? body.messages.filter(isChatMessage).slice(-MAX_HISTORY)
     : [];
@@ -70,14 +143,20 @@ export async function POST(request: Request) {
     typeof body.skill?.prompt === "string"
       ? body.skill.prompt.trim().slice(0, MAX_SKILL_PROMPT)
       : "";
+  const registered = skillCommand
+    ? BUILTIN_SKILLS.find((skill) => skill.command === skillCommand)
+    : undefined;
+  const skillToolName =
+    typeof body.skill?.toolName === "string"
+      ? body.skill.toolName
+      : registered?.toolName;
 
   const latest =
     typeof body.message === "string" && body.message.trim()
       ? body.message.trim()
       : history.filter((m) => m.role === "user").at(-1)?.content?.trim();
 
-  // Skills can run with only a slash command (no free text).
-  if (!latest && !skillCommand) {
+  if (!latest && !skillCommand && fileBlocks.length === 0) {
     return NextResponse.json(
       { error: "Message is required." },
       { status: 400 },
@@ -99,7 +178,9 @@ export async function POST(request: Request) {
         }))
       : latest
         ? [{ role: "user" as const, content: latest }]
-        : [];
+        : fileBlocks.length > 0
+          ? [{ role: "user" as const, content: "Please read the attached file(s)." }]
+          : [];
 
   if (skillCommand) {
     const prior =
@@ -118,18 +199,20 @@ export async function POST(request: Request) {
       );
     }
 
-    // Optional free text after the slash command (strip leading /command).
     const rawExtra = latest ?? "";
     const extra = rawExtra
       .replace(new RegExp(`^/${skillCommand}\\b\\s*`, "i"), "")
       .trim();
 
-    const skillMessage = buildSkillUserMessage({
-      command: skillCommand,
-      lastAssistant: lastAssistant.content,
-      extra,
-      customPrompt: skillPrompt || undefined,
-    });
+    const skillMessage =
+      skillCommand === "diagram" || skillToolName === DIAGRAM_TOOL_NAME
+        ? buildDiagramMessage({ source: lastAssistant.content, extra })
+        : buildSkillUserMessage({
+            command: skillCommand,
+            lastAssistant: lastAssistant.content,
+            extra,
+            customPrompt: skillPrompt || undefined,
+          });
 
     messages = [
       ...prior,
@@ -137,113 +220,126 @@ export async function POST(request: Request) {
     ];
   }
 
-  // Anthropic requires the conversation to end with a user turn
   if (messages.at(-1)?.role !== "user") {
-    if (!latest) {
+    if (!latest && fileBlocks.length === 0) {
       return NextResponse.json(
         { error: "Message is required." },
         { status: 400 },
       );
     }
-    messages.push({ role: "user", content: latest });
+    messages.push({
+      role: "user",
+      content: latest || "Please read the attached file(s).",
+    });
+  }
+
+  if (fileBlocks.length > 0 && !skillCommand && messages.at(-1)?.role === "user") {
+    const last = messages.at(-1);
+    const text =
+      typeof last?.content === "string"
+        ? stripAttachmentNote(last.content)
+        : "";
+    messages = [
+      ...messages.slice(0, -1),
+      {
+        role: "user",
+        content: [
+          ...fileBlocks,
+          {
+            type: "text" as const,
+            text:
+              text ||
+              "Please read the attached file(s) and help me with them.",
+          },
+        ],
+      },
+    ];
   }
 
   const viewId = await getServerViewId();
-  // Slash skills rewrite the last reply — no planner mutations.
-  const toolsEnabled = !skillCommand;
-  const actions: ChatToolAction[] = [];
+  const courseSlug =
+    typeof body.courseSlug === "string" ? body.courseSlug.trim() : "";
+  const isDiagram =
+    skillCommand === "diagram" || skillToolName === DIAGRAM_TOOL_NAME;
+  const toolsEnabled = !skillCommand || Boolean(skillToolName);
 
-  try {
-    const client = new Anthropic({ apiKey });
-    let response = await client.messages.create({
-      model: "claude-sonnet-5",
-      max_tokens: skillCommand === "diagram" ? 2048 : 1024,
-      system: ACADEMIC_GUARDRAILS_SYSTEM,
-      messages,
-      ...(toolsEnabled ? { tools: PLANNER_TOOLS } : {}),
-    });
-
-    let rounds = 0;
-    while (
-      toolsEnabled &&
-      response.stop_reason === "tool_use" &&
-      rounds < MAX_TOOL_ROUNDS
-    ) {
-      rounds += 1;
-      const toolUses = response.content.filter(
-        (block): block is Anthropic.ToolUseBlock => block.type === "tool_use",
-      );
-
-      const toolResults: Anthropic.ToolResultBlockParam[] = [];
-      for (const use of toolUses) {
-        const input =
-          use.input && typeof use.input === "object"
-            ? (use.input as Record<string, unknown>)
-            : {};
-        try {
-          const { result, action } = await executePlannerTool(
-            viewId,
-            use.name,
-            input,
-          );
-          if (action) actions.push(action);
-          toolResults.push({
-            type: "tool_result",
-            tool_use_id: use.id,
-            content: JSON.stringify(result),
-          });
-        } catch (err) {
-          const message =
-            err instanceof Error ? err.message : "Tool execution failed.";
-          toolResults.push({
-            type: "tool_result",
-            tool_use_id: use.id,
-            is_error: true,
-            content: JSON.stringify({ error: message }),
-          });
-        }
-      }
-
-      messages = [
-        ...messages,
-        { role: "assistant", content: response.content },
-        { role: "user", content: toolResults },
-      ];
-
-      response = await client.messages.create({
-        model: "claude-sonnet-5",
-        max_tokens: 1024,
-        system: ACADEMIC_GUARDRAILS_SYSTEM,
-        messages,
-        tools: PLANNER_TOOLS,
-      });
-    }
-
-    const text = response.content
-      .filter((block): block is Anthropic.TextBlock => block.type === "text")
-      .map((block) => block.text)
-      .join("\n")
-      .trim();
-
-    if (!text) {
+  if (isDiagram) {
+    const apiKey = process.env.ANTHROPIC_API_KEY;
+    if (!apiKey) {
       return NextResponse.json(
-        { error: "Model returned an empty response." },
+        { error: "ANTHROPIC_API_KEY is not configured." },
+        { status: 500 },
+      );
+    }
+    const client = new Anthropic({ apiKey });
+    const system = [
+      {
+        type: "text" as const,
+        text: buildPolicyText(toolCatalog()),
+        cache_control: { type: "ephemeral" as const },
+      },
+      {
+        type: "text" as const,
+        text: (await buildSessionContext(viewId, { courseSlug, document })) || " ",
+      },
+    ];
+    try {
+      const response = await client.messages.create({
+        model: "claude-sonnet-5",
+        max_tokens: 2048,
+        system,
+        messages,
+        tools: [DIAGRAM_TOOL],
+        tool_choice: { type: "tool" as const, name: DIAGRAM_TOOL_NAME },
+      });
+      const text = response.content
+        .filter((block): block is Anthropic.TextBlock => block.type === "text")
+        .map((block) => block.text)
+        .join("\n")
+        .trim();
+      const spec = normalizeDiagramSpec(readDiagramToolInput(response));
+      if (!spec) {
+        return NextResponse.json(
+          {
+            error:
+              "Could not build a diagram from that reply. Try asking about it in a bit more detail first.",
+          },
+          { status: 502 },
+        );
+      }
+      const caption = spec.caption ?? text;
+      return NextResponse.json({
+        message: {
+          role: "assistant" as const,
+          content: caption
+            ? `${caption}\n\n${formatDiagramBlock(spec)}`
+            : formatDiagramBlock(spec),
+        },
+        actions: [],
+      });
+    } catch (error) {
+      console.error("[api/chat] diagram", error);
+      return NextResponse.json(
+        { error: error instanceof Error ? error.message : "Failed to reach Claude." },
         { status: 502 },
       );
     }
-
-    return NextResponse.json({
-      message: {
-        role: "assistant" as const,
-        content: text,
-      },
-      actions,
-      plannerChanged: actions.length > 0,
-    });
-  } catch (error) {
-    console.error("[api/chat]", error);
-    const message =
-      error instanceof Error ? error.message : "Failed to reach Claude.";
-    return NextResponse.json({ error: message }, { status: 502 });
   }
+
+  const stream = runHarnessStream({
+    viewId,
+    messages,
+    document,
+    courseSlug: courseSlug || undefined,
+    toolsEnabled,
+  });
+
+  return new Response(stream, {
+    headers: {
+      "Content-Type": "text/event-stream; charset=utf-8",
+      "Cache-Control": "no-cache, no-transform",
+      Connection: "keep-alive",
+      "X-Accel-Buffering": "no",
+    },
+  });
 }

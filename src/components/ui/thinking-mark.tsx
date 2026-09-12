@@ -27,14 +27,14 @@ type ThinkingMarkProps = {
   /**
    * Rendered size in px. The family sits in a 140 viewBox — padding the mark's
    * own 100 units leaves room for the wider triangle and trapezoid — so 24px
-   * here puts ~17px of ink on screen, matching the static 17px LumisMark.
+   * here puts ~17px of ink on screen, matching the static 17px MonarchMark.
    */
   size?: number;
   className?: string;
 };
 
 /**
- * The Lumis mark, cycling through the loader shape family while a reply is
+ * The Monarch mark, cycling through the loader shape family while a reply is
  * pending. Frames write straight to the path node — React state at 60fps would
  * re-render the tree every frame for no benefit.
  */

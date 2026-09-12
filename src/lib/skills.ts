@@ -13,6 +13,8 @@ export type Skill = {
   description: string;
   /** Instruction sent to the model. Built-ins may ignore this. */
   prompt?: string;
+  /** Multi-facing: run this registry tool instead of a prompt rewrite. */
+  toolName?: string;
   builtin?: boolean;
 };
 
@@ -28,13 +30,14 @@ export const BUILTIN_SKILLS: Skill[] = [
     id: "diagram",
     command: "diagram",
     name: "Diagram",
-    description: "Turn the last reply into a clear Mermaid diagram.",
+    description: "Turn the last reply into a simple diagram you can keep.",
+    toolName: "emit_diagram",
     builtin: true,
   },
 ];
 
 function storageKey() {
-  return `lumis.skills.${readViewIdFromDocument()}`;
+  return `monarch.skills.${readViewIdFromDocument()}`;
 }
 
 function canUseStorage() {

@@ -40,3 +40,6 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# syllabus uploads (JSON stores are committed; PDFs are not)
+data/*/uploads/

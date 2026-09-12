@@ -38,7 +38,13 @@ type FileUploadProps = {
   multiple?: boolean;
   showBorderBeam?: boolean;
   showFileList?: boolean;
+  /** When false, hide the type/extension badge in the attached-file rows. */
+  showFileTypeBadge?: boolean;
   title?: string;
+  /** Overrides `title` once at least one file is attached. */
+  titleWhenHasFiles?: string;
+  /** Replaces the dropzone (file list underneath is unchanged). */
+  dropzoneOverride?: React.ReactNode;
   onFilesAccepted?: (files: File[]) => void;
   onFilesChange?: (files: FileUploadItem[]) => void;
 };
@@ -167,7 +173,10 @@ export function FileUpload({
   multiple = true,
   showBorderBeam = true,
   showFileList = true,
+  showFileTypeBadge = true,
   title = "Click to upload or drop files",
+  titleWhenHasFiles,
+  dropzoneOverride,
   onFilesAccepted,
   onFilesChange,
 }: FileUploadProps) {
@@ -256,7 +265,9 @@ export function FileUpload({
         isDragging={isDragging}
       />
       <div className="space-y-1">
-        <div className="text-sm font-medium">{title}</div>
+        <div className="text-sm font-medium">
+          {files.length > 0 && titleWhenHasFiles ? titleWhenHasFiles : title}
+        </div>
         <div className="text-xs text-muted-foreground">{description}</div>
         {rejectionMessage ? (
           <div className="text-xs text-destructive">{rejectionMessage}</div>
@@ -282,9 +293,12 @@ export function FileUpload({
     </div>
   );
 
+  const surface = dropzoneOverride ?? dropzone;
+  const beam = showBorderBeam && !dropzoneOverride;
+
   return (
     <div className={cn("space-y-3", className)}>
-      {showBorderBeam ? (
+      {beam ? (
         <BorderBeam
           active={isDragging}
           borderRadius={18}
@@ -296,10 +310,10 @@ export function FileUpload({
           strength={1}
           theme={borderBeamTheme}
         >
-          {dropzone}
+          {surface}
         </BorderBeam>
       ) : (
-        dropzone
+        surface
       )}
       {showFileList && files.length > 0 ? (
         <div className="rounded-xl border bg-background">
@@ -308,25 +322,25 @@ export function FileUpload({
               key={file.id}
               className="flex items-center gap-3 border-b px-3 py-2.5 last:border-b-0"
             >
-              <FileThumbnail
-                file={{
-                  name: file.name,
-                  type: file.type,
-                }}
-                previewImageUrl={
-                  file.type.startsWith("image/") ? file.url : null
-                }
-                className="size-10 shrink-0 rounded-lg"
-              />
+              {showFileTypeBadge ? (
+                <FileThumbnail
+                  file={{
+                    name: file.name,
+                    type: file.type,
+                  }}
+                  previewImageUrl={
+                    file.type.startsWith("image/") ? file.url : null
+                  }
+                  className="size-10 shrink-0 rounded-lg"
+                />
+              ) : null}
               <div className="min-w-0 flex-1">
                 <div className="truncate text-sm font-medium">{file.name}</div>
                 <div className="truncate text-xs text-muted-foreground">
                   {file.type} - {formatBytes(file.size)}
                 </div>
               </div>
-              <div className="rounded-full bg-muted px-2 py-1 text-xs text-muted-foreground">
-                Ready
-              </div>
+              <div className="text-xs text-muted-foreground">Ready</div>
             </div>
           ))}
         </div>

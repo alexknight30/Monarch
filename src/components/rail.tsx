@@ -1,121 +1,89 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { NavIcon } from "@/components/nav-icons";
+import { useViewId } from "@/components/view-provider";
 import { setActiveChatId } from "@/lib/chat-history";
+import { isDevView } from "@/lib/views";
+
+type NavItem = {
+  href: string;
+  label: string;
+  match: (p: string) => boolean;
+  onClick?: () => void;
+};
 
 // `/admin` (the view switcher) is deliberately absent: URL-only, and the rail
-// hides itself there entirely. `/visibility` is the regular admin console.
-const NAV = [
+// hides itself there entirely. `/visibility` is the admin console, and only
+// appears in the Dev view.
+const NAV: NavItem[] = [
   {
-    href: "/",
-    label: "Home",
-    // Chat lives under Home — keep the grid icon active in a session.
+    href: "/?home=1",
+    label: "Chat",
     match: (p: string) => p === "/" || p.startsWith("/chat"),
+    onClick: () => setActiveChatId(null),
   },
   { href: "/calendar", label: "Calendar", match: (p: string) => p.startsWith("/calendar") },
   { href: "/planner", label: "Planner", match: (p: string) => p.startsWith("/planner") },
   { href: "/visibility", label: "Visibility", match: (p: string) => p.startsWith("/visibility") },
-  { href: "/projects", label: "Projects", match: (p: string) => p.startsWith("/projects") },
-  { href: "/classes", label: "Classes", match: (p: string) => p.startsWith("/classes") },
-  { href: "/settings", label: "Settings", match: (p: string) => p.startsWith("/settings") },
+  { href: "/artifacts", label: "Artifacts", match: (p: string) => p.startsWith("/artifacts") },
+  { href: "/courses", label: "Courses", match: (p: string) => p.startsWith("/courses") },
 ];
+
+const SETTINGS: NavItem = {
+  href: "/settings",
+  label: "Settings",
+  match: (p: string) => p.startsWith("/settings"),
+};
+
+function RailLink({
+  item,
+  pathname,
+}: {
+  item: NavItem;
+  pathname: string;
+}) {
+  const active = item.match(pathname);
+  return (
+    <Link
+      href={item.href}
+      aria-label={item.label}
+      aria-current={active ? "page" : undefined}
+      onClick={item.onClick}
+      className="flex h-11 w-full items-center"
+    >
+      <span className="flex h-11 w-[66px] shrink-0 items-center justify-center">
+        <NavIcon name={item.label} active={active} />
+      </span>
+      <span
+        className={`truncate pr-3 text-sm leading-[18px] whitespace-nowrap transition-opacity duration-200 ease-out ${
+          active ? "font-semibold text-[#1A1A1A]" : "font-normal text-[#6B675F]"
+        } opacity-0 delay-0 group-hover/rail:opacity-100 group-hover/rail:delay-75`}
+      >
+        {item.label}
+      </span>
+    </Link>
+  );
+}
 
 /** The view switcher renders chrome-free. */
 const HIDDEN_ON = ["/admin"];
 
-function NavIcon({ name, active }: { name: string; active: boolean }) {
-  const stroke = active ? "#0A0A0A" : "#8A8A8A";
-  const common = {
-    fill: "none",
-    stroke,
-    strokeWidth: 1.7,
-    strokeLinecap: "round" as const,
-    strokeLinejoin: "round" as const,
-  };
-
-  if (name === "Home") {
-    return (
-      <svg width="19" height="19" viewBox="0 0 24 24" className="shrink-0">
-        <rect x="3" y="3" width="7.5" height="7.5" rx="2" {...common} />
-        <rect x="13.5" y="3" width="7.5" height="7.5" rx="2" {...common} />
-        <rect x="3" y="13.5" width="7.5" height="7.5" rx="2" {...common} />
-        <rect x="13.5" y="13.5" width="7.5" height="7.5" rx="2" {...common} />
-      </svg>
-    );
-  }
-
-  if (name === "Calendar") {
-    return (
-      <svg width="19" height="19" viewBox="0 0 24 24" className="shrink-0">
-        <rect x="3" y="5" width="18" height="16" rx="3" {...common} />
-        <path d="M3 10h18M8 3v4M16 3v4" {...common} />
-      </svg>
-    );
-  }
-
-  if (name === "Planner") {
-    return (
-      <svg width="19" height="19" viewBox="0 0 24 24" className="shrink-0">
-        <path d="M4 5.5h16" {...common} />
-        <path d="M8 11h12" {...common} />
-        <path d="M12 16.5h8" {...common} />
-        <path d="M4 5.5v5.5a2 2 0 0 0 2 2h2" {...common} />
-        <path d="M8 11v3.5a2 2 0 0 0 2 2h2" {...common} />
-      </svg>
-    );
-  }
-
-  if (name === "Visibility") {
-    return (
-      <svg width="19" height="19" viewBox="0 0 24 24" className="shrink-0">
-        <rect x="3" y="3" width="18" height="18" rx="4" {...common} />
-        <path d="M7.5 15l3.2-3.6 2.6 2.2 3.4-4.4" {...common} />
-      </svg>
-    );
-  }
-
-  if (name === "Projects") {
-    return (
-      <svg width="19" height="19" viewBox="0 0 24 24" className="shrink-0">
-        <rect x="3" y="4.5" width="18" height="4.5" rx="1.4" {...common} />
-        <path d="M5.2 9v9.4a1.8 1.8 0 0 0 1.8 1.8h10a1.8 1.8 0 0 0 1.8-1.8V9" {...common} />
-        <path d="M10 13h4" {...common} />
-      </svg>
-    );
-  }
-
-  if (name === "Classes") {
-    return (
-      <svg width="19" height="19" viewBox="0 0 24 24" className="shrink-0">
-        <path d="M4 5.5h16v13H4z" {...common} />
-        <path d="M8 5.5V18.5M4 9.5h16" {...common} />
-      </svg>
-    );
-  }
-
-  // Settings
-  return (
-    <svg width="19" height="19" viewBox="0 0 24 24" className="shrink-0">
-      <circle cx="12" cy="12" r="3" {...common} />
-      <path
-        d="M19.4 13a7.6 7.6 0 0 0 .1-2l2-1.5-2-3.5-2.4 1a7.4 7.4 0 0 0-1.7-1L15 3h-4l-.4 2.9a7.4 7.4 0 0 0-1.7 1l-2.4-1-2 3.5 2 1.5a7.6 7.6 0 0 0 0 2l-2 1.5 2 3.5 2.4-1a7.4 7.4 0 0 0 1.7 1L11 21h4l.4-2.9a7.4 7.4 0 0 0 1.7-1l2.4 1 2-3.5-2-1.5z"
-        {...common}
-      />
-    </svg>
-  );
-}
-
 export default function Rail() {
   const pathname = usePathname();
+  const viewId = useViewId();
   if (HIDDEN_ON.includes(pathname)) return null;
+
+  const items = NAV.filter(
+    (item) => item.href !== "/visibility" || isDevView(viewId),
+  );
 
   // Spacer keeps page layout fixed at the collapsed width; the real nav overlays
   // and grows to the right so icons never shift.
   return (
     <div className="relative h-full w-[66px] shrink-0">
-      <nav className="group/rail absolute inset-y-0 left-0 z-40 flex h-full w-[66px] flex-col overflow-hidden border-r border-[#EAEAEA] bg-white transition-[width,box-shadow] duration-200 ease-out hover:w-[196px] hover:shadow-[4px_0_24px_rgba(0,0,0,0.06)]">
+      <nav className="group/rail absolute inset-y-0 left-0 z-40 flex h-full w-[66px] flex-col overflow-hidden bg-[#F5F3EE] transition-[width,box-shadow] duration-200 ease-out hover:w-[196px] hover:shadow-[4px_0_24px_rgba(0,0,0,0.06)]">
         <Link
           href="/?home=1"
           aria-label="Home"
@@ -132,46 +100,16 @@ export default function Rail() {
           </svg>
         </Link>
 
-        <div className="flex flex-col gap-3 px-[13px] pt-5">
-          {NAV.map((item) => {
-            const active = item.match(pathname);
-            return (
-              <Link
-                key={item.href}
-                href={item.href}
-                aria-label={item.label}
-                aria-current={active ? "page" : undefined}
-                className={`flex h-10 items-center gap-3 rounded-lg transition-colors ${
-                  active ? "bg-[#F4F4F4]" : "hover:bg-[#F7F7F7]"
-                }`}
-              >
-                <span className="flex h-10 w-10 shrink-0 items-center justify-center">
-                  <NavIcon name={item.label} active={active} />
-                </span>
-                <span
-                  className={`truncate text-sm leading-4 whitespace-nowrap transition-opacity duration-200 ease-out ${
-                    active ? "font-medium text-[#0A0A0A]" : "text-[#5E5E5E]"
-                  } opacity-0 delay-0 group-hover/rail:opacity-100 group-hover/rail:delay-75`}
-                >
-                  {item.label}
-                </span>
-              </Link>
-            );
-          })}
+        <div className="flex flex-col gap-1 pt-3">
+          {items.map((item) => (
+            <RailLink key={item.href} item={item} pathname={pathname} />
+          ))}
         </div>
 
         <div className="w-full flex-1" />
 
-        <div className="w-full border-t border-[#EAEAEA]">
-          <div className="flex w-[66px] items-center justify-center pt-4 pb-[22px]">
-            <Image
-              src="/school-logo.png"
-              alt="Westbrook College"
-              width={48}
-              height={41}
-              className="h-[41px] w-12 object-contain"
-            />
-          </div>
+        <div className="pb-3">
+          <RailLink item={SETTINGS} pathname={pathname} />
         </div>
       </nav>
     </div>

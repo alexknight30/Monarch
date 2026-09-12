@@ -15,7 +15,7 @@ type BlankPageShellProps = {
 };
 
 /**
- * Shared page chrome for planner / classes / projects.
+ * Shared page chrome for planner / courses / artifacts.
  * Blank views: title, italic empty copy, and a centered plus — no tabs, header actions, or cards.
  */
 export function BlankPageShell({

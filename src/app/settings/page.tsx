@@ -10,11 +10,26 @@ export default async function SettingsPage() {
         ? "Alex Seager"
         : view.id === "alex-knight"
           ? "Alex Knight"
-          : `${user.firstName} Morgan`,
+          : view.id === "test-one"
+            ? "Test One"
+            : `${user.firstName} Morgan`,
     email: `${user.firstName.toLowerCase()}.${
-      view.id === "alex-seager" ? "seager" : view.id === "alex-knight" ? "knight" : "morgan"
+      view.id === "alex-seager"
+        ? "seager"
+        : view.id === "alex-knight"
+          ? "knight"
+          : view.id === "test-one"
+            ? "one"
+            : "morgan"
     }@westbrook.edu`,
-    studentId: view.id === "mock-one" ? "WBC-204918" : view.id === "alex-knight" ? "WBC-218441" : "WBC-219003",
+    studentId:
+      view.id === "mock-one"
+        ? "WBC-204918"
+        : view.id === "alex-knight"
+          ? "WBC-218441"
+          : view.id === "test-one"
+            ? "WBC-000000"
+            : "WBC-219003",
     major: "Computer Science",
     year: "Junior",
     school: user.school,

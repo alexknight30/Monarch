@@ -1,0 +1,2228 @@
+[
+  {
+    "id": "RUN-3",
+    "documentId": "DOC-3",
+    "status": "applied",
+    "stages": [
+      {
+        "name": "upload",
+        "status": "done",
+        "ms": 664
+      },
+      {
+        "name": "fan-out",
+        "status": "done",
+        "ms": 13768
+      },
+      {
+        "name": "materialize",
+        "status": "done",
+        "ms": 70
+      }
+    ],
+    "proposal": {
+      "runId": "RUN-3",
+      "documentId": "DOC-3",
+      "course": {
+        "slug": "psyc-179",
+        "code": "PSYC 179",
+        "title": "Cognitive Psychology and the Brain",
+        "description": "This course provides an introduction to cognitive psychology with an emphasis on how mental processes map onto brain function, covering attention, perception, memory systems, language, decision-making, and neuroscience methods such as EEG, fMRI, and lesion studies. Students read primary research literature, design a small original study, and practice communicating cognitive science to non-specialist audiences.",
+        "instructor": "Dr. Miriam Ostrander",
+        "schedule": "MWF · 10:00–10:50 AM",
+        "term": "Fall Semester 2026",
+        "termStartsAt": "2026-08-31",
+        "termEndsAt": "2026-12-11",
+        "instructorEmail": "m.ostrander@example.edu",
+        "instructorOffice": "Adams Hall, Room 214",
+        "meetings": [
+          {
+            "kind": "lecture",
+            "days": [
+              1,
+              3,
+              5
+            ],
+            "start": "10:00",
+            "end": "10:50",
+            "location": "Roberts Hall, Room 104"
+          }
+        ],
+        "officeHours": [
+          {
+            "host": "Dr. Miriam Ostrander",
+            "day": 2,
+            "start": "13:00",
+            "end": "15:00",
+            "location": "Adams Hall, Room 214",
+            "mode": "in-person"
+          },
+          {
+            "host": "Dr. Miriam Ostrander",
+            "day": 4,
+            "start": "10:00",
+            "end": "11:30",
+            "location": "Adams Hall, Room 214",
+            "mode": "in-person"
+          }
+        ],
+        "grading": [
+          {
+            "component": "Participation & Reading Responses",
+            "weight": 10
+          },
+          {
+            "component": "Problem Sets (3)",
+            "weight": 15
+          },
+          {
+            "component": "Midterm Exam",
+            "weight": 20
+          },
+          {
+            "component": "Research Proposal",
+            "weight": 20
+          },
+          {
+            "component": "Class Presentation",
+            "weight": 10
+          },
+          {
+            "component": "Final Exam",
+            "weight": 25
+          }
+        ],
+        "policies": {
+          "late": "Problem sets lose 10% per day late unless an extension is arranged in advance.",
+          "attendance": "More than three unexcused absences will lower your participation grade by one full letter.",
+          "integrity": "All work is governed by the CMC Honor Code (mock reference). Collaboration on problem sets is permitted; write-ups must be your own."
+        },
+        "sourceDocumentId": "DOC-3"
+      },
+      "assignments": [
+        {
+          "id": "ASG-1",
+          "courseSlug": "psyc-179",
+          "title": "Participation & Reading Responses",
+          "type": "discussion",
+          "dueAt": null,
+          "weight": 10,
+          "description": "Weekly 150-word reading responses due before class",
+          "source": {
+            "documentId": "DOC-3",
+            "quote": "Participation & Reading Responses 10% Weekly 150-word reading responses due before class",
+            "page": 1
+          },
+          "status": "upcoming"
+        },
+        {
+          "id": "ASG-2",
+          "courseSlug": "psyc-179",
+          "title": "Reading Response #1",
+          "type": "reading",
+          "dueAt": "2026-09-11",
+          "weight": null,
+          "description": "Reading response due Friday of Week 2",
+          "source": {
+            "documentId": "DOC-3",
+            "quote": "Reading response #1 due Fri",
+            "page": 3
+          },
+          "status": "upcoming"
+        },
+        {
+          "id": "ASG-3",
+          "courseSlug": "psyc-179",
+          "title": "Reading Response #2",
+          "type": "reading",
+          "dueAt": "2026-10-02",
+          "weight": null,
+          "description": "Reading response due Friday of Week 5",
+          "source": {
+            "documentId": "DOC-3",
+            "quote": "Reading response #2 due Fri",
+            "page": 3
+          },
+          "status": "upcoming"
+        },
+        {
+          "id": "ASG-4",
+          "courseSlug": "psyc-179",
+          "title": "Reading Response #3",
+          "type": "reading",
+          "dueAt": "2026-11-13",
+          "weight": null,
+          "description": "Reading response due Friday of Week 11",
+          "source": {
+            "documentId": "DOC-3",
+            "quote": "Reading response #3 due Fri",
+            "page": 3
+          },
+          "status": "upcoming"
+        },
+        {
+          "id": "ASG-5",
+          "courseSlug": "psyc-179",
+          "title": "Problem Sets (3)",
+          "type": "problem-set",
+          "dueAt": null,
+          "weight": 15,
+          "description": "Short quantitative/conceptual sets on memory, attention, and neuroimaging",
+          "source": {
+            "documentId": "DOC-3",
+            "quote": "Problem Sets (3) 15% Short quantitative/conceptual sets on memory, attention, and neuroimaging",
+            "page": 1
+          },
+          "status": "upcoming"
+        },
+        {
+          "id": "ASG-6",
+          "courseSlug": "psyc-179",
+          "title": "Problem Set 1",
+          "type": "problem-set",
+          "dueAt": "2026-09-25",
+          "weight": null,
+          "description": "Assigned Monday of Week 4, due Friday",
+          "source": {
+            "documentId": "DOC-3",
+            "quote": "Problem Set 1 assigned Mon, due Fri",
+            "page": 3
+          },
+          "status": "upcoming"
+        },
+        {
+          "id": "ASG-7",
+          "courseSlug": "psyc-179",
+          "title": "Problem Set 2",
+          "type": "problem-set",
+          "dueAt": "2026-10-30",
+          "weight": null,
+          "description": "Due Friday of Week 9",
+          "source": {
+            "documentId": "DOC-3",
+            "quote": "Problem Set 2 due Fri",
+            "page": 3
+          },
+          "status": "upcoming"
+        },
+        {
+          "id": "ASG-8",
+          "courseSlug": "psyc-179",
+          "title": "Problem Set 3",
+          "type": "problem-set",
+          "dueAt": "2026-12-04",
+          "weight": null,
+          "description": "Due Friday of Week 13",
+          "source": {
+            "documentId": "DOC-3",
+            "quote": "Problem Set 3 due Fri",
+            "page": 3
+          },
+          "status": "upcoming"
+        },
+        {
+          "id": "ASG-9",
+          "courseSlug": "psyc-179",
+          "title": "Midterm Exam",
+          "type": "exam",
+          "dueAt": "2026-10-09",
+          "weight": 20,
+          "description": "In-class midterm exam covering material through long-term memory systems",
+          "source": {
+            "documentId": "DOC-3",
+            "quote": "Midterm Exam: Fri, Oct 9",
+            "page": 3
+          },
+          "status": "upcoming"
+        },
+        {
+          "id": "ASG-10",
+          "courseSlug": "psyc-179",
+          "title": "Research Proposal, Stage 1 (topic + question)",
+          "type": "paper",
+          "dueAt": "2026-10-16",
+          "weight": null,
+          "description": "First stage of the original mini-study design; topic and research question",
+          "source": {
+            "documentId": "DOC-3",
+            "quote": "Research Proposal, Stage 1 (topic + question) due Fri",
+            "page": 3
+          },
+          "status": "upcoming"
+        },
+        {
+          "id": "ASG-11",
+          "courseSlug": "psyc-179",
+          "title": "Research Proposal, Stage 2 (full design)",
+          "type": "paper",
+          "dueAt": "2026-11-20",
+          "weight": 20,
+          "description": "Second and final stage of the original mini-study design, submitted in full",
+          "source": {
+            "documentId": "DOC-3",
+            "quote": "Research Proposal, Stage 2 (full design) due Fri",
+            "page": 3
+          },
+          "status": "upcoming"
+        },
+        {
+          "id": "ASG-12",
+          "courseSlug": "psyc-179",
+          "title": "Class Presentation",
+          "type": "presentation",
+          "dueAt": "2026-12-11",
+          "weight": 10,
+          "description": "10-minute presentation of research proposal during the final week of instruction",
+          "source": {
+            "documentId": "DOC-3",
+            "quote": "Class Presentations: Wed–Fri.",
+            "page": 3
+          },
+          "status": "upcoming",
+          "needsReview": true
+        },
+        {
+          "id": "ASG-13",
+          "courseSlug": "psyc-179",
+          "title": "Final Exam",
+          "type": "exam",
+          "dueAt": null,
+          "weight": 25,
+          "description": "Cumulative final exam scheduled during the Final Exam Period (Dec. 14–18); exact date/time to be assigned by Registrar",
+          "source": {
+            "documentId": "DOC-3",
+            "quote": "Cumulative final exam (date/time to be assigned by Registrar)",
+            "page": 4
+          },
+          "status": "upcoming",
+          "needsReview": true
+        }
+      ],
+      "calendarEvents": [
+        {
+          "id": "oneoff-1",
+          "courseSlug": "psyc-179",
+          "kind": "class",
+          "title": "Midterm Exam",
+          "startsAt": "2026-10-09T10:00:00",
+          "endsAt": "2026-10-09T10:50:00",
+          "location": "Roberts Hall, Room 104",
+          "generatedBy": "syllabus"
+        },
+        {
+          "id": "oneoff-2",
+          "courseSlug": "psyc-179",
+          "kind": "class",
+          "title": "Final Exam",
+          "startsAt": "2026-12-14T00:00:00",
+          "endsAt": "2026-12-18T23:59:59",
+          "location": "TBA (Registrar-assigned)",
+          "generatedBy": "syllabus"
+        },
+        {
+          "id": "due-ASG-2",
+          "courseSlug": "psyc-179",
+          "kind": "deadline",
+          "title": "Reading Response #1",
+          "startsAt": "2026-09-11",
+          "endsAt": "2026-09-11",
+          "assignmentId": "ASG-2",
+          "generatedBy": "syllabus"
+        },
+        {
+          "id": "due-ASG-3",
+          "courseSlug": "psyc-179",
+          "kind": "deadline",
+          "title": "Reading Response #2",
+          "startsAt": "2026-10-02",
+          "endsAt": "2026-10-02",
+          "assignmentId": "ASG-3",
+          "generatedBy": "syllabus"
+        },
+        {
+          "id": "due-ASG-4",
+          "courseSlug": "psyc-179",
+          "kind": "deadline",
+          "title": "Reading Response #3",
+          "startsAt": "2026-11-13",
+          "endsAt": "2026-11-13",
+          "assignmentId": "ASG-4",
+          "generatedBy": "syllabus"
+        },
+        {
+          "id": "due-ASG-6",
+          "courseSlug": "psyc-179",
+          "kind": "deadline",
+          "title": "Problem Set 1",
+          "startsAt": "2026-09-25",
+          "endsAt": "2026-09-25",
+          "assignmentId": "ASG-6",
+          "generatedBy": "syllabus"
+        },
+        {
+          "id": "due-ASG-7",
+          "courseSlug": "psyc-179",
+          "kind": "deadline",
+          "title": "Problem Set 2",
+          "startsAt": "2026-10-30",
+          "endsAt": "2026-10-30",
+          "assignmentId": "ASG-7",
+          "generatedBy": "syllabus"
+        },
+        {
+          "id": "due-ASG-8",
+          "courseSlug": "psyc-179",
+          "kind": "deadline",
+          "title": "Problem Set 3",
+          "startsAt": "2026-12-04",
+          "endsAt": "2026-12-04",
+          "assignmentId": "ASG-8",
+          "generatedBy": "syllabus"
+        },
+        {
+          "id": "due-ASG-9",
+          "courseSlug": "psyc-179",
+          "kind": "exam",
+          "title": "Midterm Exam",
+          "startsAt": "2026-10-09",
+          "endsAt": "2026-10-09",
+          "assignmentId": "ASG-9",
+          "generatedBy": "syllabus"
+        },
+        {
+          "id": "due-ASG-10",
+          "courseSlug": "psyc-179",
+          "kind": "deadline",
+          "title": "Research Proposal, Stage 1 (topic + question)",
+          "startsAt": "2026-10-16",
+          "endsAt": "2026-10-16",
+          "assignmentId": "ASG-10",
+          "generatedBy": "syllabus"
+        },
+        {
+          "id": "due-ASG-11",
+          "courseSlug": "psyc-179",
+          "kind": "deadline",
+          "title": "Research Proposal, Stage 2 (full design)",
+          "startsAt": "2026-11-20",
+          "endsAt": "2026-11-20",
+          "assignmentId": "ASG-11",
+          "generatedBy": "syllabus"
+        },
+        {
+          "id": "due-ASG-12",
+          "courseSlug": "psyc-179",
+          "kind": "deadline",
+          "title": "Class Presentation",
+          "startsAt": "2026-12-11",
+          "endsAt": "2026-12-11",
+          "assignmentId": "ASG-12",
+          "generatedBy": "syllabus"
+        }
+      ],
+      "tasks": [
+        {
+          "key": "ING-1",
+          "title": "Complete Problem Set 1",
+          "status": "todo",
+          "description": "Short quantitative/conceptual set on attention",
+          "course": "PSYC 179",
+          "courseSlug": "psyc-179",
+          "assignment": "Problem Sets (3)",
+          "assignmentId": "ASG-5",
+          "dueAt": "2026-09-25",
+          "due": "Sep 25",
+          "children": [
+            {
+              "key": "ING-1-1",
+              "title": "Review assigned readings",
+              "status": "todo",
+              "description": "Review Posner & Petersen (1990) excerpt",
+              "course": "PSYC 179",
+              "courseSlug": "psyc-179",
+              "assignment": "Problem Sets (3)",
+              "assignmentId": "ASG-5"
+            },
+            {
+              "key": "ING-1-2",
+              "title": "Complete problems",
+              "status": "todo",
+              "description": "Work through problem set questions",
+              "course": "PSYC 179",
+              "courseSlug": "psyc-179",
+              "assignment": "Problem Sets (3)",
+              "assignmentId": "ASG-5"
+            },
+            {
+              "key": "ING-1-3",
+              "title": "Review before submission",
+              "status": "todo",
+              "description": "Check answers and formatting",
+              "course": "PSYC 179",
+              "courseSlug": "psyc-179",
+              "assignment": "Problem Sets (3)",
+              "assignmentId": "ASG-5"
+            }
+          ]
+        },
+        {
+          "key": "ING-2",
+          "title": "Complete Problem Set 2",
+          "status": "todo",
+          "description": "Short quantitative/conceptual set on memory",
+          "course": "PSYC 179",
+          "courseSlug": "psyc-179",
+          "assignment": "Problem Sets (3)",
+          "assignmentId": "ASG-5",
+          "dueAt": "2026-10-30",
+          "due": "Oct 30",
+          "children": [
+            {
+              "key": "ING-2-1",
+              "title": "Review assigned readings",
+              "status": "todo",
+              "description": "Review LeDoux (1996) excerpt and memory materials",
+              "course": "PSYC 179",
+              "courseSlug": "psyc-179",
+              "assignment": "Problem Sets (3)",
+              "assignmentId": "ASG-5"
+            },
+            {
+              "key": "ING-2-2",
+              "title": "Complete problems",
+              "status": "todo",
+              "description": "Work through problem set questions",
+              "course": "PSYC 179",
+              "courseSlug": "psyc-179",
+              "assignment": "Problem Sets (3)",
+              "assignmentId": "ASG-5"
+            },
+            {
+              "key": "ING-2-3",
+              "title": "Review before submission",
+              "status": "todo",
+              "description": "Check answers and formatting",
+              "course": "PSYC 179",
+              "courseSlug": "psyc-179",
+              "assignment": "Problem Sets (3)",
+              "assignmentId": "ASG-5"
+            }
+          ]
+        },
+        {
+          "key": "ING-3",
+          "title": "Complete Problem Set 3",
+          "status": "todo",
+          "description": "Short quantitative/conceptual set on neuroimaging",
+          "course": "PSYC 179",
+          "courseSlug": "psyc-179",
+          "assignment": "Problem Sets (3)",
+          "assignmentId": "ASG-5",
+          "dueAt": "2026-12-04",
+          "due": "Dec 4",
+          "children": [
+            {
+              "key": "ING-3-1",
+              "title": "Review assigned readings",
+              "status": "todo",
+              "description": "Review selected articles on comparative/artificial cognition",
+              "course": "PSYC 179",
+              "courseSlug": "psyc-179",
+              "assignment": "Problem Sets (3)",
+              "assignmentId": "ASG-5"
+            },
+            {
+              "key": "ING-3-2",
+              "title": "Complete problems",
+              "status": "todo",
+              "description": "Work through problem set questions",
+              "course": "PSYC 179",
+              "courseSlug": "psyc-179",
+              "assignment": "Problem Sets (3)",
+              "assignmentId": "ASG-5"
+            },
+            {
+              "key": "ING-3-3",
+              "title": "Review before submission",
+              "status": "todo",
+              "description": "Check answers and formatting",
+              "course": "PSYC 179",
+              "courseSlug": "psyc-179",
+              "assignment": "Problem Sets (3)",
+              "assignmentId": "ASG-5"
+            }
+          ]
+        },
+        {
+          "key": "ING-4",
+          "title": "Prepare for Midterm Exam",
+          "status": "todo",
+          "description": "In-class midterm exam covering material through Week 6",
+          "course": "PSYC 179",
+          "courseSlug": "psyc-179",
+          "assignment": "Midterm Exam",
+          "assignmentId": "ASG-9",
+          "dueAt": "2026-10-09",
+          "due": "Oct 9",
+          "children": [
+            {
+              "key": "ING-4-1",
+              "title": "Review lecture notes",
+              "status": "todo",
+              "description": "Consolidate notes from Weeks 1-6",
+              "course": "PSYC 179",
+              "courseSlug": "psyc-179",
+              "assignment": "Midterm Exam",
+              "assignmentId": "ASG-9"
+            },
+            {
+              "key": "ING-4-2",
+              "title": "Review readings",
+              "status": "todo",
+              "description": "Revisit Gazzaniga chapters and Squire (1992) excerpt",
+              "course": "PSYC 179",
+              "courseSlug": "psyc-179",
+              "assignment": "Midterm Exam",
+              "assignmentId": "ASG-9"
+            },
+            {
+              "key": "ING-4-3",
+              "title": "Practice/self-test",
+              "status": "todo",
+              "description": "Work through practice questions and key concepts",
+              "course": "PSYC 179",
+              "courseSlug": "psyc-179",
+              "assignment": "Midterm Exam",
+              "assignmentId": "ASG-9"
+            }
+          ]
+        },
+        {
+          "key": "ING-5",
+          "title": "Submit Research Proposal Stage 1",
+          "status": "todo",
+          "description": "Topic and research question submission",
+          "course": "PSYC 179",
+          "courseSlug": "psyc-179",
+          "dueAt": "2026-10-16",
+          "due": "Oct 16",
+          "children": [
+            {
+              "key": "ING-5-1",
+              "title": "Brainstorm topic",
+              "status": "todo",
+              "description": "Identify area of interest and research question",
+              "course": "PSYC 179",
+              "courseSlug": "psyc-179"
+            },
+            {
+              "key": "ING-5-2",
+              "title": "Draft proposal topic statement",
+              "status": "todo",
+              "description": "Write and refine topic + question",
+              "course": "PSYC 179",
+              "courseSlug": "psyc-179"
+            },
+            {
+              "key": "ING-5-3",
+              "title": "Submit stage 1",
+              "status": "todo",
+              "description": "Finalize and submit by deadline",
+              "course": "PSYC 179",
+              "courseSlug": "psyc-179"
+            }
+          ]
+        },
+        {
+          "key": "ING-6",
+          "title": "Submit Research Proposal Stage 2",
+          "status": "todo",
+          "description": "Full research design submission",
+          "course": "PSYC 179",
+          "courseSlug": "psyc-179",
+          "dueAt": "2026-11-20",
+          "due": "Nov 20",
+          "children": [
+            {
+              "key": "ING-6-1",
+              "title": "Draft full study design",
+              "status": "todo",
+              "description": "Develop methodology, hypotheses, and procedures",
+              "course": "PSYC 179",
+              "courseSlug": "psyc-179"
+            },
+            {
+              "key": "ING-6-2",
+              "title": "Incorporate feedback",
+              "status": "todo",
+              "description": "Revise based on Stage 1 feedback",
+              "course": "PSYC 179",
+              "courseSlug": "psyc-179"
+            },
+            {
+              "key": "ING-6-3",
+              "title": "Finalize and submit",
+              "status": "todo",
+              "description": "Complete full proposal for submission",
+              "course": "PSYC 179",
+              "courseSlug": "psyc-179"
+            }
+          ]
+        },
+        {
+          "key": "ING-7",
+          "title": "Prepare Class Presentation",
+          "status": "todo",
+          "description": "10-minute presentation of research proposal during final week",
+          "course": "PSYC 179",
+          "courseSlug": "psyc-179",
+          "assignment": "Class Presentation",
+          "assignmentId": "ASG-12",
+          "dueAt": "2026-12-11",
+          "due": "Dec 11",
+          "children": [
+            {
+              "key": "ING-7-1",
+              "title": "Prepare slides",
+              "status": "todo",
+              "description": "Create presentation slides summarizing research proposal",
+              "course": "PSYC 179",
+              "courseSlug": "psyc-179",
+              "assignment": "Class Presentation",
+              "assignmentId": "ASG-12"
+            },
+            {
+              "key": "ING-7-2",
+              "title": "Rehearse presentation",
+              "status": "todo",
+              "description": "Practice timing and delivery",
+              "course": "PSYC 179",
+              "courseSlug": "psyc-179",
+              "assignment": "Class Presentation",
+              "assignmentId": "ASG-12"
+            },
+            {
+              "key": "ING-7-3",
+              "title": "Deliver presentation",
+              "status": "todo",
+              "description": "Present during Week 14 class session",
+              "course": "PSYC 179",
+              "courseSlug": "psyc-179",
+              "assignment": "Class Presentation",
+              "assignmentId": "ASG-12"
+            }
+          ]
+        },
+        {
+          "key": "ING-8",
+          "title": "Prepare for Final Exam",
+          "status": "todo",
+          "description": "Cumulative final exam during Final Exam Period (Dec 14-18)",
+          "course": "PSYC 179",
+          "courseSlug": "psyc-179",
+          "assignment": "Final Exam",
+          "assignmentId": "ASG-13",
+          "dueAt": "2026-12-18",
+          "due": "Dec 18",
+          "children": [
+            {
+              "key": "ING-8-1",
+              "title": "Review all course materials",
+              "status": "todo",
+              "description": "Consolidate notes across entire semester",
+              "course": "PSYC 179",
+              "courseSlug": "psyc-179",
+              "assignment": "Final Exam",
+              "assignmentId": "ASG-13"
+            },
+            {
+              "key": "ING-8-2",
+              "title": "Review readings",
+              "status": "todo",
+              "description": "Revisit key articles and textbook chapters",
+              "course": "PSYC 179",
+              "courseSlug": "psyc-179",
+              "assignment": "Final Exam",
+              "assignmentId": "ASG-13"
+            },
+            {
+              "key": "ING-8-3",
+              "title": "Practice/self-test",
+              "status": "todo",
+              "description": "Work through cumulative practice questions",
+              "course": "PSYC 179",
+              "courseSlug": "psyc-179",
+              "assignment": "Final Exam",
+              "assignmentId": "ASG-13"
+            }
+          ]
+        }
+      ],
+      "warnings": [],
+      "recurrence": [
+        {
+          "kind": "class",
+          "title": "PSYC 179 — Cognitive Psychology and the Brain",
+          "days": [
+            "Mon",
+            "Wed",
+            "Fri"
+          ],
+          "start": "10:00",
+          "end": "10:50",
+          "location": "Roberts Hall, Room 104",
+          "from": "2026-08-31",
+          "to": "2026-12-11",
+          "skipDates": [
+            "2026-09-07",
+            "2026-10-17",
+            "2026-10-18",
+            "2026-10-19",
+            "2026-10-20",
+            "2026-11-25",
+            "2026-11-26",
+            "2026-11-27",
+            "2026-11-28",
+            "2026-11-29"
+          ]
+        },
+        {
+          "kind": "office-hours",
+          "title": "PSYC 179 — Cognitive Psychology and the Brain",
+          "days": [
+            "Tue"
+          ],
+          "start": "13:00",
+          "end": "15:00",
+          "location": "Adams Hall, Room 214",
+          "from": "2026-08-31",
+          "to": "2026-12-11",
+          "skipDates": [
+            "2026-10-20",
+            "2026-11-24"
+          ]
+        },
+        {
+          "kind": "office-hours",
+          "title": "PSYC 179 — Cognitive Psychology and the Brain",
+          "days": [
+            "Thu"
+          ],
+          "start": "10:00",
+          "end": "11:30",
+          "location": "Adams Hall, Room 214",
+          "from": "2026-08-31",
+          "to": "2026-12-11",
+          "skipDates": [
+            "2026-11-26"
+          ]
+        }
+      ]
+    },
+    "appliedAt": "2026-08-18T05:10:13.965Z"
+  },
+  {
+    "id": "RUN-2",
+    "documentId": "DOC-2",
+    "status": "proposed",
+    "stages": [
+      {
+        "name": "upload",
+        "status": "done",
+        "ms": 551
+      },
+      {
+        "name": "extract",
+        "status": "done",
+        "ms": 45653
+      },
+      {
+        "name": "fan-out",
+        "status": "done",
+        "ms": 14777
+      },
+      {
+        "name": "materialize",
+        "status": "done",
+        "ms": 7
+      }
+    ],
+    "proposal": {
+      "runId": "RUN-2",
+      "documentId": "DOC-2",
+      "course": {
+        "slug": "psyc-179",
+        "code": "COURSE",
+        "title": "Untitled course",
+        "description": "No description yet.",
+        "instructor": "TBD",
+        "schedule": "MWF · 10:00–10:50 AM",
+        "term": "This term",
+        "meetings": [
+          {
+            "kind": "lecture",
+            "days": [
+              1,
+              3,
+              5
+            ],
+            "start": "10:00",
+            "end": "10:50",
+            "location": "Roberts Hall, Room 104"
+          }
+        ],
+        "officeHours": [
+          {
+            "host": "Miriam Ostrander",
+            "day": 2,
+            "start": "13:00",
+            "end": "15:00",
+            "location": "Adams Hall, Room 214",
+            "mode": "in-person"
+          },
+          {
+            "host": "Miriam Ostrander",
+            "day": 4,
+            "start": "10:00",
+            "end": "11:30",
+            "location": "Adams Hall, Room 214",
+            "mode": "in-person"
+          }
+        ],
+        "policies": {},
+        "sourceDocumentId": "DOC-2"
+      },
+      "assignments": [
+        {
+          "id": "ASG-1",
+          "courseSlug": "psyc-179",
+          "title": "Reading Response #1",
+          "type": "reading",
+          "dueAt": "2026-09-11",
+          "weight": "",
+          "description": "Weekly 150-word reading response due before class, part of Participation & Reading Responses (10%)",
+          "source": {
+            "documentId": "DOC-2",
+            "quote": "Reading response #1 due Fri",
+            "page": 3
+          },
+          "status": "upcoming"
+        },
+        {
+          "id": "ASG-2",
+          "courseSlug": "psyc-179",
+          "title": "Reading Response #2",
+          "type": "reading",
+          "dueAt": "2026-10-02",
+          "weight": "",
+          "description": "Weekly 150-word reading response due before class, part of Participation & Reading Responses (10%)",
+          "source": {
+            "documentId": "DOC-2",
+            "quote": "Reading response #2 due Fri",
+            "page": 3
+          },
+          "status": "upcoming"
+        },
+        {
+          "id": "ASG-3",
+          "courseSlug": "psyc-179",
+          "title": "Reading Response #3",
+          "type": "reading",
+          "dueAt": "2026-11-13",
+          "weight": "",
+          "description": "Weekly 150-word reading response due before class, part of Participation & Reading Responses (10%)",
+          "source": {
+            "documentId": "DOC-2",
+            "quote": "Reading response #3 due Fri",
+            "page": 3
+          },
+          "status": "upcoming"
+        },
+        {
+          "id": "ASG-4",
+          "courseSlug": "psyc-179",
+          "title": "Problem Set 1",
+          "type": "problem-set",
+          "dueAt": "2026-09-25",
+          "weight": "",
+          "description": "Short quantitative/conceptual set on memory, attention, and neuroimaging; one of 3 Problem Sets worth 15% total",
+          "source": {
+            "documentId": "DOC-2",
+            "quote": "Problem Set 1 assigned Mon, due Fri",
+            "page": 3
+          },
+          "status": "upcoming"
+        },
+        {
+          "id": "ASG-5",
+          "courseSlug": "psyc-179",
+          "title": "Problem Set 2",
+          "type": "problem-set",
+          "dueAt": "2026-10-30",
+          "weight": "",
+          "description": "One of 3 Problem Sets worth 15% total",
+          "source": {
+            "documentId": "DOC-2",
+            "quote": "Problem Set 2 due Fri",
+            "page": 3
+          },
+          "status": "upcoming"
+        },
+        {
+          "id": "ASG-6",
+          "courseSlug": "psyc-179",
+          "title": "Problem Set 3",
+          "type": "problem-set",
+          "dueAt": "2026-12-04",
+          "weight": "",
+          "description": "One of 3 Problem Sets worth 15% total",
+          "source": {
+            "documentId": "DOC-2",
+            "quote": "Problem Set 3 due Fri",
+            "page": 3
+          },
+          "status": "upcoming"
+        },
+        {
+          "id": "ASG-7",
+          "courseSlug": "psyc-179",
+          "title": "Midterm Exam",
+          "type": "exam",
+          "dueAt": "2026-10-09",
+          "weight": "20%",
+          "description": "In-class midterm exam, covers material through long-term memory systems",
+          "source": {
+            "documentId": "DOC-2",
+            "quote": "Midterm Exam: Fri, Oct 9",
+            "page": 3
+          },
+          "status": "upcoming"
+        },
+        {
+          "id": "ASG-8",
+          "courseSlug": "psyc-179",
+          "title": "Research Proposal, Stage 1 (topic + question)",
+          "type": "project",
+          "dueAt": "2026-10-16",
+          "weight": "",
+          "description": "First stage of the Research Proposal (mini-study design); combined proposal worth 20%",
+          "source": {
+            "documentId": "DOC-2",
+            "quote": "Research Proposal, Stage 1 (topic + question) due Fri",
+            "page": 3
+          },
+          "status": "upcoming"
+        },
+        {
+          "id": "ASG-9",
+          "courseSlug": "psyc-179",
+          "title": "Research Proposal, Stage 2 (full design)",
+          "type": "project",
+          "dueAt": "2026-11-20",
+          "weight": "20%",
+          "description": "Second/final stage of the Research Proposal (mini-study design); combined proposal worth 20%",
+          "source": {
+            "documentId": "DOC-2",
+            "quote": "Research Proposal, Stage 2 (full design) due Fri",
+            "page": 3
+          },
+          "status": "upcoming",
+          "needsReview": true
+        },
+        {
+          "id": "ASG-10",
+          "courseSlug": "psyc-179",
+          "title": "Class Presentation",
+          "type": "presentation",
+          "dueAt": null,
+          "weight": "10%",
+          "description": "10-minute presentation of research proposal, delivered during final week of instruction (Wed–Fri, Dec 9–11)",
+          "source": {
+            "documentId": "DOC-2",
+            "quote": "Class Presentations: Wed–Fri.",
+            "page": 3
+          },
+          "status": "upcoming",
+          "needsReview": true
+        },
+        {
+          "id": "ASG-11",
+          "courseSlug": "psyc-179",
+          "title": "Final Exam",
+          "type": "exam",
+          "dueAt": null,
+          "weight": "25%",
+          "description": "Cumulative final exam, scheduled during Final Exam Period Dec 14–18; exact date/time to be assigned by Registrar",
+          "source": {
+            "documentId": "DOC-2",
+            "quote": "Cumulative final exam (date/time to be assigned by Registrar)",
+            "page": 4
+          },
+          "status": "upcoming",
+          "needsReview": true
+        },
+        {
+          "id": "ASG-12",
+          "courseSlug": "psyc-179",
+          "title": "Participation & Reading Responses",
+          "type": "discussion",
+          "dueAt": null,
+          "weight": "10%",
+          "description": "Ongoing weekly participation and 150-word reading responses due before class throughout the semester",
+          "source": {
+            "documentId": "DOC-2",
+            "quote": "Weekly 150-word reading responses due before class",
+            "page": 1
+          },
+          "status": "upcoming",
+          "needsReview": true
+        }
+      ],
+      "calendarEvents": [
+        {
+          "id": "series-1-2026-08-31",
+          "courseSlug": "psyc-179",
+          "kind": "class",
+          "title": "PSYC 179 — Cognitive Psychology and the Brain",
+          "startsAt": "2026-08-31T10:00:00",
+          "endsAt": "2026-08-31T10:50:00",
+          "location": "Roberts Hall, Room 104",
+          "generatedBy": "syllabus",
+          "seriesId": "series-1"
+        },
+        {
+          "id": "series-1-2026-09-02",
+          "courseSlug": "psyc-179",
+          "kind": "class",
+          "title": "PSYC 179 — Cognitive Psychology and the Brain",
+          "startsAt": "2026-09-02T10:00:00",
+          "endsAt": "2026-09-02T10:50:00",
+          "location": "Roberts Hall, Room 104",
+          "generatedBy": "syllabus",
+          "seriesId": "series-1"
+        },
+        {
+          "id": "series-1-2026-09-04",
+          "courseSlug": "psyc-179",
+          "kind": "class",
+          "title": "PSYC 179 — Cognitive Psychology and the Brain",
+          "startsAt": "2026-09-04T10:00:00",
+          "endsAt": "2026-09-04T10:50:00",
+          "location": "Roberts Hall, Room 104",
+          "generatedBy": "syllabus",
+          "seriesId": "series-1"
+        },
+        {
+          "id": "series-1-2026-09-09",
+          "courseSlug": "psyc-179",
+          "kind": "class",
+          "title": "PSYC 179 — Cognitive Psychology and the Brain",
+          "startsAt": "2026-09-09T10:00:00",
+          "endsAt": "2026-09-09T10:50:00",
+          "location": "Roberts Hall, Room 104",
+          "generatedBy": "syllabus",
+          "seriesId": "series-1"
+        },
+        {
+          "id": "series-1-2026-09-11",
+          "courseSlug": "psyc-179",
+          "kind": "class",
+          "title": "PSYC 179 — Cognitive Psychology and the Brain",
+          "startsAt": "2026-09-11T10:00:00",
+          "endsAt": "2026-09-11T10:50:00",
+          "location": "Roberts Hall, Room 104",
+          "generatedBy": "syllabus",
+          "seriesId": "series-1"
+        },
+        {
+          "id": "series-1-2026-09-14",
+          "courseSlug": "psyc-179",
+          "kind": "class",
+          "title": "PSYC 179 — Cognitive Psychology and the Brain",
+          "startsAt": "2026-09-14T10:00:00",
+          "endsAt": "2026-09-14T10:50:00",
+          "location": "Roberts Hall, Room 104",
+          "generatedBy": "syllabus",
+          "seriesId": "series-1"
+        },
+        {
+          "id": "series-1-2026-09-16",
+          "courseSlug": "psyc-179",
+          "kind": "class",
+          "title": "PSYC 179 — Cognitive Psychology and the Brain",
+          "startsAt": "2026-09-16T10:00:00",
+          "endsAt": "2026-09-16T10:50:00",
+          "location": "Roberts Hall, Room 104",
+          "generatedBy": "syllabus",
+          "seriesId": "series-1"
+        },
+        {
+          "id": "series-1-2026-09-18",
+          "courseSlug": "psyc-179",
+          "kind": "class",
+          "title": "PSYC 179 — Cognitive Psychology and the Brain",
+          "startsAt": "2026-09-18T10:00:00",
+          "endsAt": "2026-09-18T10:50:00",
+          "location": "Roberts Hall, Room 104",
+          "generatedBy": "syllabus",
+          "seriesId": "series-1"
+        },
+        {
+          "id": "series-1-2026-09-21",
+          "courseSlug": "psyc-179",
+          "kind": "class",
+          "title": "PSYC 179 — Cognitive Psychology and the Brain",
+          "startsAt": "2026-09-21T10:00:00",
+          "endsAt": "2026-09-21T10:50:00",
+          "location": "Roberts Hall, Room 104",
+          "generatedBy": "syllabus",
+          "seriesId": "series-1"
+        },
+        {
+          "id": "series-1-2026-09-23",
+          "courseSlug": "psyc-179",
+          "kind": "class",
+          "title": "PSYC 179 — Cognitive Psychology and the Brain",
+          "startsAt": "2026-09-23T10:00:00",
+          "endsAt": "2026-09-23T10:50:00",
+          "location": "Roberts Hall, Room 104",
+          "generatedBy": "syllabus",
+          "seriesId": "series-1"
+        },
+        {
+          "id": "series-1-2026-09-25",
+          "courseSlug": "psyc-179",
+          "kind": "class",
+          "title": "PSYC 179 — Cognitive Psychology and the Brain",
+          "startsAt": "2026-09-25T10:00:00",
+          "endsAt": "2026-09-25T10:50:00",
+          "location": "Roberts Hall, Room 104",
+          "generatedBy": "syllabus",
+          "seriesId": "series-1"
+        },
+        {
+          "id": "series-1-2026-09-28",
+          "courseSlug": "psyc-179",
+          "kind": "class",
+          "title": "PSYC 179 — Cognitive Psychology and the Brain",
+          "startsAt": "2026-09-28T10:00:00",
+          "endsAt": "2026-09-28T10:50:00",
+          "location": "Roberts Hall, Room 104",
+          "generatedBy": "syllabus",
+          "seriesId": "series-1"
+        },
+        {
+          "id": "series-1-2026-09-30",
+          "courseSlug": "psyc-179",
+          "kind": "class",
+          "title": "PSYC 179 — Cognitive Psychology and the Brain",
+          "startsAt": "2026-09-30T10:00:00",
+          "endsAt": "2026-09-30T10:50:00",
+          "location": "Roberts Hall, Room 104",
+          "generatedBy": "syllabus",
+          "seriesId": "series-1"
+        },
+        {
+          "id": "series-1-2026-10-02",
+          "courseSlug": "psyc-179",
+          "kind": "class",
+          "title": "PSYC 179 — Cognitive Psychology and the Brain",
+          "startsAt": "2026-10-02T10:00:00",
+          "endsAt": "2026-10-02T10:50:00",
+          "location": "Roberts Hall, Room 104",
+          "generatedBy": "syllabus",
+          "seriesId": "series-1"
+        },
+        {
+          "id": "series-1-2026-10-05",
+          "courseSlug": "psyc-179",
+          "kind": "class",
+          "title": "PSYC 179 — Cognitive Psychology and the Brain",
+          "startsAt": "2026-10-05T10:00:00",
+          "endsAt": "2026-10-05T10:50:00",
+          "location": "Roberts Hall, Room 104",
+          "generatedBy": "syllabus",
+          "seriesId": "series-1"
+        },
+        {
+          "id": "series-1-2026-10-07",
+          "courseSlug": "psyc-179",
+          "kind": "class",
+          "title": "PSYC 179 — Cognitive Psychology and the Brain",
+          "startsAt": "2026-10-07T10:00:00",
+          "endsAt": "2026-10-07T10:50:00",
+          "location": "Roberts Hall, Room 104",
+          "generatedBy": "syllabus",
+          "seriesId": "series-1"
+        },
+        {
+          "id": "series-1-2026-10-09",
+          "courseSlug": "psyc-179",
+          "kind": "class",
+          "title": "PSYC 179 — Cognitive Psychology and the Brain",
+          "startsAt": "2026-10-09T10:00:00",
+          "endsAt": "2026-10-09T10:50:00",
+          "location": "Roberts Hall, Room 104",
+          "generatedBy": "syllabus",
+          "seriesId": "series-1"
+        },
+        {
+          "id": "series-1-2026-10-12",
+          "courseSlug": "psyc-179",
+          "kind": "class",
+          "title": "PSYC 179 — Cognitive Psychology and the Brain",
+          "startsAt": "2026-10-12T10:00:00",
+          "endsAt": "2026-10-12T10:50:00",
+          "location": "Roberts Hall, Room 104",
+          "generatedBy": "syllabus",
+          "seriesId": "series-1"
+        },
+        {
+          "id": "series-1-2026-10-14",
+          "courseSlug": "psyc-179",
+          "kind": "class",
+          "title": "PSYC 179 — Cognitive Psychology and the Brain",
+          "startsAt": "2026-10-14T10:00:00",
+          "endsAt": "2026-10-14T10:50:00",
+          "location": "Roberts Hall, Room 104",
+          "generatedBy": "syllabus",
+          "seriesId": "series-1"
+        },
+        {
+          "id": "series-1-2026-10-16",
+          "courseSlug": "psyc-179",
+          "kind": "class",
+          "title": "PSYC 179 — Cognitive Psychology and the Brain",
+          "startsAt": "2026-10-16T10:00:00",
+          "endsAt": "2026-10-16T10:50:00",
+          "location": "Roberts Hall, Room 104",
+          "generatedBy": "syllabus",
+          "seriesId": "series-1"
+        },
+        {
+          "id": "series-1-2026-10-21",
+          "courseSlug": "psyc-179",
+          "kind": "class",
+          "title": "PSYC 179 — Cognitive Psychology and the Brain",
+          "startsAt": "2026-10-21T10:00:00",
+          "endsAt": "2026-10-21T10:50:00",
+          "location": "Roberts Hall, Room 104",
+          "generatedBy": "syllabus",
+          "seriesId": "series-1"
+        },
+        {
+          "id": "series-1-2026-10-23",
+          "courseSlug": "psyc-179",
+          "kind": "class",
+          "title": "PSYC 179 — Cognitive Psychology and the Brain",
+          "startsAt": "2026-10-23T10:00:00",
+          "endsAt": "2026-10-23T10:50:00",
+          "location": "Roberts Hall, Room 104",
+          "generatedBy": "syllabus",
+          "seriesId": "series-1"
+        },
+        {
+          "id": "series-1-2026-10-26",
+          "courseSlug": "psyc-179",
+          "kind": "class",
+          "title": "PSYC 179 — Cognitive Psychology and the Brain",
+          "startsAt": "2026-10-26T10:00:00",
+          "endsAt": "2026-10-26T10:50:00",
+          "location": "Roberts Hall, Room 104",
+          "generatedBy": "syllabus",
+          "seriesId": "series-1"
+        },
+        {
+          "id": "series-1-2026-10-28",
+          "courseSlug": "psyc-179",
+          "kind": "class",
+          "title": "PSYC 179 — Cognitive Psychology and the Brain",
+          "startsAt": "2026-10-28T10:00:00",
+          "endsAt": "2026-10-28T10:50:00",
+          "location": "Roberts Hall, Room 104",
+          "generatedBy": "syllabus",
+          "seriesId": "series-1"
+        },
+        {
+          "id": "series-1-2026-10-30",
+          "courseSlug": "psyc-179",
+          "kind": "class",
+          "title": "PSYC 179 — Cognitive Psychology and the Brain",
+          "startsAt": "2026-10-30T10:00:00",
+          "endsAt": "2026-10-30T10:50:00",
+          "location": "Roberts Hall, Room 104",
+          "generatedBy": "syllabus",
+          "seriesId": "series-1"
+        },
+        {
+          "id": "series-1-2026-11-02",
+          "courseSlug": "psyc-179",
+          "kind": "class",
+          "title": "PSYC 179 — Cognitive Psychology and the Brain",
+          "startsAt": "2026-11-02T10:00:00",
+          "endsAt": "2026-11-02T10:50:00",
+          "location": "Roberts Hall, Room 104",
+          "generatedBy": "syllabus",
+          "seriesId": "series-1"
+        },
+        {
+          "id": "series-1-2026-11-04",
+          "courseSlug": "psyc-179",
+          "kind": "class",
+          "title": "PSYC 179 — Cognitive Psychology and the Brain",
+          "startsAt": "2026-11-04T10:00:00",
+          "endsAt": "2026-11-04T10:50:00",
+          "location": "Roberts Hall, Room 104",
+          "generatedBy": "syllabus",
+          "seriesId": "series-1"
+        },
+        {
+          "id": "series-1-2026-11-06",
+          "courseSlug": "psyc-179",
+          "kind": "class",
+          "title": "PSYC 179 — Cognitive Psychology and the Brain",
+          "startsAt": "2026-11-06T10:00:00",
+          "endsAt": "2026-11-06T10:50:00",
+          "location": "Roberts Hall, Room 104",
+          "generatedBy": "syllabus",
+          "seriesId": "series-1"
+        },
+        {
+          "id": "series-1-2026-11-09",
+          "courseSlug": "psyc-179",
+          "kind": "class",
+          "title": "PSYC 179 — Cognitive Psychology and the Brain",
+          "startsAt": "2026-11-09T10:00:00",
+          "endsAt": "2026-11-09T10:50:00",
+          "location": "Roberts Hall, Room 104",
+          "generatedBy": "syllabus",
+          "seriesId": "series-1"
+        },
+        {
+          "id": "series-1-2026-11-11",
+          "courseSlug": "psyc-179",
+          "kind": "class",
+          "title": "PSYC 179 — Cognitive Psychology and the Brain",
+          "startsAt": "2026-11-11T10:00:00",
+          "endsAt": "2026-11-11T10:50:00",
+          "location": "Roberts Hall, Room 104",
+          "generatedBy": "syllabus",
+          "seriesId": "series-1"
+        },
+        {
+          "id": "series-1-2026-11-13",
+          "courseSlug": "psyc-179",
+          "kind": "class",
+          "title": "PSYC 179 — Cognitive Psychology and the Brain",
+          "startsAt": "2026-11-13T10:00:00",
+          "endsAt": "2026-11-13T10:50:00",
+          "location": "Roberts Hall, Room 104",
+          "generatedBy": "syllabus",
+          "seriesId": "series-1"
+        },
+        {
+          "id": "series-1-2026-11-16",
+          "courseSlug": "psyc-179",
+          "kind": "class",
+          "title": "PSYC 179 — Cognitive Psychology and the Brain",
+          "startsAt": "2026-11-16T10:00:00",
+          "endsAt": "2026-11-16T10:50:00",
+          "location": "Roberts Hall, Room 104",
+          "generatedBy": "syllabus",
+          "seriesId": "series-1"
+        },
+        {
+          "id": "series-1-2026-11-18",
+          "courseSlug": "psyc-179",
+          "kind": "class",
+          "title": "PSYC 179 — Cognitive Psychology and the Brain",
+          "startsAt": "2026-11-18T10:00:00",
+          "endsAt": "2026-11-18T10:50:00",
+          "location": "Roberts Hall, Room 104",
+          "generatedBy": "syllabus",
+          "seriesId": "series-1"
+        },
+        {
+          "id": "series-1-2026-11-20",
+          "courseSlug": "psyc-179",
+          "kind": "class",
+          "title": "PSYC 179 — Cognitive Psychology and the Brain",
+          "startsAt": "2026-11-20T10:00:00",
+          "endsAt": "2026-11-20T10:50:00",
+          "location": "Roberts Hall, Room 104",
+          "generatedBy": "syllabus",
+          "seriesId": "series-1"
+        },
+        {
+          "id": "series-1-2026-11-23",
+          "courseSlug": "psyc-179",
+          "kind": "class",
+          "title": "PSYC 179 — Cognitive Psychology and the Brain",
+          "startsAt": "2026-11-23T10:00:00",
+          "endsAt": "2026-11-23T10:50:00",
+          "location": "Roberts Hall, Room 104",
+          "generatedBy": "syllabus",
+          "seriesId": "series-1"
+        },
+        {
+          "id": "series-1-2026-11-30",
+          "courseSlug": "psyc-179",
+          "kind": "class",
+          "title": "PSYC 179 — Cognitive Psychology and the Brain",
+          "startsAt": "2026-11-30T10:00:00",
+          "endsAt": "2026-11-30T10:50:00",
+          "location": "Roberts Hall, Room 104",
+          "generatedBy": "syllabus",
+          "seriesId": "series-1"
+        },
+        {
+          "id": "series-1-2026-12-02",
+          "courseSlug": "psyc-179",
+          "kind": "class",
+          "title": "PSYC 179 — Cognitive Psychology and the Brain",
+          "startsAt": "2026-12-02T10:00:00",
+          "endsAt": "2026-12-02T10:50:00",
+          "location": "Roberts Hall, Room 104",
+          "generatedBy": "syllabus",
+          "seriesId": "series-1"
+        },
+        {
+          "id": "series-1-2026-12-04",
+          "courseSlug": "psyc-179",
+          "kind": "class",
+          "title": "PSYC 179 — Cognitive Psychology and the Brain",
+          "startsAt": "2026-12-04T10:00:00",
+          "endsAt": "2026-12-04T10:50:00",
+          "location": "Roberts Hall, Room 104",
+          "generatedBy": "syllabus",
+          "seriesId": "series-1"
+        },
+        {
+          "id": "series-1-2026-12-07",
+          "courseSlug": "psyc-179",
+          "kind": "class",
+          "title": "PSYC 179 — Cognitive Psychology and the Brain",
+          "startsAt": "2026-12-07T10:00:00",
+          "endsAt": "2026-12-07T10:50:00",
+          "location": "Roberts Hall, Room 104",
+          "generatedBy": "syllabus",
+          "seriesId": "series-1"
+        },
+        {
+          "id": "series-1-2026-12-09",
+          "courseSlug": "psyc-179",
+          "kind": "class",
+          "title": "PSYC 179 — Cognitive Psychology and the Brain",
+          "startsAt": "2026-12-09T10:00:00",
+          "endsAt": "2026-12-09T10:50:00",
+          "location": "Roberts Hall, Room 104",
+          "generatedBy": "syllabus",
+          "seriesId": "series-1"
+        },
+        {
+          "id": "series-1-2026-12-11",
+          "courseSlug": "psyc-179",
+          "kind": "class",
+          "title": "PSYC 179 — Cognitive Psychology and the Brain",
+          "startsAt": "2026-12-11T10:00:00",
+          "endsAt": "2026-12-11T10:50:00",
+          "location": "Roberts Hall, Room 104",
+          "generatedBy": "syllabus",
+          "seriesId": "series-1"
+        },
+        {
+          "id": "series-2-2026-09-01",
+          "courseSlug": "psyc-179",
+          "kind": "office-hours",
+          "title": "Office Hours — Dr. Miriam Ostrander",
+          "startsAt": "2026-09-01T13:00:00",
+          "endsAt": "2026-09-01T15:00:00",
+          "location": "Adams Hall, Room 214",
+          "generatedBy": "syllabus",
+          "seriesId": "series-2"
+        },
+        {
+          "id": "series-2-2026-09-08",
+          "courseSlug": "psyc-179",
+          "kind": "office-hours",
+          "title": "Office Hours — Dr. Miriam Ostrander",
+          "startsAt": "2026-09-08T13:00:00",
+          "endsAt": "2026-09-08T15:00:00",
+          "location": "Adams Hall, Room 214",
+          "generatedBy": "syllabus",
+          "seriesId": "series-2"
+        },
+        {
+          "id": "series-2-2026-09-15",
+          "courseSlug": "psyc-179",
+          "kind": "office-hours",
+          "title": "Office Hours — Dr. Miriam Ostrander",
+          "startsAt": "2026-09-15T13:00:00",
+          "endsAt": "2026-09-15T15:00:00",
+          "location": "Adams Hall, Room 214",
+          "generatedBy": "syllabus",
+          "seriesId": "series-2"
+        },
+        {
+          "id": "series-2-2026-09-22",
+          "courseSlug": "psyc-179",
+          "kind": "office-hours",
+          "title": "Office Hours — Dr. Miriam Ostrander",
+          "startsAt": "2026-09-22T13:00:00",
+          "endsAt": "2026-09-22T15:00:00",
+          "location": "Adams Hall, Room 214",
+          "generatedBy": "syllabus",
+          "seriesId": "series-2"
+        },
+        {
+          "id": "series-2-2026-09-29",
+          "courseSlug": "psyc-179",
+          "kind": "office-hours",
+          "title": "Office Hours — Dr. Miriam Ostrander",
+          "startsAt": "2026-09-29T13:00:00",
+          "endsAt": "2026-09-29T15:00:00",
+          "location": "Adams Hall, Room 214",
+          "generatedBy": "syllabus",
+          "seriesId": "series-2"
+        },
+        {
+          "id": "series-2-2026-10-06",
+          "courseSlug": "psyc-179",
+          "kind": "office-hours",
+          "title": "Office Hours — Dr. Miriam Ostrander",
+          "startsAt": "2026-10-06T13:00:00",
+          "endsAt": "2026-10-06T15:00:00",
+          "location": "Adams Hall, Room 214",
+          "generatedBy": "syllabus",
+          "seriesId": "series-2"
+        },
+        {
+          "id": "series-2-2026-10-13",
+          "courseSlug": "psyc-179",
+          "kind": "office-hours",
+          "title": "Office Hours — Dr. Miriam Ostrander",
+          "startsAt": "2026-10-13T13:00:00",
+          "endsAt": "2026-10-13T15:00:00",
+          "location": "Adams Hall, Room 214",
+          "generatedBy": "syllabus",
+          "seriesId": "series-2"
+        },
+        {
+          "id": "series-2-2026-10-20",
+          "courseSlug": "psyc-179",
+          "kind": "office-hours",
+          "title": "Office Hours — Dr. Miriam Ostrander",
+          "startsAt": "2026-10-20T13:00:00",
+          "endsAt": "2026-10-20T15:00:00",
+          "location": "Adams Hall, Room 214",
+          "generatedBy": "syllabus",
+          "seriesId": "series-2"
+        },
+        {
+          "id": "series-2-2026-10-27",
+          "courseSlug": "psyc-179",
+          "kind": "office-hours",
+          "title": "Office Hours — Dr. Miriam Ostrander",
+          "startsAt": "2026-10-27T13:00:00",
+          "endsAt": "2026-10-27T15:00:00",
+          "location": "Adams Hall, Room 214",
+          "generatedBy": "syllabus",
+          "seriesId": "series-2"
+        },
+        {
+          "id": "series-2-2026-11-03",
+          "courseSlug": "psyc-179",
+          "kind": "office-hours",
+          "title": "Office Hours — Dr. Miriam Ostrander",
+          "startsAt": "2026-11-03T13:00:00",
+          "endsAt": "2026-11-03T15:00:00",
+          "location": "Adams Hall, Room 214",
+          "generatedBy": "syllabus",
+          "seriesId": "series-2"
+        },
+        {
+          "id": "series-2-2026-11-10",
+          "courseSlug": "psyc-179",
+          "kind": "office-hours",
+          "title": "Office Hours — Dr. Miriam Ostrander",
+          "startsAt": "2026-11-10T13:00:00",
+          "endsAt": "2026-11-10T15:00:00",
+          "location": "Adams Hall, Room 214",
+          "generatedBy": "syllabus",
+          "seriesId": "series-2"
+        },
+        {
+          "id": "series-2-2026-11-17",
+          "courseSlug": "psyc-179",
+          "kind": "office-hours",
+          "title": "Office Hours — Dr. Miriam Ostrander",
+          "startsAt": "2026-11-17T13:00:00",
+          "endsAt": "2026-11-17T15:00:00",
+          "location": "Adams Hall, Room 214",
+          "generatedBy": "syllabus",
+          "seriesId": "series-2"
+        },
+        {
+          "id": "series-2-2026-11-24",
+          "courseSlug": "psyc-179",
+          "kind": "office-hours",
+          "title": "Office Hours — Dr. Miriam Ostrander",
+          "startsAt": "2026-11-24T13:00:00",
+          "endsAt": "2026-11-24T15:00:00",
+          "location": "Adams Hall, Room 214",
+          "generatedBy": "syllabus",
+          "seriesId": "series-2"
+        },
+        {
+          "id": "series-2-2026-12-01",
+          "courseSlug": "psyc-179",
+          "kind": "office-hours",
+          "title": "Office Hours — Dr. Miriam Ostrander",
+          "startsAt": "2026-12-01T13:00:00",
+          "endsAt": "2026-12-01T15:00:00",
+          "location": "Adams Hall, Room 214",
+          "generatedBy": "syllabus",
+          "seriesId": "series-2"
+        },
+        {
+          "id": "series-2-2026-12-08",
+          "courseSlug": "psyc-179",
+          "kind": "office-hours",
+          "title": "Office Hours — Dr. Miriam Ostrander",
+          "startsAt": "2026-12-08T13:00:00",
+          "endsAt": "2026-12-08T15:00:00",
+          "location": "Adams Hall, Room 214",
+          "generatedBy": "syllabus",
+          "seriesId": "series-2"
+        },
+        {
+          "id": "series-3-2026-09-03",
+          "courseSlug": "psyc-179",
+          "kind": "office-hours",
+          "title": "Office Hours — Dr. Miriam Ostrander",
+          "startsAt": "2026-09-03T10:00:00",
+          "endsAt": "2026-09-03T11:30:00",
+          "location": "Adams Hall, Room 214",
+          "generatedBy": "syllabus",
+          "seriesId": "series-3"
+        },
+        {
+          "id": "series-3-2026-09-10",
+          "courseSlug": "psyc-179",
+          "kind": "office-hours",
+          "title": "Office Hours — Dr. Miriam Ostrander",
+          "startsAt": "2026-09-10T10:00:00",
+          "endsAt": "2026-09-10T11:30:00",
+          "location": "Adams Hall, Room 214",
+          "generatedBy": "syllabus",
+          "seriesId": "series-3"
+        },
+        {
+          "id": "series-3-2026-09-17",
+          "courseSlug": "psyc-179",
+          "kind": "office-hours",
+          "title": "Office Hours — Dr. Miriam Ostrander",
+          "startsAt": "2026-09-17T10:00:00",
+          "endsAt": "2026-09-17T11:30:00",
+          "location": "Adams Hall, Room 214",
+          "generatedBy": "syllabus",
+          "seriesId": "series-3"
+        },
+        {
+          "id": "series-3-2026-09-24",
+          "courseSlug": "psyc-179",
+          "kind": "office-hours",
+          "title": "Office Hours — Dr. Miriam Ostrander",
+          "startsAt": "2026-09-24T10:00:00",
+          "endsAt": "2026-09-24T11:30:00",
+          "location": "Adams Hall, Room 214",
+          "generatedBy": "syllabus",
+          "seriesId": "series-3"
+        },
+        {
+          "id": "series-3-2026-10-01",
+          "courseSlug": "psyc-179",
+          "kind": "office-hours",
+          "title": "Office Hours — Dr. Miriam Ostrander",
+          "startsAt": "2026-10-01T10:00:00",
+          "endsAt": "2026-10-01T11:30:00",
+          "location": "Adams Hall, Room 214",
+          "generatedBy": "syllabus",
+          "seriesId": "series-3"
+        },
+        {
+          "id": "series-3-2026-10-08",
+          "courseSlug": "psyc-179",
+          "kind": "office-hours",
+          "title": "Office Hours — Dr. Miriam Ostrander",
+          "startsAt": "2026-10-08T10:00:00",
+          "endsAt": "2026-10-08T11:30:00",
+          "location": "Adams Hall, Room 214",
+          "generatedBy": "syllabus",
+          "seriesId": "series-3"
+        },
+        {
+          "id": "series-3-2026-10-15",
+          "courseSlug": "psyc-179",
+          "kind": "office-hours",
+          "title": "Office Hours — Dr. Miriam Ostrander",
+          "startsAt": "2026-10-15T10:00:00",
+          "endsAt": "2026-10-15T11:30:00",
+          "location": "Adams Hall, Room 214",
+          "generatedBy": "syllabus",
+          "seriesId": "series-3"
+        },
+        {
+          "id": "series-3-2026-10-22",
+          "courseSlug": "psyc-179",
+          "kind": "office-hours",
+          "title": "Office Hours — Dr. Miriam Ostrander",
+          "startsAt": "2026-10-22T10:00:00",
+          "endsAt": "2026-10-22T11:30:00",
+          "location": "Adams Hall, Room 214",
+          "generatedBy": "syllabus",
+          "seriesId": "series-3"
+        },
+        {
+          "id": "series-3-2026-10-29",
+          "courseSlug": "psyc-179",
+          "kind": "office-hours",
+          "title": "Office Hours — Dr. Miriam Ostrander",
+          "startsAt": "2026-10-29T10:00:00",
+          "endsAt": "2026-10-29T11:30:00",
+          "location": "Adams Hall, Room 214",
+          "generatedBy": "syllabus",
+          "seriesId": "series-3"
+        },
+        {
+          "id": "series-3-2026-11-05",
+          "courseSlug": "psyc-179",
+          "kind": "office-hours",
+          "title": "Office Hours — Dr. Miriam Ostrander",
+          "startsAt": "2026-11-05T10:00:00",
+          "endsAt": "2026-11-05T11:30:00",
+          "location": "Adams Hall, Room 214",
+          "generatedBy": "syllabus",
+          "seriesId": "series-3"
+        },
+        {
+          "id": "series-3-2026-11-12",
+          "courseSlug": "psyc-179",
+          "kind": "office-hours",
+          "title": "Office Hours — Dr. Miriam Ostrander",
+          "startsAt": "2026-11-12T10:00:00",
+          "endsAt": "2026-11-12T11:30:00",
+          "location": "Adams Hall, Room 214",
+          "generatedBy": "syllabus",
+          "seriesId": "series-3"
+        },
+        {
+          "id": "series-3-2026-11-19",
+          "courseSlug": "psyc-179",
+          "kind": "office-hours",
+          "title": "Office Hours — Dr. Miriam Ostrander",
+          "startsAt": "2026-11-19T10:00:00",
+          "endsAt": "2026-11-19T11:30:00",
+          "location": "Adams Hall, Room 214",
+          "generatedBy": "syllabus",
+          "seriesId": "series-3"
+        },
+        {
+          "id": "series-3-2026-11-26",
+          "courseSlug": "psyc-179",
+          "kind": "office-hours",
+          "title": "Office Hours — Dr. Miriam Ostrander",
+          "startsAt": "2026-11-26T10:00:00",
+          "endsAt": "2026-11-26T11:30:00",
+          "location": "Adams Hall, Room 214",
+          "generatedBy": "syllabus",
+          "seriesId": "series-3"
+        },
+        {
+          "id": "series-3-2026-12-03",
+          "courseSlug": "psyc-179",
+          "kind": "office-hours",
+          "title": "Office Hours — Dr. Miriam Ostrander",
+          "startsAt": "2026-12-03T10:00:00",
+          "endsAt": "2026-12-03T11:30:00",
+          "location": "Adams Hall, Room 214",
+          "generatedBy": "syllabus",
+          "seriesId": "series-3"
+        },
+        {
+          "id": "series-3-2026-12-10",
+          "courseSlug": "psyc-179",
+          "kind": "office-hours",
+          "title": "Office Hours — Dr. Miriam Ostrander",
+          "startsAt": "2026-12-10T10:00:00",
+          "endsAt": "2026-12-10T11:30:00",
+          "location": "Adams Hall, Room 214",
+          "generatedBy": "syllabus",
+          "seriesId": "series-3"
+        },
+        {
+          "id": "oneoff-1",
+          "courseSlug": "psyc-179",
+          "kind": "class",
+          "title": "No class Mon (Labor Day)",
+          "startsAt": "2026-09-07",
+          "endsAt": "2026-09-07",
+          "generatedBy": "syllabus"
+        },
+        {
+          "id": "oneoff-2",
+          "courseSlug": "psyc-179",
+          "kind": "deadline",
+          "title": "Last day to add courses",
+          "startsAt": "2026-09-14",
+          "endsAt": "2026-09-14",
+          "generatedBy": "syllabus"
+        },
+        {
+          "id": "oneoff-3",
+          "courseSlug": "psyc-179",
+          "kind": "class",
+          "title": "Midterm review",
+          "startsAt": "2026-10-07",
+          "endsAt": "2026-10-07",
+          "location": "Roberts Hall, Room 104",
+          "generatedBy": "syllabus"
+        },
+        {
+          "id": "oneoff-4",
+          "courseSlug": "psyc-179",
+          "kind": "class",
+          "title": "Academic Advisory/Low Grade Notice target date",
+          "startsAt": "2026-10-07",
+          "endsAt": "2026-10-07",
+          "generatedBy": "syllabus"
+        },
+        {
+          "id": "oneoff-5",
+          "courseSlug": "psyc-179",
+          "kind": "exam",
+          "title": "Midterm Exam",
+          "startsAt": "2026-10-09T10:00:00",
+          "endsAt": "2026-10-09T10:50:00",
+          "location": "Roberts Hall, Room 104",
+          "generatedBy": "syllabus"
+        },
+        {
+          "id": "oneoff-6",
+          "courseSlug": "psyc-179",
+          "kind": "class",
+          "title": "FALL BREAK — no classes in session",
+          "startsAt": "2026-10-17",
+          "endsAt": "2026-10-20",
+          "generatedBy": "syllabus"
+        },
+        {
+          "id": "oneoff-7",
+          "courseSlug": "psyc-179",
+          "kind": "deadline",
+          "title": "Last day to drop without record",
+          "startsAt": "2026-10-22",
+          "endsAt": "2026-10-22",
+          "generatedBy": "syllabus"
+        },
+        {
+          "id": "oneoff-8",
+          "courseSlug": "psyc-179",
+          "kind": "class",
+          "title": "Spring 2027 schedule posted (registrar)",
+          "startsAt": "2026-11-02",
+          "endsAt": "2026-11-02",
+          "generatedBy": "syllabus"
+        },
+        {
+          "id": "oneoff-9",
+          "courseSlug": "psyc-179",
+          "kind": "class",
+          "title": "Pre-registration for Spring 2027",
+          "startsAt": "2026-11-17",
+          "endsAt": "2026-11-20",
+          "generatedBy": "syllabus"
+        },
+        {
+          "id": "oneoff-10",
+          "courseSlug": "psyc-179",
+          "kind": "deadline",
+          "title": "Last day to withdraw with a \"W\" / opt CR-NC / request GLOA",
+          "startsAt": "2026-11-20",
+          "endsAt": "2026-11-20",
+          "generatedBy": "syllabus"
+        },
+        {
+          "id": "oneoff-11",
+          "courseSlug": "psyc-179",
+          "kind": "class",
+          "title": "THANKSGIVING BREAK — no classes in session",
+          "startsAt": "2026-11-25",
+          "endsAt": "2026-11-29",
+          "generatedBy": "syllabus"
+        },
+        {
+          "id": "oneoff-12",
+          "courseSlug": "psyc-179",
+          "kind": "deadline",
+          "title": "Senior Thesis due (campus-wide)",
+          "startsAt": "2026-12-07T15:00:00",
+          "endsAt": "2026-12-07T15:00:00",
+          "generatedBy": "syllabus"
+        },
+        {
+          "id": "oneoff-13",
+          "courseSlug": "psyc-179",
+          "kind": "class",
+          "title": "Class Presentations",
+          "startsAt": "2026-12-09",
+          "endsAt": "2026-12-11",
+          "location": "Roberts Hall, Room 104",
+          "generatedBy": "syllabus"
+        },
+        {
+          "id": "oneoff-14",
+          "courseSlug": "psyc-179",
+          "kind": "deadline",
+          "title": "Last day of instruction",
+          "startsAt": "2026-12-11",
+          "endsAt": "2026-12-11",
+          "generatedBy": "syllabus"
+        },
+        {
+          "id": "oneoff-15",
+          "courseSlug": "psyc-179",
+          "kind": "class",
+          "title": "Final Exam Period",
+          "startsAt": "2026-12-14",
+          "endsAt": "2026-12-18",
+          "generatedBy": "syllabus"
+        },
+        {
+          "id": "due-ASG-1",
+          "courseSlug": "psyc-179",
+          "kind": "deadline",
+          "title": "Reading Response #1",
+          "startsAt": "2026-09-11",
+          "endsAt": "2026-09-11",
+          "assignmentId": "ASG-1",
+          "generatedBy": "syllabus"
+        },
+        {
+          "id": "due-ASG-2",
+          "courseSlug": "psyc-179",
+          "kind": "deadline",
+          "title": "Reading Response #2",
+          "startsAt": "2026-10-02",
+          "endsAt": "2026-10-02",
+          "assignmentId": "ASG-2",
+          "generatedBy": "syllabus"
+        },
+        {
+          "id": "due-ASG-3",
+          "courseSlug": "psyc-179",
+          "kind": "deadline",
+          "title": "Reading Response #3",
+          "startsAt": "2026-11-13",
+          "endsAt": "2026-11-13",
+          "assignmentId": "ASG-3",
+          "generatedBy": "syllabus"
+        },
+        {
+          "id": "due-ASG-4",
+          "courseSlug": "psyc-179",
+          "kind": "deadline",
+          "title": "Problem Set 1",
+          "startsAt": "2026-09-25",
+          "endsAt": "2026-09-25",
+          "assignmentId": "ASG-4",
+          "generatedBy": "syllabus"
+        },
+        {
+          "id": "due-ASG-5",
+          "courseSlug": "psyc-179",
+          "kind": "deadline",
+          "title": "Problem Set 2",
+          "startsAt": "2026-10-30",
+          "endsAt": "2026-10-30",
+          "assignmentId": "ASG-5",
+          "generatedBy": "syllabus"
+        },
+        {
+          "id": "due-ASG-6",
+          "courseSlug": "psyc-179",
+          "kind": "deadline",
+          "title": "Problem Set 3",
+          "startsAt": "2026-12-04",
+          "endsAt": "2026-12-04",
+          "assignmentId": "ASG-6",
+          "generatedBy": "syllabus"
+        },
+        {
+          "id": "due-ASG-7",
+          "courseSlug": "psyc-179",
+          "kind": "exam",
+          "title": "Midterm Exam",
+          "startsAt": "2026-10-09",
+          "endsAt": "2026-10-09",
+          "assignmentId": "ASG-7",
+          "generatedBy": "syllabus"
+        },
+        {
+          "id": "due-ASG-8",
+          "courseSlug": "psyc-179",
+          "kind": "deadline",
+          "title": "Research Proposal, Stage 1 (topic + question)",
+          "startsAt": "2026-10-16",
+          "endsAt": "2026-10-16",
+          "assignmentId": "ASG-8",
+          "generatedBy": "syllabus"
+        },
+        {
+          "id": "due-ASG-9",
+          "courseSlug": "psyc-179",
+          "kind": "deadline",
+          "title": "Research Proposal, Stage 2 (full design)",
+          "startsAt": "2026-11-20",
+          "endsAt": "2026-11-20",
+          "assignmentId": "ASG-9",
+          "generatedBy": "syllabus"
+        }
+      ],
+      "tasks": [],
+      "warnings": [
+        {
+          "severity": "warn",
+          "field": "course.termStartsAt",
+          "message": "Term dates were missing from the syllabus. Class meetings will not be added to the calendar until you fill them in."
+        },
+        {
+          "severity": "info",
+          "field": "course.termStartsAt",
+          "message": "Year inferred from stated term 'Fall Semester 2026' combined with 'classes begin Monday, August 31'.",
+          "quote": "69 instructional days, classes begin Monday, August 31 and instruction ends Friday, December 11; Final Exam Period is December 14–18"
+        },
+        {
+          "severity": "info",
+          "field": "assignments[].dueAt",
+          "message": "Schedule lists due days as 'Fri' within week date ranges; specific dates derived from the week ranges given in the table.",
+          "quote": "Week 2 Sep 7 – Sep 11 ... Reading response #1 due Fri"
+        },
+        {
+          "severity": "warn",
+          "field": "assignments[Class Presentations].dueAt",
+          "message": "Presentations span Wed–Fri of Week 14 (Dec 9–11); no single due date specified.",
+          "quote": "Class Presentations: Wed–Fri."
+        },
+        {
+          "severity": "warn",
+          "field": "assignments[Final Exam].dueAt",
+          "message": "Final exam date/time not assigned; only the Dec 14–18 exam period is given.",
+          "quote": "Cumulative, scheduled during Final Exam Period (Dec. 14–18)"
+        },
+        {
+          "severity": "warn",
+          "field": "assignments[Participation & Reading Responses]",
+          "message": "Weekly reading responses are described generically; only responses #1–#3 have listed dates, so a separate unscheduled row is retained.",
+          "quote": "Weekly 150-word reading responses due before class"
+        },
+        {
+          "severity": "warn",
+          "field": "recurrence[0].skipDates",
+          "message": "Break ranges given as Oct 17–20 and Nov 25–29; skipDates list only the MWF class days falling within them (Oct 19, Oct 20 is a Tuesday per 2026 calendar — verify weekday alignment).",
+          "quote": "FALL BREAK — no classes in session Oct 17 – Oct 20"
+        },
+        {
+          "severity": "info",
+          "field": "officeHours",
+          "message": "Office hours location not explicitly stated; assumed to be the listed office. Also 'or by appointment' noted.",
+          "quote": "Tues. 1:00–3:00 PM & Thurs. 10:00–11:30 AM, or by appointment"
+        },
+        {
+          "severity": "info",
+          "field": "policies.ai",
+          "message": "No AI/generative-tool policy stated in the document."
+        },
+        {
+          "severity": "info",
+          "field": "oneOffs[Midterm Exam].startsAt",
+          "message": "Exam time assumed to match regular class meeting time ('In-class').",
+          "quote": "In-class, Friday, October 9"
+        },
+        {
+          "severity": "info",
+          "field": "grading",
+          "message": "Weights copied verbatim; document is labeled a sample/mock record.",
+          "quote": "Sample document generated for testing purposes — not an official Claremont McKenna College record."
+        }
+      ],
+      "recurrence": [
+        {
+          "kind": "class",
+          "title": "PSYC 179 — Cognitive Psychology and the Brain",
+          "days": [
+            1,
+            3,
+            5
+          ],
+          "start": "10:00",
+          "end": "10:50",
+          "location": "Roberts Hall, Room 104",
+          "from": "2026-08-31",
+          "to": "2026-12-11",
+          "skipDates": [
+            "2026-09-07",
+            "2026-10-19",
+            "2026-10-20",
+            "2026-11-25",
+            "2026-11-27"
+          ]
+        },
+        {
+          "kind": "office-hours",
+          "title": "Office Hours — Dr. Miriam Ostrander",
+          "days": [
+            2
+          ],
+          "start": "13:00",
+          "end": "15:00",
+          "location": "Adams Hall, Room 214",
+          "from": "2026-08-31",
+          "to": "2026-12-11",
+          "skipDates": []
+        },
+        {
+          "kind": "office-hours",
+          "title": "Office Hours — Dr. Miriam Ostrander",
+          "days": [
+            4
+          ],
+          "start": "10:00",
+          "end": "11:30",
+          "location": "Adams Hall, Room 214",
+          "from": "2026-08-31",
+          "to": "2026-12-11",
+          "skipDates": []
+        }
+      ]
+    }
+  },
+  {
+    "id": "RUN-1",
+    "documentId": "DOC-1",
+    "status": "failed",
+    "stages": [
+      {
+        "name": "upload",
+        "status": "done",
+        "ms": 894
+      },
+      {
+        "name": "extract",
+        "status": "failed",
+        "ms": 1133,
+        "error": "400 {\"type\":\"error\",\"error\":{\"type\":\"invalid_request_error\",\"message\":\"The compiled grammar is too large, which would cause performance issues. Simplify your tool schemas or reduce the number of strict tools.\"},\"request_id\":\"req_011Ce9ct3UkcJEiELHe26NHA\"}"
+      }
+    ]
+  }
+]

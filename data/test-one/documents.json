@@ -1,0 +1,36 @@
+[
+  {
+    "id": "DOC-3",
+    "filename": "CMC_Syllabus.pdf",
+    "mime": "application/pdf",
+    "sizeBytes": 10346,
+    "storedPath": "/Users/alexknight/Desktop/Monarch/data/test-one/uploads/DOC-3.pdf",
+    "uploadedAt": "2026-08-18T05:09:33.068Z",
+    "kind": "syllabus",
+    "status": "applied",
+    "fileApiId": "file_011Ce9dtyMbpj28J7XVcu6ym",
+    "courseSlug": "psyc-179"
+  },
+  {
+    "id": "DOC-2",
+    "filename": "CMC_Syllabus.pdf",
+    "mime": "application/pdf",
+    "sizeBytes": 10346,
+    "storedPath": "/Users/alexknight/Desktop/Monarch/data/test-one/uploads/DOC-2.pdf",
+    "uploadedAt": "2026-08-18T04:58:10.987Z",
+    "kind": "syllabus",
+    "status": "extracted",
+    "fileApiId": "file_011Ce9d2gb9kXE9xzeU3Q95L"
+  },
+  {
+    "id": "DOC-1",
+    "filename": "CMC_Syllabus.pdf",
+    "mime": "application/pdf",
+    "sizeBytes": 10346,
+    "storedPath": "/Users/alexknight/Desktop/Monarch/data/test-one/uploads/DOC-1.pdf",
+    "uploadedAt": "2026-08-18T04:56:10.835Z",
+    "kind": "syllabus",
+    "status": "failed",
+    "fileApiId": "file_011Ce9ct1WwPeYKpgrXJ4UAC"
+  }
+]

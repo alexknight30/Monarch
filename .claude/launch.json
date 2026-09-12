@@ -2,11 +2,21 @@
   "version": "0.0.1",
   "configurations": [
     {
-      "name": "lumis",
+      "name": "monarch",
       "runtimeExecutable": "npm",
-      "runtimeArgs": ["run", "dev", "--", "-p", "3001"],
-      "port": 3001,
-      "url": "http://localhost:3001"
+      "runtimeArgs": ["run", "dev", "--", "-p", "3000"],
+      "port": 3000,
+      "url": "http://localhost:3000"
+    },
+    {
+      "name": "butterfly-meadow",
+      "runtimeExecutable": "node",
+      "runtimeArgs": [
+        "/Users/alexknight/Desktop/Monarch/animations/butterfly-meadow/serve.mjs",
+        "3003"
+      ],
+      "port": 3003,
+      "url": "http://localhost:3003"
     }
   ]
 }

@@ -1,4 +1,13 @@
-// Mock data for the Lumis prototype. No backend yet — every screen reads from here.
+// Mock data for the Monarch prototype. No backend yet — every screen reads from here.
+
+import type { DiagramSpec } from "@/lib/diagram";
+import type {
+  DocChatTurn,
+  DocumentBlock,
+  DocumentRecord,
+  DocumentStatus,
+} from "@/lib/documents";
+import type { TagId } from "@/lib/objects/tags";
 
 export const CURRENT_USER = {
   firstName: "Alex",
@@ -11,7 +20,7 @@ export const HOME_STATS = [
   { label: "Assignments due", value: "4", note: "this week" },
   { label: "Active courses", value: "5", note: "Fall 2026" },
   { label: "Study streak", value: "12", note: "days in a row" },
-  { label: "Projects", value: "6", note: "2 shared with you" },
+  { label: "Artifacts", value: "7", note: "2 shared with you" },
   { label: "Office hours", value: "–", note: "None booked", muted: true },
   { label: "Inbox", value: "3", note: "To review" },
 ];
@@ -27,32 +36,79 @@ export const QUICK_ACTIONS = [
 /* --------------------------------------------------------------- admin --- */
 
 export type AdminUser = {
+  id: string;
   username: string;
-  role: "Student" | "Professor" | "Admin";
+  role: string;
   email: string;
-  courses: number;
+  courses: string;
   lastUsed: string;
   usage: string;
 };
 
+export const ADMIN_USER_FIELDS = [
+  "username",
+  "role",
+  "email",
+  "courses",
+  "lastUsed",
+  "usage",
+] as const;
+
+export type AdminUserField = (typeof ADMIN_USER_FIELDS)[number];
+
 export const ADMIN_USERS: AdminUser[] = [
-  { username: "m.okafor", role: "Student", email: "m.okafor@westbrook.edu", courses: 5, lastUsed: "Aug 7, 2026 · 8:11 AM", usage: "72%" },
-  { username: "r.delacruz", role: "Professor", email: "r.delacruz@westbrook.edu", courses: 3, lastUsed: "Aug 7, 2026 · 9:22 AM", usage: "41%" },
-  { username: "j.whitfield", role: "Student", email: "j.whitfield@westbrook.edu", courses: 4, lastUsed: "Aug 7, 2026 · 10:33 AM", usage: "88%" },
-  { username: "a.brennan", role: "Admin", email: "a.brennan@westbrook.edu", courses: 12, lastUsed: "Aug 7, 2026 · 11:44 AM", usage: "96%" },
-  { username: "s.nakamura", role: "Student", email: "s.nakamura@westbrook.edu", courses: 6, lastUsed: "Aug 7, 2026 · 1:05 PM", usage: "34%" },
-  { username: "p.ellison", role: "Professor", email: "p.ellison@westbrook.edu", courses: 2, lastUsed: "Aug 7, 2026 · 2:20 PM", usage: "63%" },
-  { username: "t.marchetti", role: "Student", email: "t.marchetti@westbrook.edu", courses: 5, lastUsed: "Aug 7, 2026 · 3:48 PM", usage: "19%" },
-  { username: "l.abara", role: "Student", email: "l.abara@westbrook.edu", courses: 4, lastUsed: "Aug 7, 2026 · 4:36 PM", usage: "77%" },
-  { username: "k.svensson", role: "Professor", email: "k.svensson@westbrook.edu", courses: 3, lastUsed: "Aug 6, 2026 · 5:40 PM", usage: "52%" },
-  { username: "d.reyes", role: "Admin", email: "d.reyes@westbrook.edu", courses: 9, lastUsed: "Aug 6, 2026 · 5:12 PM", usage: "84%" },
-  { username: "c.holloway", role: "Student", email: "c.holloway@westbrook.edu", courses: 5, lastUsed: "Aug 6, 2026 · 6:02 PM", usage: "28%" },
-  { username: "n.farouk", role: "Professor", email: "n.farouk@westbrook.edu", courses: 4, lastUsed: "Aug 5, 2026 · 9:15 AM", usage: "67%" },
+  {
+    id: "alex-knight",
+    username: "Alex Knight",
+    role: "",
+    email: "",
+    courses: "",
+    lastUsed: "",
+    usage: "",
+  },
+  {
+    id: "alex-seager",
+    username: "Alex Seager",
+    role: "",
+    email: "",
+    courses: "",
+    lastUsed: "",
+    usage: "",
+  },
 ];
 
-/* ------------------------------------------------------------ projects --- */
+/* ----------------------------------------------------------- artifacts --- */
 
-export type Project = {
+export const ARTIFACT_KINDS = [
+  "diagram",
+  "document",
+  "notes",
+  "reading",
+  "flashcards",
+  "practice-test",
+  "lesson",
+  "slides",
+] as const;
+
+export type ArtifactKind = (typeof ARTIFACT_KINDS)[number];
+
+export const ARTIFACT_KIND_LABEL: Record<ArtifactKind, string> = {
+  diagram: "Diagram",
+  document: "Document",
+  notes: "Notes",
+  reading: "Reading",
+  flashcards: "Flashcards",
+  "practice-test": "Practice test",
+  lesson: "Lesson",
+  slides: "Slides",
+};
+
+export function isArtifactKind(value: string): value is ArtifactKind {
+  return (ARTIFACT_KINDS as readonly string[]).includes(value);
+}
+
+type ArtifactBase = {
+  id: string;
   slug: string;
   title: string;
   description: string;
@@ -63,12 +119,183 @@ export type Project = {
   context: { name: string; meta: string }[];
   scheduled: { name: string; cadence: string }[];
   chats: { title: string; snippet: string; when: string }[];
+  courseId: string;
+  courseSlug?: string;
+  assignmentId?: string;
+  tagIds: TagId[];
 };
 
-export const PROJECTS: Project[] = [
+type TextArtifactFields = {
+  shortTitle: string;
+  course: string;
+  due: string;
+  status: DocumentStatus;
+  savedAt: string;
+  /** TipTap HTML body; falls back to `blocks` when missing. */
+  bodyHtml?: string;
+  blocks: DocumentBlock[];
+  thread: DocChatTurn[];
+};
+
+export type DocumentArtifact = ArtifactBase &
+  TextArtifactFields & { kind: "document" };
+
+export type NotesArtifact = ArtifactBase & TextArtifactFields & { kind: "notes" };
+
+export type ReadingAnnotation = {
+  id: string;
+  quote: string;
+  note: string;
+  start?: number;
+  end?: number;
+};
+
+export type ReadingArtifact = ArtifactBase & {
+  kind: "reading";
+  bodyText?: string;
+  bodyHtml?: string;
+  sourceDocumentId?: string;
+  annotations: ReadingAnnotation[];
+};
+
+export type Flashcard = { id: string; front: string; back: string };
+
+export type FlashcardsArtifact = ArtifactBase & {
+  kind: "flashcards";
+  cards: Flashcard[];
+};
+
+export type PracticeItem = {
+  id: string;
+  prompt: string;
+  answer: string;
+  studentAnswer?: string;
+};
+
+export type PracticeTestArtifact = ArtifactBase & {
+  kind: "practice-test";
+  items: PracticeItem[];
+};
+
+export type LessonBlock = {
+  id: string;
+  type: "text" | "prompt";
+  html?: string;
+  prompt?: string;
+};
+
+export type LessonArtifact = ArtifactBase & {
+  kind: "lesson";
+  blocks: LessonBlock[];
+};
+
+export type Slide = { id: string; title: string; bodyHtml: string };
+
+export type SlidesArtifact = ArtifactBase & {
+  kind: "slides";
+  slides: Slide[];
+};
+
+/**
+ * A diagram promoted out of a chat. Stores the spec, not a rendered image, so
+ * it re-renders at any size and can still be changed after the fact.
+ */
+export type DiagramArtifact = ArtifactBase & {
+  kind: "diagram";
+  spec: DiagramSpec;
+  /** Where it came from, so the artifact can link back to the thread. */
+  source?: { threadId?: string; threadTitle?: string };
+};
+
+export type Artifact =
+  | DocumentArtifact
+  | NotesArtifact
+  | ReadingArtifact
+  | FlashcardsArtifact
+  | PracticeTestArtifact
+  | LessonArtifact
+  | SlidesArtifact
+  | DiagramArtifact;
+
+export function isDocumentArtifact(a: Artifact): a is DocumentArtifact {
+  return a.kind === "document";
+}
+
+export function isNotesArtifact(a: Artifact): a is NotesArtifact {
+  return a.kind === "notes";
+}
+
+export function isTextArtifact(
+  a: Artifact,
+): a is DocumentArtifact | NotesArtifact {
+  return a.kind === "document" || a.kind === "notes";
+}
+
+export function isDiagramArtifact(a: Artifact): a is DiagramArtifact {
+  return a.kind === "diagram";
+}
+
+export function isReadingArtifact(a: Artifact): a is ReadingArtifact {
+  return a.kind === "reading";
+}
+
+export function isFlashcardsArtifact(a: Artifact): a is FlashcardsArtifact {
+  return a.kind === "flashcards";
+}
+
+export function isPracticeTestArtifact(a: Artifact): a is PracticeTestArtifact {
+  return a.kind === "practice-test";
+}
+
+export function isLessonArtifact(a: Artifact): a is LessonArtifact {
+  return a.kind === "lesson";
+}
+
+export function isSlidesArtifact(a: Artifact): a is SlidesArtifact {
+  return a.kind === "slides";
+}
+
+export function documentRecordFromArtifact(
+  artifact: DocumentArtifact | NotesArtifact,
+): DocumentRecord {
+  return {
+    id: artifact.slug,
+    title: artifact.title,
+    shortTitle: artifact.shortTitle,
+    course: artifact.course,
+    due: artifact.due,
+    status: artifact.status,
+    savedAt: artifact.savedAt,
+    bodyHtml: artifact.bodyHtml,
+    blocks: artifact.blocks,
+    thread: artifact.thread,
+  };
+}
+
+function seedBase(
+  slug: string,
+  courseId: string,
+  tagIds: TagId[] = [],
+): Pick<Artifact, "id" | "slug" | "courseId" | "courseSlug" | "tagIds"> {
+  return {
+    id: slug,
+    slug,
+    courseId,
+    ...(courseId !== "unassigned" ? { courseSlug: courseId } : {}),
+    tagIds,
+  };
+}
+
+export const ARTIFACTS: Artifact[] = [
   {
-    slug: "orgo-ii-reaction-maps",
+    kind: "document",
+    ...seedBase("orgo-ii-reaction-maps", "chem-122"),
     title: "Orgo II Reaction Maps",
+    shortTitle: "Orgo II Reaction Maps",
+    course: "CHEM 122",
+    due: "due next Sunday",
+    status: "Draft",
+    savedAt: "Saved 5 days ago",
     description:
       "Build and drill reaction mechanism maps for CHEM 122. Every answer should show the electron-pushing steps, not just the product.",
     createdBy: "Sam Levine",
@@ -87,9 +314,34 @@ export const PROJECTS: Project[] = [
       { title: "Grignard practice set", snippet: "Generate 10 problems from Ch. 10 at midterm difficulty.", when: "Yesterday" },
       { title: "Aldol condensation map", snippet: "Draw the full mechanism with electron arrows.", when: "5 days ago" },
     ],
+    blocks: [
+      {
+        id: "b1",
+        text: "E1 vs E2 — quick map. Secondary alkyl halide + strong base + heat: watch the competition. Heat and a polar protic solvent tip toward E1; a bulky strong base tips toward E2.",
+      },
+      {
+        id: "b2",
+        highlight: true,
+        text: "For every product I write, show the electron-pushing steps first. Name the substrate and the leaving group before naming the alkene.",
+      },
+      {
+        id: "b3",
+        text: "Open questions: when does rearrangement beat a clean E2 on a secondary carbon? Drill set for Sunday.",
+      },
+    ],
+    thread: [
+      { role: "user", content: "Why does heat favor E1 on a secondary carbon here?" },
+      {
+        role: "assistant",
+        content:
+          "Heat helps the unimolecular path because E1 has a higher activation energy to form the carbocation — once that barrier is cleared, entropy favors losing the leaving group and a proton. E2 still competes if the base is strong and unhindered; say which base you're using and we can weigh them.",
+        sources: ["Carey Ch. 8 — §8.5", "Midterm 1 review key — Q4"],
+      },
+    ],
   },
   {
-    slug: "thesis-lit-review",
+    kind: "reading",
+    ...seedBase("thesis-lit-review", "unassigned", ["paper"]),
     title: "Thesis Lit Review",
     description:
       "Track sources for my senior thesis on municipal broadband. Keep a running annotated bibliography and flag contradicting findings.",
@@ -107,10 +359,19 @@ export const PROJECTS: Project[] = [
       { title: "Gaps in the 2018–2022 literature", snippet: "What hasn't been studied about rural rollout?", when: "Jul 15" },
       { title: "Chapter 2 outline", snippet: "Turn my notes into a five-section outline.", when: "Jul 9" },
     ],
+    bodyText:
+      "Track sources for the senior thesis on municipal broadband. Keep a running annotated bibliography and flag contradicting findings.\n\nCite in Chicago notes-bibliography. Never summarize a source that hasn’t been uploaded. Flag when two sources disagree and say how.",
+    annotations: [],
   },
   {
-    slug: "stat-140-problem-sets",
+    kind: "document",
+    ...seedBase("stat-140-problem-sets", "stat-140", ["assignment"]),
     title: "Stat 140 Problem Sets",
+    shortTitle: "Stat 140 Problem Sets",
+    course: "STAT 140",
+    due: "due Thursday 4:00pm",
+    status: "Draft",
+    savedAt: "Saved Jun 15",
     description:
       "Weekly problem sets for Intro to Statistical Inference. Show the work, then check my answer against it.",
     createdBy: "Sam Levine",
@@ -123,9 +384,21 @@ export const PROJECTS: Project[] = [
     chats: [
       { title: "Confidence interval intuition", snippet: "Why isn't it a 95% chance the mean is in there?", when: "Jun 15" },
     ],
+    blocks: [
+      {
+        id: "b1",
+        text: "Problem set 7 — confidence intervals. For each interval I build: state the parameter, the estimator, and whether I'm using z or t.",
+      },
+      {
+        id: "b2",
+        text: "A 95% CI is not \"95% chance the mean is in this interval.\" It's: if we repeated the sampling process, 95% of such intervals would cover the true mean.",
+      },
+    ],
+    thread: [],
   },
   {
-    slug: "gov-201-seminar-prep",
+    kind: "reading",
+    ...seedBase("gov-201-seminar-prep", "gov-201"),
     title: "Gov 201 Seminar Prep",
     description:
       "Prep discussion questions and counterarguments before each Thursday seminar on comparative institutions.",
@@ -138,10 +411,65 @@ export const PROJECTS: Project[] = [
     chats: [
       { title: "Steelman the federalist position", snippet: "Give me the strongest version of the argument.", when: "Apr 20" },
     ],
+    bodyText:
+      "Week 9 readings for GOV 201 — comparative institutions. Prep discussion questions and the strongest version of the federalist position before Thursday seminar.",
+    annotations: [],
   },
   {
-    slug: "cs-51-office-hours-notes",
+    kind: "document",
+    ...seedBase("marshall-plan-response", "hist-210", ["paper"]),
+    title: "The Marshall Plan and the limits of postwar generosity",
+    shortTitle: "Response paper — Ch. 4",
+    course: "HIST 210",
+    due: "due Friday 5:00pm",
+    status: "Draft",
+    savedAt: "Saved 2 min ago",
+    description: "HIST 210 response paper on the Marshall Plan's conditions and postwar cooperation.",
+    createdBy: "Sam Levine",
+    updated: "2 min ago",
+    visibility: "Private",
+    instructions: null,
+    context: [],
+    scheduled: [],
+    chats: [],
+    blocks: [
+      {
+        id: "b1",
+        text: "In the spring of 1947, Secretary of State George Marshall stood at Harvard and described a Europe that was, in his words, running out of the means to pay for what it needed to live. The speech is remembered as an act of generosity. It was also an act of accounting.",
+      },
+      {
+        id: "b2",
+        text: "American factories had spent four years building for a war that had ended, and the countries best positioned to buy that output were the same countries least able to afford it. Aid solved a European problem and an American one at the same time, which is precisely why it passed a Congress that had spent the previous year cutting nearly everything else.",
+      },
+      {
+        id: "b3",
+        highlight: true,
+        text: "The plan's conditions mattered more than its dollars. Recipients had to open their books, coordinate purchasing, and settle on shared production targets — obligations that quietly rebuilt the habit of cooperation that the war had broken.",
+      },
+      {
+        id: "b4",
+        text: "Whether that outcome was the point or the byproduct is still argued over, and the answer depends a great deal on",
+      },
+    ],
+    thread: [
+      { "role": "user", "content": "Is this claim too strong without a source?" },
+      {
+        "role": "assistant",
+        "content":
+          'A little, yes. "Quietly rebuilt the habit of cooperation" is an interpretive claim, and right now it reads as settled fact.\n\nTwo of your assigned readings argue this directly — Hogan on the OEEC, and Milward\'s counterargument. Attributing it to them makes the sentence stronger, not weaker.',
+        "sources": ["Hogan, ch. 3 — p. 88", "Milward, ch. 1 — p. 12"],
+      },
+    ],
+  },
+  {
+    kind: "notes",
+    ...seedBase("cs-51-office-hours-notes", "cs-51"),
     title: "CS 51 Office Hours Notes",
+    shortTitle: "CS 51 OH Notes",
+    course: "CS 51",
+    due: "",
+    status: "Draft",
+    savedAt: "Saved Apr 1",
     description:
       "Turn messy office-hours scribbles into clean notes with runnable OCaml examples for each concept.",
     createdBy: "Sam Levine",
@@ -151,10 +479,27 @@ export const PROJECTS: Project[] = [
     context: [],
     scheduled: [],
     chats: [],
+    blocks: [
+      {
+        id: "b1",
+        text: "Fold vs. map — from OH. map preserves length; fold collapses a list into one value. Start every example with the type signature.",
+      },
+      {
+        id: "b2",
+        text: "(* map: ('a -> 'b) -> 'a list -> 'b list *)\nlet rec map f = function\n  | [] -> []\n  | x :: xs -> f x :: map f xs",
+      },
+    ],
+    thread: [],
   },
   {
-    slug: "spring-course-planning",
+    kind: "document",
+    ...seedBase("spring-course-planning", "unassigned"),
     title: "Spring Course Planning",
+    shortTitle: "Spring Course Planning",
+    course: "",
+    due: "registration opens Mar 30",
+    status: "Draft",
+    savedAt: "Saved Mar 26",
     description:
       "Compare spring schedules against major requirements and flag conflicts before registration opens.",
     createdBy: "Sam Levine",
@@ -166,16 +511,134 @@ export const PROJECTS: Project[] = [
     chats: [
       { title: "Three schedules, ranked", snippet: "Build me options that all clear the major requirement.", when: "Mar 26" },
     ],
+    blocks: [
+      {
+        id: "b1",
+        text: "Constraints: no Tuesday mornings, keep Wed free for lab, need one more elective toward the major.",
+      },
+      {
+        id: "b2",
+        text: "Option A clears the audit with room for a language. Option B front-loads requirements. Option C is the stretch schedule — flag conflicts before recommending it.",
+      },
+    ],
+    thread: [],
+  },
+  {
+    kind: "flashcards",
+    ...seedBase("carbonyl-flashcards", "chem-122", ["exam"]),
+    title: "Carbonyl flashcards",
+    description: "Quizlet-style drill for carbonyl reactions.",
+    createdBy: "Sam Levine",
+    updated: "3 days ago",
+    visibility: "Private",
+    instructions: null,
+    context: [],
+    scheduled: [],
+    chats: [],
+    cards: [
+      { id: "c1", front: "What does LiAlH4 do to a ketone?", back: "Reduces it to a secondary alcohol." },
+      { id: "c2", front: "Grignard + aldehyde →", back: "Secondary alcohol after workup." },
+    ],
+  },
+  {
+    kind: "practice-test",
+    ...seedBase("stat-140-practice-8", "stat-140", ["quiz"]),
+    title: "STAT 140 practice set 8",
+    description: "Confidence intervals and hypothesis tests.",
+    createdBy: "Sam Levine",
+    updated: "1 day ago",
+    visibility: "Private",
+    instructions: null,
+    context: [],
+    scheduled: [],
+    chats: [],
+    items: [
+      {
+        id: "q1",
+        prompt: "A 95% CI for $\\mu$ is $(12.1, 15.4)$. What is the point estimate?",
+        answer: "The midpoint: $13.75$.",
+      },
+    ],
+  },
+  {
+    kind: "lesson",
+    ...seedBase("fold-vs-map-lesson", "cs-51"),
+    title: "Fold vs map",
+    description: "A short lesson with an embedded agent prompt.",
+    createdBy: "Sam Levine",
+    updated: "Apr 2",
+    visibility: "Private",
+    instructions: null,
+    context: [],
+    scheduled: [],
+    chats: [],
+    blocks: [
+      {
+        id: "lb1",
+        type: "text",
+        html: "Map preserves length. Fold collapses a list into one value.",
+      },
+      {
+        id: "lb2",
+        type: "prompt",
+        prompt: "Ask me to write the type of fold_left before showing an example.",
+      },
+    ],
+  },
+  {
+    kind: "slides",
+    ...seedBase("marshall-plan-slides", "hist-210", ["paper"]),
+    title: "Marshall Plan — 5 slides",
+    description: "Talking points for the response paper.",
+    createdBy: "Sam Levine",
+    updated: "Mar 28",
+    visibility: "Private",
+    instructions: null,
+    context: [],
+    scheduled: [],
+    chats: [],
+    slides: [
+      {
+        id: "s1",
+        title: "Europe, 1947",
+        bodyHtml: "<p>Factories intact, wallets empty.</p>",
+      },
+      {
+        id: "s2",
+        title: "Conditions over dollars",
+        bodyHtml: "<p>Open books, shared targets, OEEC coordination.</p>",
+      },
+    ],
   },
 ];
 
-export function getProject(slug: string) {
-  return PROJECTS.find((p) => p.slug === slug);
+export function getArtifact(slug: string) {
+  return ARTIFACTS.find((a) => a.slug === slug);
 }
 
-/* ------------------------------------------------------------- classes --- */
+/* ------------------------------------------------------------- courses --- */
 
-export type CourseClass = {
+export type MeetingKind = "lecture" | "lab" | "discussion" | "seminar";
+
+export type CourseMeeting = {
+  kind: MeetingKind;
+  days: number[];
+  start: string;
+  end: string;
+  location?: string;
+};
+
+export type CourseOfficeHour = {
+  host: string;
+  day: number;
+  start: string;
+  end: string;
+  location?: string;
+  mode?: "in-person" | "virtual" | "by-appointment";
+};
+
+export type Course = {
+  id: string;
   slug: string;
   code: string;
   title: string;
@@ -183,10 +646,54 @@ export type CourseClass = {
   instructor: string;
   schedule: string;
   term: string;
+  termStartsAt?: string;
+  termEndsAt?: string;
+  instructorEmail?: string;
+  instructorOffice?: string;
+  meetings?: CourseMeeting[];
+  officeHours?: CourseOfficeHour[];
+  grading?: { component: string; weight: number }[];
+  policies?: {
+    late?: string;
+    attendance?: string;
+    ai?: string;
+    integrity?: string;
+  };
+  sourceDocumentId?: string;
+  needsReview?: string[];
 };
 
-export const CLASSES: CourseClass[] = [
+const DAY_CODES = ["U", "M", "T", "W", "R", "F", "S"];
+
+function formatClock(time: string) {
+  const [hRaw, mRaw] = time.split(":");
+  const h24 = Number(hRaw);
+  const m = Number(mRaw);
+  if (!Number.isFinite(h24) || !Number.isFinite(m)) return time;
+  const h12 = h24 % 12 === 0 ? 12 : h24 % 12;
+  const minutes = String(m).padStart(2, "0");
+  const ampm = h24 >= 12 ? "PM" : "AM";
+  return `${h12}:${minutes} ${ampm}`;
+}
+
+export function deriveSchedule(meetings?: CourseMeeting[]): string {
+  if (!meetings?.length) return "Schedule TBD";
+  const primary = meetings[0];
+  const days = primary.days.map((day) => DAY_CODES[day] ?? "").join("");
+  const start = formatClock(primary.start);
+  const end = formatClock(primary.end);
+  const startParts = start.split(" ");
+  const endParts = end.split(" ");
+  const range =
+    startParts[1] === endParts[1]
+      ? `${startParts[0]}–${end}`
+      : `${start}–${end}`;
+  return `${days} · ${range}`;
+}
+
+export const COURSES: Course[] = [
   {
+    id: "chem-122",
     slug: "chem-122",
     code: "CHEM 122",
     title: "Organic Chemistry II",
@@ -197,6 +704,7 @@ export const CLASSES: CourseClass[] = [
     term: "Fall 2026",
   },
   {
+    id: "stat-140",
     slug: "stat-140",
     code: "STAT 140",
     title: "Intro to Statistical Inference",
@@ -207,6 +715,7 @@ export const CLASSES: CourseClass[] = [
     term: "Fall 2026",
   },
   {
+    id: "gov-201",
     slug: "gov-201",
     code: "GOV 201",
     title: "Comparative Institutions",
@@ -217,6 +726,7 @@ export const CLASSES: CourseClass[] = [
     term: "Fall 2026",
   },
   {
+    id: "cs-51",
     slug: "cs-51",
     code: "CS 51",
     title: "Abstraction & Design",
@@ -227,6 +737,7 @@ export const CLASSES: CourseClass[] = [
     term: "Fall 2026",
   },
   {
+    id: "hist-210",
     slug: "hist-210",
     code: "HIST 210",
     title: "Modern Europe",
@@ -240,12 +751,12 @@ export const CLASSES: CourseClass[] = [
 
 /* ------------------------------------------------------------ calendar --- */
 
-export type CalendarKind = "class" | "office-hours" | "deadline" | "session";
+export type CalendarKind = "course" | "office-hours" | "deadline" | "session";
 
-export type Course = {
+export type CalendarCourse = {
   code: string;
   title: string;
-  /** Weekdays the class meets, 0 = Sunday. */
+  /** Weekdays the course meets, 0 = Sunday. */
   days: number[];
   start: string;
   end: string;
@@ -253,7 +764,7 @@ export type Course = {
 };
 
 /** Fall 2026 course load — matches the "5 active courses" home stat. */
-export const COURSES: Course[] = [
+export const CALENDAR_COURSES: CalendarCourse[] = [
   { code: "CHEM 122", title: "General Chemistry II", days: [1, 3, 5], start: "09:00", end: "09:50", location: "Keck 101" },
   { code: "SPAN 101", title: "Intermediate Spanish", days: [1, 2, 3, 4], start: "10:00", end: "10:50", location: "Kravis 118" },
   { code: "HIST 210", title: "Modern Europe", days: [2, 4], start: "11:00", end: "12:15", location: "Kravis 205" },
