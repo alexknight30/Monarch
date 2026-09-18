@@ -18,6 +18,8 @@ import { flatten } from "@/lib/planner";
 import type { ViewId } from "@/lib/views";
 import type { ModelChoice } from "@/lib/harness/models";
 import { decideTeachingModel } from "@/lib/harness/models";
+import { STUDY_TOOLS } from "./study-tools";
+import { researchPublicWeb,type WebResearch } from "./web-research";
 
 const BODY_LIMIT = 8000;
 
@@ -28,6 +30,8 @@ export type ToolContext = {
   goalComplete?: boolean;
   modelChoice?: ModelChoice;
   lastModelReport?: string;
+  artifactReads?: Map<string,Record<string,unknown>>;
+  signal?:AbortSignal;
 };
 
 export type ToolResult = {
@@ -129,6 +133,9 @@ const readObject: HarnessTool = {
 
     const artifact = store.artifacts.find((item) => item.id === id || item.slug === id);
     if (!artifact) throw new Error(`Object not found: ${id}`);
+    const reads=ctx.artifactReads??=new Map();
+    reads.set(artifact.id,artifact as unknown as Record<string,unknown>);
+    reads.set(artifact.slug,artifact as unknown as Record<string,unknown>);
     const paged = pageBody(artifactBodyText(artifact), offset, limit);
     return {
       result: {
@@ -350,11 +357,11 @@ const completeGoal: HarnessTool = {
 const decideModel: HarnessTool = {
   name: "decide_model",
   facing: "agent",
-  summary: "Choose the teaching model for this request (once, before work).",
+  summary: "Record a model preference; the current request stays on its selected model.",
   definition: {
     name: "decide_model",
     description:
-      "Pick haiku, grok, or sonnet for this request. The harness applies this before the teaching loop; calling it mid-loop only records a preference for logs.",
+      "Evaluate a model preference for future routing. This tool does not switch the running model. Report the returned active model truthfully.",
     input_schema: {
       type: "object",
       properties: {
@@ -368,9 +375,8 @@ const decideModel: HarnessTool = {
   async execute(ctx, input) {
     const choice = asString(input.choice) as "haiku" | "grok" | "sonnet" | undefined;
     const picked = decideTeachingModel(choice);
-    ctx.modelChoice = picked;
     return {
-      result: { ...picked, reason: asString(input.reason) || picked.reason },
+      result: {active:ctx.modelChoice??decideTeachingModel(),recommended:picked,switched:false,reason:asString(input.reason)||picked.reason},
     };
   },
 };
@@ -423,10 +429,11 @@ const searchTools: HarnessTool = {
   },
 };
 
-async function webSearch(query: string, academic = false) {
+async function webSearch(query: string, academic = false,signal?:AbortSignal):Promise<WebResearch> {
   const tavily = process.env.TAVILY_API_KEY?.trim();
   if (tavily) {
     const res = await fetch("https://api.tavily.com/search", {
+      signal,
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -440,32 +447,31 @@ async function webSearch(query: string, academic = false) {
     const data = (await res.json()) as {
       results?: { title?: string; url?: string; content?: string }[];
     };
-    return (data.results ?? []).map((item) => ({
+    return {results:(data.results ?? []).map((item) => ({
       title: item.title ?? "",
       url: item.url ?? "",
       snippet: item.content ?? "",
-    }));
+    }))};
   }
   const brave = process.env.BRAVE_API_KEY?.trim();
   if (brave) {
     const url = new URL("https://api.search.brave.com/res/v1/web/search");
     url.searchParams.set("q", query);
     const res = await fetch(url, {
+      signal,
       headers: { Accept: "application/json", "X-Subscription-Token": brave },
     });
     if (!res.ok) throw new Error("Web search failed.");
     const data = (await res.json()) as {
       web?: { results?: { title?: string; url?: string; description?: string }[] };
     };
-    return (data.web?.results ?? []).slice(0, 5).map((item) => ({
+    return {results:(data.web?.results ?? []).slice(0, 5).map((item) => ({
       title: item.title ?? "",
       url: item.url ?? "",
       snippet: item.description ?? "",
-    }));
+    }))};
   }
-  throw new Error(
-    "Web search is not configured. Set TAVILY_API_KEY or BRAVE_API_KEY.",
-  );
+  return researchPublicWeb(query,academic,signal);
 }
 
 function webTool(
@@ -488,11 +494,10 @@ function webTool(
         additionalProperties: false,
       },
     },
-    async execute(_ctx, input) {
+    async execute(ctx, input) {
       const query = asString(input.query)?.trim();
       if (!query) throw new Error("query is required.");
-      const results = await webSearch(query, academic);
-      return { result: { results } };
+      return {result:await webSearch(query,academic,ctx.signal)};
     },
   };
 }
@@ -514,11 +519,11 @@ const webSourcesTool = webTool(
 const webLibraryTool: HarnessTool = {
   name: "web_library_search",
   facing: "agent",
-  summary: "Search as if in a school library, then hunt for a PDF URL.",
+  summary: "Find public scholarly sources and openly available PDFs.",
   definition: {
     name: "web_library_search",
     description:
-      "Find a library-style source for a work, then search the web for a PDF version.",
+      "Find public scholarly sources and openly available PDF versions. This searches the public web, not a signed-in school library or subscription database.",
     input_schema: {
       type: "object",
       properties: {
@@ -528,19 +533,19 @@ const webLibraryTool: HarnessTool = {
       additionalProperties: false,
     },
   },
-  async execute(_ctx, input) {
+  async execute(ctx, input) {
     const query =
       asString(input.query)?.trim() || asString(input.title)?.trim();
     if (!query) throw new Error("query is required.");
-    const sources = await webSearch(query, true);
+    const sources = await webSearch(query, true,ctx.signal);
     const pdfQuery = `${query} filetype:pdf`;
-    let pdfs: Awaited<ReturnType<typeof webSearch>> = [];
+    let pdfs:WebResearch={results:[]};
     try {
-      pdfs = await webSearch(pdfQuery, false);
+      pdfs = await webSearch(pdfQuery, false,ctx.signal);
     } catch {
-      pdfs = [];
+      pdfs = {results:[]};
     }
-    return { result: { sources, pdfs: pdfs.slice(0, 3) } };
+    return { result: {sources:sources.results,summary:sources.summary,pdfs:pdfs.results.slice(0,3),pdfSummary:pdfs.summary,scope:"public web"} };
   },
 };
 
@@ -585,6 +590,7 @@ const documentWrapped = wrapAnthropicTools(
       (input.__name as string) || "",
       input,
       ctx.documentSlug,
+      ctx.artifactReads??=new Map(),
     ),
 );
 
@@ -599,6 +605,7 @@ const diagramWrapped: HarnessTool = {
 };
 
 export const TOOLS: HarnessTool[] = [
+  ...STUDY_TOOLS,
   readObject,
   getObjectContext,
   listObjectsTool,

@@ -1,6 +1,7 @@
 import type Anthropic from "@anthropic-ai/sdk";
 
 export type ChatAttachmentMeta = {
+  id?: string;
   name: string;
   mime: string;
   size: number;

@@ -3,7 +3,7 @@
 import { useMemo } from "react";
 import katex from "katex";
 
-/** Renders `$inline$` and `$$block$$` with KaTeX. */
+/** Renders dollar and LaTeX-delimited equations with KaTeX. */
 export function MathText({ text }: { text: string }) {
   const nodes = useMemo(() => tokenize(text), [text]);
   return (
@@ -28,15 +28,15 @@ type Token =
 
 function tokenize(input: string): Token[] {
   const tokens: Token[] = [];
-  const pattern = /\$\$([\s\S]+?)\$\$|\$([^$\n]+?)\$/g;
+  const pattern = /\$\$([\s\S]+?)\$\$|\\\[([\s\S]+?)\\\]|\\\(([\s\S]+?)\\\)|(?<!\\)\$([^$\n]+?)\$/g;
   let last = 0;
   let match: RegExpExecArray | null;
   while ((match = pattern.exec(input))) {
     if (match.index > last) {
       tokens.push({ type: "text", value: input.slice(last, match.index) });
     }
-    const block = Boolean(match[1]);
-    const tex = (match[1] ?? match[2] ?? "").trim();
+    const block = Boolean(match[1] || match[2]);
+    const tex = (match[1] ?? match[2] ?? match[3] ?? match[4] ?? "").trim();
     tokens.push({ type: "math", html: renderKatex(tex, block), block });
     last = match.index + match[0].length;
   }

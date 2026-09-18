@@ -156,6 +156,8 @@ export function expandRecurrence(
     const start = parseStoredDate(from);
     const end = parseStoredDate(to);
     if (Number.isNaN(start.getTime()) || Number.isNaN(end.getTime())) continue;
+    // A mistyped year in the review form must not expand centuries of meetings.
+    if (+end < +start || +end - +start > 730 * 86400000) continue;
 
     const days = normalized.days;
     if (!days.length) continue;

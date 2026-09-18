@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { EditorContent, useEditor } from "@tiptap/react";
+import { Mathematics, migrateMathStrings } from "@tiptap/extension-mathematics";
 import StarterKit from "@tiptap/starter-kit";
 import Underline from "@tiptap/extension-underline";
 import TextAlign from "@tiptap/extension-text-align";
@@ -33,6 +34,7 @@ import {
   parseTrueFontSize,
 } from "@/lib/doc-font";
 import { reportCopy } from "@/lib/integrity";
+import { readArtifactDraft, useArtifactSave } from "@/lib/use-artifact-save";
 
 const ParagraphWithLineHeight = Paragraph.extend({
   addAttributes() {
@@ -93,51 +95,30 @@ export default function DocumentWorkspace({
   const [findOpen, setFindOpen] = useState(false);
   const [findQuery, setFindQuery] = useState("");
   const [title, setTitle] = useState(doc.title);
-  const [savedAt, setSavedAt] = useState(doc.savedAt);
+  const [comments, setComments] = useState(doc.comments ?? []);
+  const [chatTurns, setChatTurns] = useState(doc.thread);
+  const [commentsOpen, setCommentsOpen] = useState(false);
+  const { save, retry, status: savedAt, error: saveError } = useArtifactSave(doc.id, undefined, doc);
   const [words, setWords] = useState(() =>
     wordCountFromHtml(resolveBodyHtml(doc)),
   );
   const [selectionText, setSelectionText] = useState("");
   const [bodyHtml, setBodyHtml] = useState(() => resolveBodyHtml(doc));
-  const saveTimer = useRef<number | null>(null);
   const applyingRemote = useRef(false);
   const bodyHtmlRef = useRef(bodyHtml);
   const titleRef = useRef(title);
-  bodyHtmlRef.current = bodyHtml;
-  titleRef.current = title;
 
   const initialHtml = useMemo(() => resolveBodyHtml(doc), [doc]);
 
   const persist = useCallback(() => {
-    if (saveTimer.current) window.clearTimeout(saveTimer.current);
-    setSavedAt("Saving…");
-    saveTimer.current = window.setTimeout(() => {
-      void (async () => {
-        const nextTitle = titleRef.current.trim() || "Untitled";
-        const shortTitle =
-          nextTitle.length > 28 ? `${nextTitle.slice(0, 26)}…` : nextTitle;
-        try {
-          const res = await fetch(`/api/${viewId}/artifacts/${doc.id}`, {
-            method: "PATCH",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              bodyHtml: bodyHtmlRef.current,
-              title: nextTitle,
-              shortTitle,
-              savedAt: "Saved just now",
-            }),
-          });
-          if (!res.ok) throw new Error("save failed");
-          setSavedAt("Saved just now");
-        } catch {
-          setSavedAt("Save failed");
-        }
-      })();
-    }, 600);
-  }, [viewId, doc.id]);
+    const nextTitle = titleRef.current.trim() || "Untitled";
+    save({ bodyHtml: bodyHtmlRef.current, title: nextTitle,
+      shortTitle: nextTitle.length > 28 ? `${nextTitle.slice(0, 26)}…` : nextTitle,
+      savedAt: "Saved just now" });
+  }, [save]);
 
   const persistRef = useRef(persist);
-  persistRef.current = persist;
+  useEffect(() => { persistRef.current = persist; }, [persist]);
 
   const editor = useEditor({
     immediatelyRender: false,
@@ -145,6 +126,8 @@ export default function DocumentWorkspace({
       StarterKit.configure({
         heading: false,
         paragraph: false,
+        link: false,
+        underline: false,
       }),
       ParagraphWithLineHeight,
       HeadingWithLineHeight.configure({ levels: [1, 2, 3] }),
@@ -163,10 +146,20 @@ export default function DocumentWorkspace({
       Image.configure({ inline: false, allowBase64: true }),
       Placeholder.configure({ placeholder: "Start writing…" }),
       TypographyShortcuts,
+      Mathematics.configure({
+        katexOptions: { throwOnError: false },
+      }),
     ],
     content: initialHtml,
     editable: editMode === "editing",
+    onCreate: ({ editor: ed }) => { migrateMathStrings(ed); },
     editorProps: {
+      handleClickOn: (view, _pos, node, nodePos) => {
+        if (!view.editable || !["inlineMath", "blockMath"].includes(node.type.name)) return false;
+        const latex = window.prompt("Edit equation (TeX)", String(node.attrs.latex));
+        if (latex?.trim()) view.dispatch(view.state.tr.setNodeMarkup(nodePos, undefined, { ...node.attrs, latex: latex.trim() }));
+        return true;
+      },
       attributes: {
         class:
           "doc-editor outline-none min-h-[50vh] text-[#1A1A1A] focus:outline-none",
@@ -211,10 +204,21 @@ export default function DocumentWorkspace({
   }, [onClose]);
 
   useEffect(() => {
-    return () => {
-      if (saveTimer.current) window.clearTimeout(saveTimer.current);
-    };
-  }, []);
+    if (!editor) return;
+    const draft = readArtifactDraft(viewId, doc.id);
+    if (!draft) return;
+    if (typeof draft.bodyHtml === "string") {
+      editor.commands.setContent(draft.bodyHtml, { emitUpdate: false });
+      bodyHtmlRef.current = draft.bodyHtml;
+      // Recover browser-only edits after the editor mounts.
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setBodyHtml(draft.bodyHtml); setWords(wordCountFromHtml(draft.bodyHtml));
+    }
+    if (typeof draft.title === "string") { titleRef.current = draft.title; setTitle(draft.title); }
+    if (Array.isArray(draft.comments)) setComments(draft.comments as NonNullable<DocumentRecord["comments"]>);
+    if (Array.isArray(draft.thread)) setChatTurns(draft.thread as DocumentRecord["thread"]);
+    save(draft);
+  }, [editor, doc.id, viewId, save]);
 
   const applyRemoteHtml = useCallback(
     (html: string) => {
@@ -223,10 +227,11 @@ export default function DocumentWorkspace({
       editor.commands.setContent(html, { emitUpdate: false });
       setBodyHtml(html);
       setWords(wordCountFromHtml(html));
-      setSavedAt("Saved just now");
+      bodyHtmlRef.current = html;
       applyingRemote.current = false;
+      persist();
     },
-    [editor],
+    [editor, persist],
   );
 
   const runFind = () => {
@@ -288,7 +293,7 @@ export default function DocumentWorkspace({
   };
 
   return (
-    <div className="relative flex min-h-0 flex-1 flex-col bg-white">
+    <div className="relative flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden bg-white">
       <div className="flex h-14 shrink-0 items-center justify-between border-b border-[#F0F0F0] px-[22px]">
         <div className="flex min-w-0 items-center gap-2">
           {onClose ? (
@@ -313,6 +318,8 @@ export default function DocumentWorkspace({
           <span className="text-xs leading-4 text-[#A0A0A0]">
             {savedAt} · {words} words
           </span>
+          {saveError && <button title={saveError} className="text-xs text-red-700" onClick={() => void retry()}>Retry save</button>}
+          <button className="text-xs text-stone-500" onClick={() => setCommentsOpen(v => !v)}>Comments ({comments.filter(c => !c.resolved).length})</button>
 
           <button
             type="button"
@@ -422,6 +429,10 @@ export default function DocumentWorkspace({
           editMode={editMode}
           onEditModeChange={setEditMode}
           onFindOpen={() => setFindOpen(true)}
+          onAddComment={(quote, text) => {
+            const next = [...comments, { id: crypto.randomUUID(), quote, text, createdAt: new Date().toISOString() }];
+            setComments(next); save({ comments: next }); setCommentsOpen(true);
+          }}
           docTitle={title}
           compact={variant === "notes"}
         />
@@ -533,12 +544,23 @@ export default function DocumentWorkspace({
       {chatOpen ? (
         <DocChatPanel
           doc={doc}
+          turns={chatTurns}
+          onTurnsChange={next=>{setChatTurns(next);save({thread:next});}}
           bodyHtml={bodyHtml}
           selection={selectionText}
           onClose={() => setChatOpen(false)}
           onDocumentUpdate={applyRemoteHtml}
         />
       ) : null}
+      {commentsOpen && <aside className="absolute top-20 right-6 bottom-6 z-40 w-80 overflow-y-auto rounded-xl border border-stone-200 bg-white p-5 shadow-xl">
+        <div className="mb-5 flex justify-between text-sm font-medium"><span>Comments</span><button onClick={() => setCommentsOpen(false)}>Close</button></div>
+        {!comments.length && <p className="text-sm text-stone-400">Select a passage, then use Add comment in the formatting toolbar.</p>}
+        {comments.map(comment => <div key={comment.id} className={"mb-4 space-y-2 rounded-lg border border-stone-100 p-3 " + (comment.resolved ? "opacity-50" : "")}>
+          {comment.quote && <blockquote className="border-l-2 border-amber-300 pl-2 text-xs text-stone-500">{comment.quote}</blockquote>}
+          <textarea aria-label="Comment text" className="w-full text-sm outline-none" value={comment.text} onChange={e => { const next = comments.map(c => c.id === comment.id ? { ...c, text: e.target.value } : c); setComments(next); save({ comments: next }); }} />
+          <div className="flex gap-3 text-xs"><button onClick={() => { const next = comments.map(c => c.id === comment.id ? { ...c, resolved: !c.resolved } : c); setComments(next); save({ comments: next }); }}>{comment.resolved ? "Reopen" : "Resolve"}</button><button className="text-red-700" onClick={() => { const next = comments.filter(c => c.id !== comment.id); setComments(next); save({ comments: next }); }}>Delete</button></div>
+        </div>)}
+      </aside>}
     </div>
   );
 }

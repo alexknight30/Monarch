@@ -1,0 +1,42 @@
+import assert from "node:assert/strict";
+import { mkdtemp, mkdir, writeFile, readFile, readdir } from "node:fs/promises";
+import path from "node:path";
+import { tmpdir } from "node:os";
+import { gzip } from "node:zlib";
+import { promisify } from "node:util";
+
+async function main() {
+  const root=await mkdtemp(path.join(tmpdir(),"monarch-backup-check-"));process.env.MONARCH_DATA_ROOT=root;
+  const db=await import("../src/lib/local-db");
+  const backup=await import("../src/lib/workspace-backup");
+  const {storeChatFiles,loadChatFileBlocks}=await import("../src/lib/chat-attachment-store");
+  const {saveStoredChat}=await import("../src/lib/workspace-extras");
+  const folder=path.join(root,"test-one");await mkdir(path.join(folder,"uploads"),{recursive:true});
+  const original=path.join(folder,"uploads/source.txt");await writeFile(original,"Synthetic source text");
+  const source=await db.createSourceDocument("test-one",{filename:"source.txt",mime:"text/plain",sizeBytes:21,storedPath:original});
+  const artifact=await db.createArtifactWithContent("test-one",{title:"Reading",kind:"reading"},{sourceDocumentId:source.id,bodyText:"Synthetic source text"});
+  const attachments=await storeChatFiles("test-one",[new File(["Synthetic attachment"],"chat.txt",{type:"text/plain"})]);
+  await saveStoredChat("test-one",{id:"test-chat",title:"Test",updatedAt:1,messages:[{role:"user",content:"Read this",attachments}]});
+  await mkdir(path.join(folder,"assets"));const asset=crypto.randomUUID();await writeFile(path.join(folder,"assets",asset),"image bytes");await writeFile(path.join(folder,"assets",asset+".json"),JSON.stringify({mime:"image/png",name:"diagram.png"}));
+  const bytes=await backup.exportWorkspaceBackup("test-one");const checked=await backup.inspectWorkspaceBackup("test-one",bytes);
+  assert.equal(checked.files.length,5);assert.equal(checked.workspace.documents[0].storedPath,"uploads/source.txt");
+  await db.patchArtifact("test-one",artifact.id,{title:"Work after backup"});
+  await db.createPlannerIssue("test-one",{title:"New work"});
+  await backup.restoreWorkspaceBackup("test-one",bytes);
+  const restored=await db.readViewStore("test-one");
+  assert.equal(restored.artifacts[0].title,"Reading");assert.equal(restored.planner.length,0);
+  assert.match(restored.documents[0].storedPath,/uploads\/restore-/);assert.equal(await readFile(restored.documents[0].storedPath,"utf8"),"Synthetic source text");assert.equal(await readFile(original,"utf8"),"Synthetic source text");
+  assert.ok((await loadChatFileBlocks("test-one",restored.chats[0].messages[0].attachments!)).length);
+  const snapshots=await readdir(path.join(root,"backups/test-one"));const latest=JSON.parse(await readFile(path.join(root,"backups/test-one",snapshots.sort().at(-1)!),"utf8"));
+  assert.equal(latest.artifacts[0].title,"Work after backup");assert.equal(latest.planner[0].title,"New work");
+  await assert.rejects(backup.inspectWorkspaceBackup("alex-seager",bytes),/belongs to/);
+  const bad=structuredClone(checked);bad.files[0].path="uploads/../../outside.txt";
+  await assert.rejects(backup.restoreWorkspaceBackup("test-one",await promisify(gzip)(JSON.stringify(bad))),/invalid file path/);
+  const corrupt=structuredClone(checked);corrupt.files[0].data=Buffer.from("tampered").toString("base64");
+  await assert.rejects(backup.restoreWorkspaceBackup("test-one",await promisify(gzip)(JSON.stringify(corrupt))),/integrity/);
+  await writeFile(path.join(folder,"assets",asset),"conflicting bytes");
+  await assert.rejects(backup.restoreWorkspaceBackup("test-one",bytes),/conflicts/);
+  assert.equal((await db.readViewStore("test-one")).documents[0].storedPath,restored.documents[0].storedPath);
+  console.log("PASS: full backup restores records, original sources, chat attachments and assets; preserves prior records/files; rejects wrong workspace, traversal, corruption and file conflicts");
+}
+main().catch(error=>{console.error(error);process.exitCode=1;});

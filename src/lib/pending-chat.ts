@@ -1,6 +1,8 @@
 import type { Skill } from "@/lib/skills";
 
 export type PendingChat = {
+  study?:boolean;
+  research?:boolean;
   text: string;
   skill?: Skill;
   files: File[];

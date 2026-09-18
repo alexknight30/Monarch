@@ -3,24 +3,26 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useViewId } from "@/components/view-provider";
+import { ArtifactManager } from "@/components/artifact-manager";
 import { BlankEmptyPlus } from "@/components/ui/blank-empty";
 import { Button } from "@/components/ui/button";
 import { ChevronDownIcon } from "@/components/ui/chevron-down";
-import { createArtifactForView } from "@/components/ui/create-entity";
 import { TextTabs } from "@/components/ui/text-tabs";
 import { ToolbarSearch } from "@/components/ui/toolbar-search";
-import { useViewId } from "@/components/view-provider";
 import { TagChips } from "@/components/ui/tag-chips";
 import {
   ARTIFACT_KIND_LABEL,
   type Artifact,
   type ArtifactKind,
+  type Course,
 } from "@/lib/mock-data";
 
 const TABS = [
   { id: "yours", label: "Yours" },
   { id: "papers", label: "Papers" },
   { id: "shared", label: "Shared with you" },
+  { id: "trash", label: "Trash" },
 ] as const;
 
 type ArtifactTab = (typeof TABS)[number]["id"];
@@ -77,7 +79,7 @@ function sortArtifacts(artifacts: Artifact[], sort: ArtifactSort): Artifact[] {
   } else {
     next.sort(
       (a, b) =>
-        updatedRank(a.updated) - updatedRank(b.updated) ||
+        (a.updatedAt && b.updatedAt ? Date.parse(b.updatedAt) - Date.parse(a.updatedAt) : updatedRank(a.updated) - updatedRank(b.updated)) ||
         a.title.localeCompare(b.title),
     );
   }
@@ -90,11 +92,19 @@ function kindBadge(kind: ArtifactKind) {
 
 export default function ArtifactsClient({
   artifacts,
+  courses,
+  trashed,
 }: {
   artifacts: Artifact[];
+  courses: Course[];
+  trashed: {id:string;title:string;kind:ArtifactKind;deletedAt:string}[];
 }) {
   const router = useRouter();
   const viewId = useViewId();
+  const [managing,setManaging]=useState<Artifact|null>(null);
+  const [courseFilter,setCourseFilter]=useState("all");
+  const [restoring,setRestoring]=useState<string|null>(null);
+  const [restoreError,setRestoreError]=useState("");
   const [tab, setTab] = useState<ArtifactTab>("yours");
   const [sort, setSort] = useState<ArtifactSort>("updated");
   const [sortOpen, setSortOpen] = useState(false);
@@ -105,8 +115,8 @@ export default function ArtifactsClient({
 
   const visible = useMemo(
     () =>
-      sortArtifacts(filterByQuery(filterByTab(artifacts, tab), query), sort),
-    [artifacts, tab, query, sort],
+      sortArtifacts(filterByQuery(filterByTab(artifacts, tab), query).filter(a=>courseFilter==="all"||a.courseId===courseFilter), sort),
+    [artifacts, tab, query, sort, courseFilter],
   );
   const sortLabel =
     SORT_OPTIONS.find((o) => o.id === sort)?.label ?? "Last updated";
@@ -134,20 +144,19 @@ export default function ArtifactsClient({
   }, [sortOpen]);
 
   const onNew = async () => {
-    try {
-      const created = await createArtifactForView(viewId);
-      if (created) router.refresh();
-    } catch (err) {
-      window.alert(
-        err instanceof Error ? err.message : "Could not create artifact.",
-      );
-    }
+    router.push("/artifacts/new");
   };
 
-  if (artifacts.length === 0) {
+  async function restore(id:string) {
+    setRestoring(id);setRestoreError("");
+    try {const response=await fetch(`/api/${viewId}/artifacts/${encodeURIComponent(id)}/lifecycle`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({action:"restore"})});const data=await response.json();if(!response.ok)throw new Error(data.error||"Could not restore artifact.");router.refresh();}
+    catch(error){setRestoreError(error instanceof Error?error.message:"Could not restore artifact.");}finally{setRestoring(null);}
+  }
+
+  if (artifacts.length === 0 && trashed.length === 0) {
     return (
       <div className="flex min-h-0 flex-1 flex-col items-center overflow-y-auto pt-13 pb-16">
-        <div className="flex w-240 min-h-0 flex-1 flex-col">
+        <div className="flex w-full max-w-[960px] min-h-0 flex-1 flex-col px-5">
           <h1 className="font-display text-[34px] leading-[42px] tracking-[-0.015em] text-[#0A0A0A]">
             Artifacts
           </h1>
@@ -163,8 +172,8 @@ export default function ArtifactsClient({
   return (
     <>
       <div className="flex min-h-0 flex-1 flex-col items-center overflow-y-auto pt-13 pb-16">
-        <div className="flex w-240 min-h-0 flex-1 flex-col">
-          <div className="flex items-center justify-between gap-4">
+        <div className="flex w-full max-w-[1000px] min-h-0 flex-1 flex-col px-5">
+          <div className="flex flex-wrap items-center justify-between gap-4">
             <h1 className="font-display text-[34px] leading-[42px] tracking-[-0.015em] text-[#0A0A0A]">
               Artifacts
             </h1>
@@ -233,8 +242,10 @@ export default function ArtifactsClient({
           <div className="pt-[30px]">
             <TextTabs items={TABS} value={tab} onChange={setTab} />
           </div>
+          {tab!=="trash"&&<label className="mt-4 flex items-center gap-2 text-xs text-stone-500">Course<select aria-label="Filter artifacts by course" value={courseFilter} onChange={event=>setCourseFilter(event.target.value)} className="rounded-lg border border-stone-200 bg-white px-3 py-2 text-sm"><option value="all">All courses</option>{courses.map(course=><option key={course.id} value={course.id}>{course.code} · {course.title}</option>)}</select></label>}
+          {restoreError&&<p role="alert" className="mt-4 text-sm text-red-700">{restoreError}</p>}
 
-          {visible.length === 0 ? (
+          {tab==="trash" ? <div className="mt-6 space-y-3"><p className="text-sm text-stone-500">Trashed artifacts stay here until restored. Their original files are kept.</p>{trashed.filter(item=>item.title.toLowerCase().includes(query.toLowerCase())).map(item=><div key={item.id} className="flex items-center justify-between gap-4 rounded-xl border border-stone-200 p-4"><div><p className="text-sm font-medium">{item.title}</p><p className="mt-1 text-xs text-stone-500">{kindBadge(item.kind)} · Removed {new Date(item.deletedAt).toLocaleDateString()}</p></div><button disabled={!!restoring} className="rounded-lg border border-stone-200 px-3 py-2 text-xs disabled:opacity-50" onClick={()=>void restore(item.id)}>{restoring===item.id?"Restoring…":"Restore"}</button></div>)}{!trashed.length&&<p className="py-10 text-center text-sm text-stone-400">Trash is empty.</p>}</div> : visible.length === 0 ? (
             <div className="flex flex-col items-center gap-2 pt-16 text-center">
               <p className="text-sm leading-5 text-[#6B6B6B]">
                 {query.trim()
@@ -247,10 +258,10 @@ export default function ArtifactsClient({
               </p>
             </div>
           ) : (
-            <div className="grid grid-cols-2 gap-5 pt-6.5">
+            <div className="grid grid-cols-1 gap-5 pt-6.5 sm:grid-cols-2">
               {visible.map((artifact) => {
                 const cardClass =
-                  "flex h-41 flex-col justify-between rounded-xl border border-[#E8E8E6] bg-white p-[22px] text-left transition-colors hover:border-[#D6D6D2] hover:bg-[#FCFCFB]";
+                  "flex min-h-41 flex-col justify-between gap-4 rounded-xl border border-[#E8E8E6] bg-white p-[22px] pr-10 text-left transition-colors hover:border-[#D6D6D2] hover:bg-[#FCFCFB]";
                 const body = (
                   <>
                     <div className="flex flex-col gap-[9px]">
@@ -279,19 +290,19 @@ export default function ArtifactsClient({
                 );
 
                 return (
-                  <Link
-                    key={artifact.slug}
+                  <div key={artifact.slug} className="relative"><Link
                     href={`/artifacts/${artifact.slug}`}
                     className={cardClass}
                   >
                     {body}
-                  </Link>
+                  </Link><button aria-label={`Manage ${artifact.title}`} title="Artifact details, copy or trash" className="absolute top-3 right-3 rounded-md px-2 py-1 text-stone-500 hover:bg-stone-100" onClick={()=>setManaging(artifact)}>⋯</button></div>
                 );
               })}
             </div>
           )}
         </div>
       </div>
+      {managing&&<ArtifactManager key={managing.id} artifact={managing} onClose={()=>setManaging(null)}/>}
     </>
   );
 }

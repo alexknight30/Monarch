@@ -1,8 +1,6 @@
 import { NextResponse } from "next/server";
 import { resolveApiView } from "@/lib/api-view";
-import { listCourses, listPlanner, listArtifacts } from "@/lib/local-db";
-import { flatten } from "@/lib/planner";
-import { getViewDataset } from "@/lib/views";
+import { readViewStore } from "@/lib/local-db";
 
 export const runtime = "nodejs";
 
@@ -18,26 +16,11 @@ export async function GET(_request: Request, context: RouteContext) {
   if ("error" in resolved) return resolved.error;
 
   const { viewId } = resolved;
-  const [courses, artifacts, planner] = await Promise.all([
-    listCourses(viewId),
-    listArtifacts(viewId),
-    listPlanner(viewId),
-  ]);
-
-  const dataset = getViewDataset(viewId);
-  const fromDeadlines = dataset.deadlines.map((d) => d.title.trim()).filter(Boolean);
-  const fromPlanner = planner
-    .flatMap(flatten)
-    .map((issue) => issue.assignment?.trim())
-    .filter((value): value is string => Boolean(value));
-
-  const assignments = Array.from(new Set([...fromDeadlines, ...fromPlanner])).sort(
-    (a, b) => a.localeCompare(b),
-  );
+  const {courses,artifacts,assignments}=await readViewStore(viewId);
 
   return NextResponse.json({
     courses: courses.map((c) => c.code),
-    artifacts: artifacts.map((a) => a.title),
-    assignments,
+    artifacts: artifacts.map(a=>({id:a.id,title:a.title,courseId:a.courseId,course:courses.find(c=>c.id===a.courseId)?.code||"Unassigned"})),
+    assignments: assignments.map(a=>({id:a.id,title:a.title,courseId:courses.find(c=>c.slug===a.courseSlug)?.id||"unassigned",course:courses.find(c=>c.slug===a.courseSlug)?.code||"Unassigned",dueAt:a.dueAt})),
   });
 }

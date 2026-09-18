@@ -8,13 +8,13 @@ import { HistoryIcon } from "@/components/ui/history";
 import {
   getActiveChatId,
   getChatThread,
-  listChatThreads,
   setActiveChatId,
-  type ChatThread,
 } from "@/lib/chat-history";
 import { QUICK_ACTIONS } from "@/lib/mock-data";
 import { setPendingChat } from "@/lib/pending-chat";
 import { useViewDataset } from "@/components/view-provider";
+import { useActiveChatId,useChatThreads } from "@/lib/use-chat-threads";
+import { useHydrated } from "@/lib/use-hydrated";
 
 const iconProps = {
   fill: "none",
@@ -81,17 +81,14 @@ function HomeScreen() {
   const forceLanding = searchParams.get("home") === "1";
   const { user } = useViewDataset();
   const [historyOpen, setHistoryOpen] = useState(false);
-  const [threads, setThreads] = useState<ChatThread[]>([]);
-  const [activeId, setActiveId] = useState<string | null>(null);
-  const [ready, setReady] = useState(false);
+  const threads=useChatThreads();
+  const activeId=useActiveChatId();
+  const ready=useHydrated();
 
   // Resume the last chat when using the Chat nav item — not the logo.
   useEffect(() => {
     if (forceLanding) {
       setActiveChatId(null);
-      setActiveId(null);
-      setThreads(listChatThreads());
-      setReady(true);
       router.replace("/");
       return;
     }
@@ -102,9 +99,6 @@ function HomeScreen() {
       return;
     }
     if (id) setActiveChatId(null);
-    setActiveId(getActiveChatId());
-    setThreads(listChatThreads());
-    setReady(true);
   }, [forceLanding, router]);
 
   if (!ready) {
@@ -119,8 +113,6 @@ function HomeScreen() {
             type="button"
             aria-label="Chat history"
             onClick={() => {
-              setThreads(listChatThreads());
-              setActiveId(getActiveChatId());
               setHistoryOpen(true);
             }}
             className="absolute top-10 right-7 z-10 flex size-11 cursor-pointer items-center justify-center rounded-md text-[#1A1A1A] transition-colors hover:bg-[#FAFAFA]"
@@ -147,11 +139,13 @@ function HomeScreen() {
           <div className="mt-auto flex w-[732px] flex-col items-center">
             <AIChatInput
               onSubmit={(value, meta) => {
-                if (meta?.files?.length) {
+                if (meta?.files?.length||meta?.study||meta?.research) {
                   setPendingChat({
                     text: value,
                     skill: meta.skill,
-                    files: meta.files,
+                    files: meta.files||[],
+                    study:meta.study,
+                    research:meta.research,
                   });
                   router.push("/chat");
                   return;
@@ -202,7 +196,6 @@ function HomeScreen() {
           onClose={() => setHistoryOpen(false)}
           onNewChat={() => {
             setActiveChatId(null);
-            setActiveId(null);
             setHistoryOpen(false);
             router.push("/chat");
           }}

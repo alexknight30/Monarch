@@ -1,4 +1,9 @@
-import Anthropic from "@anthropic-ai/sdk";
+import { setUsageCategory } from "@/lib/usage-store";
+import { withUsageRequest } from "@/lib/usage-route";
+import type Anthropic from "@anthropic-ai/sdk";
+import { xaiToolResult } from "@/lib/harness/xai";
+import { storeChatFiles, loadChatFileBlocks } from "@/lib/chat-attachment-store";
+import type { ChatAttachmentMeta } from "@/lib/chat-attachments";
 import { NextResponse } from "next/server";
 import type { DocumentChatContext } from "@/lib/document-tools";
 import {
@@ -9,7 +14,6 @@ import {
   DIAGRAM_TOOL,
   DIAGRAM_TOOL_NAME,
   buildDiagramMessage,
-  readDiagramToolInput,
 } from "@/lib/diagram-tool";
 import { buildPolicyText } from "@/lib/harness/policy";
 import { runHarnessStream } from "@/lib/harness/loop";
@@ -30,6 +34,7 @@ export const runtime = "nodejs";
 type ChatMessage = {
   role: "user" | "assistant";
   content: string;
+  attachments?: ChatAttachmentMeta[];
 };
 
 type SkillPayload = {
@@ -39,6 +44,8 @@ type SkillPayload = {
 };
 
 type ChatRequestBody = {
+  study?:boolean;
+  research?:boolean;
   message?: string;
   messages?: ChatMessage[];
   skill?: SkillPayload;
@@ -109,7 +116,8 @@ async function contentBlocksForFiles(files: File[]) {
   return filesToContentBlocks(files);
 }
 
-export async function POST(request: Request) {
+async function handlePOST(request: Request) {
+  const viewId = await getServerViewId();
   let body: ChatRequestBody;
   let uploadedFiles: File[] = [];
   try {
@@ -121,8 +129,10 @@ export async function POST(request: Request) {
   }
 
   let fileBlocks: Anthropic.ContentBlockParam[] = [];
+  let savedAttachments: ChatAttachmentMeta[] = [];
   try {
     fileBlocks = await contentBlocksForFiles(uploadedFiles);
+    if (uploadedFiles.length) savedAttachments = await storeChatFiles(viewId, uploadedFiles);
   } catch (err) {
     return NextResponse.json(
       { error: err instanceof Error ? err.message : "Could not read that file." },
@@ -182,7 +192,20 @@ export async function POST(request: Request) {
           ? [{ role: "user" as const, content: "Please read the attached file(s)." }]
           : [];
 
+  try {
+    messages = await Promise.all(messages.map(async (message, index) => {
+      const attachments = history[index]?.attachments;
+      if (message.role !== "user" || !Array.isArray(attachments) || !attachments.length) return message;
+      const blocks = await loadChatFileBlocks(viewId, attachments);
+      if (!blocks.length) return message;
+      return { role: message.role, content: [...blocks, { type: "text" as const, text: typeof message.content === "string" ? message.content : "Read the attached sources." }] };
+    }));
+  } catch (error) {
+    return NextResponse.json({ error: error instanceof Error ? error.message : "Could not retrieve attachments." }, { status: 400 });
+  }
+
   if (skillCommand) {
+    setUsageCategory("special");
     const prior =
       messages.at(-1)?.role === "user" ? messages.slice(0, -1) : messages;
     const lastAssistant = [...prior]
@@ -256,48 +279,16 @@ export async function POST(request: Request) {
     ];
   }
 
-  const viewId = await getServerViewId();
   const courseSlug =
     typeof body.courseSlug === "string" ? body.courseSlug.trim() : "";
   const isDiagram =
     skillCommand === "diagram" || skillToolName === DIAGRAM_TOOL_NAME;
-  const toolsEnabled = !skillCommand || Boolean(skillToolName);
+  const toolsEnabled = !skillCommand || Boolean(skillToolName)||body.research===true;
 
   if (isDiagram) {
-    const apiKey = process.env.ANTHROPIC_API_KEY;
-    if (!apiKey) {
-      return NextResponse.json(
-        { error: "ANTHROPIC_API_KEY is not configured." },
-        { status: 500 },
-      );
-    }
-    const client = new Anthropic({ apiKey });
-    const system = [
-      {
-        type: "text" as const,
-        text: buildPolicyText(toolCatalog()),
-        cache_control: { type: "ephemeral" as const },
-      },
-      {
-        type: "text" as const,
-        text: (await buildSessionContext(viewId, { courseSlug, document })) || " ",
-      },
-    ];
     try {
-      const response = await client.messages.create({
-        model: "claude-sonnet-5",
-        max_tokens: 2048,
-        system,
-        messages,
-        tools: [DIAGRAM_TOOL],
-        tool_choice: { type: "tool" as const, name: DIAGRAM_TOOL_NAME },
-      });
-      const text = response.content
-        .filter((block): block is Anthropic.TextBlock => block.type === "text")
-        .map((block) => block.text)
-        .join("\n")
-        .trim();
-      const spec = normalizeDiagramSpec(readDiagramToolInput(response));
+      const system = `${buildPolicyText(toolCatalog())}\n\n${await buildSessionContext(viewId, { courseSlug, document })}`;
+      const spec = normalizeDiagramSpec(await xaiToolResult(system, messages, DIAGRAM_TOOL, request.signal));
       if (!spec) {
         return NextResponse.json(
           {
@@ -307,7 +298,7 @@ export async function POST(request: Request) {
           { status: 502 },
         );
       }
-      const caption = spec.caption ?? text;
+      const caption = spec.caption ?? "";
       return NextResponse.json({
         message: {
           role: "assistant" as const,
@@ -320,18 +311,22 @@ export async function POST(request: Request) {
     } catch (error) {
       console.error("[api/chat] diagram", error);
       return NextResponse.json(
-        { error: error instanceof Error ? error.message : "Failed to reach Claude." },
+        { error: error instanceof Error ? error.message : "Failed to reach Grok." },
         { status: 502 },
       );
     }
   }
 
   const stream = runHarnessStream({
+    study:body.study===true,
+    research:body.research===true,
     viewId,
     messages,
     document,
     courseSlug: courseSlug || undefined,
     toolsEnabled,
+    signal: request.signal,
+    attachments: savedAttachments,
   });
 
   return new Response(stream, {
@@ -343,3 +338,5 @@ export async function POST(request: Request) {
     },
   });
 }
+
+export const POST = withUsageRequest("chat", handlePOST);

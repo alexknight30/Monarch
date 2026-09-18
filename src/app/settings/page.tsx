@@ -1,51 +1,9 @@
 import SettingsClient from "./settings-client";
-import { getServerViewDataset } from "@/lib/views-server";
-
-export default async function SettingsPage() {
-  const { user, view } = await getServerViewDataset();
-
-  const student = {
-    fullName:
-      view.id === "alex-seager"
-        ? "Alex Seager"
-        : view.id === "alex-knight"
-          ? "Alex Knight"
-          : view.id === "test-one"
-            ? "Test One"
-            : `${user.firstName} Morgan`,
-    email: `${user.firstName.toLowerCase()}.${
-      view.id === "alex-seager"
-        ? "seager"
-        : view.id === "alex-knight"
-          ? "knight"
-          : view.id === "test-one"
-            ? "one"
-            : "morgan"
-    }@westbrook.edu`,
-    studentId:
-      view.id === "mock-one"
-        ? "WBC-204918"
-        : view.id === "alex-knight"
-          ? "WBC-218441"
-          : view.id === "test-one"
-            ? "WBC-000000"
-            : "WBC-219003",
-    major: "Computer Science",
-    year: "Junior",
-    school: user.school,
-    preferredName: user.firstName,
-  };
-
-  const usage = {
-    plan: "Student",
-    periodLabel: "Aug 1 – Aug 31, 2026",
-    messagesUsed: view.id === "mock-one" ? 186 : 12,
-    messagesLimit: 500,
-    tokensUsed: view.id === "mock-one" ? "1.2M" : "48K",
-    tokensLimit: "5M",
-    storageUsed: view.id === "mock-one" ? "240 MB" : "18 MB",
-    storageLimit: "2 GB",
-  };
-
-  return <SettingsClient student={student} usage={usage} />;
+import { getServerViewId } from "@/lib/views-server";
+import { readViewStore } from "@/lib/local-db";
+import { flatten } from "@/lib/planner";
+import { GROK_MODEL } from "@/lib/harness/models";
+export default async function SettingsPage(){
+  const viewId=await getServerViewId();const store=await readViewStore(viewId);
+  return <SettingsClient student={store.profile} counts={{courses:store.courses.filter(c=>c.id!=="unassigned").length,artifacts:store.artifacts.length,tasks:store.planner.flatMap(flatten).length,events:store.calendar.length,chats:store.chats.length}} connection={{xai:!!process.env.XAI_API_KEY,haiku:!!process.env.ANTHROPIC_API_KEY,model:GROK_MODEL}}/>;
 }

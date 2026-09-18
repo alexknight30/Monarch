@@ -2,7 +2,6 @@ import { NextResponse } from "next/server";
 import { resolveApiView } from "@/lib/api-view";
 import { readViewStore } from "@/lib/local-db";
 import {
-  findTask,
   summarizeArtifact,
   summarizeEvent,
   summarizeTask,

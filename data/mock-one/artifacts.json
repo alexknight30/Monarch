@@ -79,10 +79,14 @@
         ]
       }
     ],
-    "bodyHtml": "<p>E1 vs E2 — quick map. Secondary alkyl halide + strong base + heat: watch the competition. Heat and a polar protic solvent tip toward E1; a bulky strong base tips toward E2.</p><p><mark data-color=\"#F1EFE7\" style=\"background-color: rgb(241, 239, 231); color: inherit;\">For every product I write, show the electron-pushing steps first. Name the substrate and the leaving group before naming the alkene.</mark></p><p>Open questions: when does rearrangement beat a clean E2 on a secondary carbon? Drill set for Sunday.</p>"
+    "bodyHtml": "<p>E1 vs E2 — quick map. Secondary alkyl halide + strong base + heat: watch the competition. Heat and a polar protic solvent tip toward E1; a bulky strong base tips toward E2.</p><p><mark data-color=\"#F1EFE7\" style=\"background-color: rgb(241, 239, 231); color: inherit;\">For every product I write, show the electron-pushing steps first. Name the substrate and the leaving group before naming the alkene.</mark></p><p>Open questions: when does rearrangement beat a clean E2 on a secondary carbon? Drill set for Sunday.</p>",
+    "id": "orgo-ii-reaction-maps",
+    "courseId": "chem-122",
+    "courseSlug": "chem-122",
+    "tagIds": []
   },
   {
-    "kind": "paper",
+    "kind": "reading",
     "slug": "thesis-lit-review",
     "title": "Thesis Lit Review",
     "description": "Track sources for my senior thesis on municipal broadband. Keep a running annotated bibliography and flag contradicting findings.",
@@ -112,7 +116,14 @@
         "snippet": "Turn my notes into a five-section outline.",
         "when": "Jul 9"
       }
-    ]
+    ],
+    "id": "thesis-lit-review",
+    "tagIds": [
+      "paper"
+    ],
+    "annotations": [],
+    "bodyText": "Track sources for my senior thesis on municipal broadband. Keep a running annotated bibliography and flag contradicting findings.",
+    "courseId": "unassigned"
   },
   {
     "kind": "document",
@@ -157,10 +168,14 @@
         "text": "A 95% CI is not \"95% chance the mean is in this interval.\" It's: if we repeated the sampling process, 95% of such intervals would cover the true mean."
       }
     ],
-    "thread": []
+    "thread": [],
+    "id": "stat-140-problem-sets",
+    "courseId": "stat-140",
+    "courseSlug": "stat-140",
+    "tagIds": []
   },
   {
-    "kind": "paper",
+    "kind": "reading",
     "slug": "gov-201-seminar-prep",
     "title": "Gov 201 Seminar Prep",
     "description": "Prep discussion questions and counterarguments before each Thursday seminar on comparative institutions.",
@@ -186,7 +201,14 @@
         "snippet": "Give me the strongest version of the argument.",
         "when": "Apr 20"
       }
-    ]
+    ],
+    "id": "gov-201-seminar-prep",
+    "tagIds": [
+      "paper"
+    ],
+    "annotations": [],
+    "bodyText": "Prep discussion questions and counterarguments before each Thursday seminar on comparative institutions.",
+    "courseId": "unassigned"
   },
   {
     "kind": "document",
@@ -237,10 +259,16 @@
           "Milward, ch. 1 — p. 12"
         ]
       }
-    ]
+    ],
+    "id": "marshall-plan-response",
+    "tagIds": [
+      "paper"
+    ],
+    "courseId": "hist-210",
+    "courseSlug": "hist-210"
   },
   {
-    "kind": "document",
+    "kind": "notes",
     "slug": "cs-51-office-hours-notes",
     "title": "CS 51 Office Hours Notes",
     "shortTitle": "CS 51 OH Notes",
@@ -266,7 +294,11 @@
         "text": "(* map: ('a -> 'b) -> 'a list -> 'b list *)\nlet rec map f = function\n  | [] -> []\n  | x :: xs -> f x :: map f xs"
       }
     ],
-    "thread": []
+    "thread": [],
+    "id": "cs-51-office-hours-notes",
+    "courseId": "cs-51",
+    "courseSlug": "cs-51",
+    "tagIds": []
   },
   {
     "kind": "document",
@@ -306,6 +338,126 @@
         "text": "Option A clears the audit with room for a language. Option B front-loads requirements. Option C is the stretch schedule — flag conflicts before recommending it."
       }
     ],
-    "thread": []
+    "thread": [],
+    "id": "spring-course-planning",
+    "courseId": "unassigned",
+    "tagIds": []
+  },
+  {
+    "kind": "flashcards",
+    "id": "carbonyl-flashcards",
+    "slug": "carbonyl-flashcards",
+    "courseId": "chem-122",
+    "courseSlug": "chem-122",
+    "tagIds": [
+      "exam"
+    ],
+    "title": "Carbonyl flashcards",
+    "description": "Quizlet-style drill for carbonyl reactions.",
+    "createdBy": "Sam Levine",
+    "updated": "3 days ago",
+    "visibility": "Private",
+    "instructions": null,
+    "context": [],
+    "scheduled": [],
+    "chats": [],
+    "cards": [
+      {
+        "id": "c1",
+        "front": "What does LiAlH4 do to a ketone?",
+        "back": "Reduces it to a secondary alcohol."
+      },
+      {
+        "id": "c2",
+        "front": "Grignard + aldehyde →",
+        "back": "Secondary alcohol after workup."
+      }
+    ]
+  },
+  {
+    "kind": "practice-test",
+    "id": "stat-140-practice-8",
+    "slug": "stat-140-practice-8",
+    "courseId": "stat-140",
+    "courseSlug": "stat-140",
+    "tagIds": [
+      "quiz"
+    ],
+    "title": "STAT 140 practice set 8",
+    "description": "Confidence intervals and hypothesis tests.",
+    "createdBy": "Sam Levine",
+    "updated": "1 day ago",
+    "visibility": "Private",
+    "instructions": null,
+    "context": [],
+    "scheduled": [],
+    "chats": [],
+    "items": [
+      {
+        "id": "q1",
+        "prompt": "A 95% CI for $\\mu$ is $(12.1, 15.4)$. What is the point estimate?",
+        "answer": "The midpoint: $13.75$."
+      }
+    ]
+  },
+  {
+    "kind": "lesson",
+    "id": "fold-vs-map-lesson",
+    "slug": "fold-vs-map-lesson",
+    "courseId": "cs-51",
+    "courseSlug": "cs-51",
+    "tagIds": [],
+    "title": "Fold vs map",
+    "description": "A short lesson with an embedded agent prompt.",
+    "createdBy": "Sam Levine",
+    "updated": "Apr 2",
+    "visibility": "Private",
+    "instructions": null,
+    "context": [],
+    "scheduled": [],
+    "chats": [],
+    "blocks": [
+      {
+        "id": "lb1",
+        "type": "text",
+        "html": "Map preserves length. Fold collapses a list into one value."
+      },
+      {
+        "id": "lb2",
+        "type": "prompt",
+        "prompt": "Ask me to write the type of fold_left before showing an example."
+      }
+    ]
+  },
+  {
+    "kind": "slides",
+    "id": "marshall-plan-slides",
+    "slug": "marshall-plan-slides",
+    "courseId": "hist-210",
+    "courseSlug": "hist-210",
+    "tagIds": [
+      "paper"
+    ],
+    "title": "Marshall Plan — 5 slides",
+    "description": "Talking points for the response paper.",
+    "createdBy": "Sam Levine",
+    "updated": "Mar 28",
+    "visibility": "Private",
+    "instructions": null,
+    "context": [],
+    "scheduled": [],
+    "chats": [],
+    "slides": [
+      {
+        "id": "s1",
+        "title": "Europe, 1947",
+        "bodyHtml": "<p>Factories intact, wallets empty.</p>"
+      },
+      {
+        "id": "s2",
+        "title": "Conditions over dollars",
+        "bodyHtml": "<p>Open books, shared targets, OEEC coordination.</p>"
+      }
+    ]
   }
 ]

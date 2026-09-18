@@ -67,14 +67,10 @@ function Row({
   const [anchorRect, setAnchorRect] = useState<DOMRect | null>(null);
 
   useEffect(() => {
-    if (!statusMenuOpen) {
-      setAnchorRect(null);
-      return;
-    }
+    if (!statusMenuOpen) return;
     const update = () => {
       if (statusBtnRef.current) setAnchorRect(statusBtnRef.current.getBoundingClientRect());
     };
-    update();
     window.addEventListener("resize", update);
     window.addEventListener("scroll", update, true);
     return () => {
@@ -128,7 +124,7 @@ function Row({
               return;
             }
             const rect = statusBtnRef.current?.getBoundingClientRect();
-            if (rect) onOpenStatusMenu(issue.key, rect);
+            if (rect) {setAnchorRect(rect);onOpenStatusMenu(issue.key, rect);}
           }}
           className="flex h-6 w-6 items-center justify-center rounded-md transition-colors hover:bg-[#EFEFED]"
         >
@@ -303,16 +299,9 @@ export default function IssueTree({
 
   const selected = selectedKey ? findIssue(issues, selectedKey) : null;
 
-  // Keep parents expanded once they gain subtasks (e.g. after creating one).
-  useEffect(() => {
-    if (!selected?.children?.length) return;
-    setOpenKeys((prev) => {
-      if (prev.has(selected.key)) return prev;
-      const next = new Set(prev);
-      next.add(selected.key);
-      return next;
-    });
-  }, [selected]);
+  // A selected parent also shows any newly created children immediately.
+  const expandedKeys=new Set(openKeys);
+  if(selected?.children?.length)expandedKeys.add(selected.key);
 
   if (groups.length === 0 || groups.every((g) => g.issues.length === 0)) {
     return (
@@ -343,7 +332,7 @@ export default function IssueTree({
             <Branch
               issues={group.issues}
               depth={0}
-              openKeys={openKeys}
+              openKeys={expandedKeys}
               statusMenuKey={statusMenuKey}
               onToggle={toggle}
               onSelect={(key) => {
@@ -361,7 +350,7 @@ export default function IssueTree({
       {selected ? (
         <IssueDetail
           issue={selected}
-          onClose={() => setSelectedKey(null)}
+          onClose={() => {if(selected.children?.length)setOpenKeys(current=>new Set([...current,selected.key]));setSelectedKey(null);}}
           onOpenIssue={setSelectedKey}
         />
       ) : null}

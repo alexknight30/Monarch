@@ -1,3 +1,4 @@
+import { withUsageRequest } from "@/lib/usage-route";
 /**
  * Re-render an existing diagram at a different depth.
  *
@@ -7,14 +8,12 @@
  * unrelated diagram.
  */
 
-import Anthropic from "@anthropic-ai/sdk";
+import { xaiToolResult } from "@/lib/harness/xai";
 import { NextResponse } from "next/server";
 import { normalizeDiagramSpec, type DiagramDetail } from "@/lib/diagram";
 import {
   DIAGRAM_TOOL,
-  DIAGRAM_TOOL_NAME,
   buildDiagramDetailMessage,
-  readDiagramToolInput,
 } from "@/lib/diagram-tool";
 import { ACADEMIC_GUARDRAILS_SYSTEM } from "@/lib/guardrails";
 
@@ -29,15 +28,7 @@ type DiagramDetailBody = {
   source?: unknown;
 };
 
-export async function POST(request: Request) {
-  const apiKey = process.env.ANTHROPIC_API_KEY;
-  if (!apiKey) {
-    return NextResponse.json(
-      { error: "ANTHROPIC_API_KEY is not configured." },
-      { status: 500 },
-    );
-  }
-
+async function handlePOST(request: Request) {
   let body: DiagramDetailBody;
   try {
     body = (await request.json()) as DiagramDetailBody;
@@ -65,24 +56,12 @@ export async function POST(request: Request) {
       : undefined;
 
   try {
-    const client = new Anthropic({ apiKey });
-    const response = await client.messages.create({
-      model: "claude-sonnet-5",
-      max_tokens: 1024,
-      system: ACADEMIC_GUARDRAILS_SYSTEM,
-      messages: [
-        {
-          role: "user",
-          content: buildDiagramDetailMessage({ spec, detail, source }),
-        },
-      ],
-      tools: [DIAGRAM_TOOL],
-      tool_choice: { type: "tool", name: DIAGRAM_TOOL_NAME },
-    });
+    const result = await xaiToolResult(ACADEMIC_GUARDRAILS_SYSTEM,
+      [{ role: "user", content: buildDiagramDetailMessage({ spec, detail, source }) }], DIAGRAM_TOOL, request.signal);
 
     // Force the requested depth: the caller's intent is the truth, not whatever
     // `detail` the model happened to echo back.
-    const next = normalizeDiagramSpec(readDiagramToolInput(response), { detail });
+    const next = normalizeDiagramSpec(result, { detail });
     if (!next) {
       return NextResponse.json(
         { error: "Could not redraw that diagram." },
@@ -98,3 +77,5 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: message }, { status: 502 });
   }
 }
+
+export const POST = withUsageRequest("special", handlePOST);

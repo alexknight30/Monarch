@@ -11,8 +11,6 @@ import {
 } from "react";
 import { createPortal } from "react-dom";
 import type { Editor } from "@tiptap/react";
-import { jsPDF } from "jspdf";
-import { DEFAULT_BODY_FONT_SIZE } from "@/lib/doc-font";
 
 const ICON = {
   fill: "none",
@@ -75,6 +73,7 @@ type DocToolbarProps = {
   editMode: "editing" | "viewing";
   onEditModeChange: (mode: "editing" | "viewing") => void;
   onFindOpen: () => void;
+  onAddComment?: (quote: string, text: string) => void;
   docTitle: string;
   titleFontSize: number;
   compact?: boolean;
@@ -188,108 +187,27 @@ function Menu({
   );
 }
 
-function fontFace(family: string | undefined): "times" | "helvetica" {
-  if (family?.toLowerCase().includes("arial")) return "helvetica";
-  return "times";
-}
-
-function fontStyle(bold: boolean, italic: boolean): "normal" | "bold" | "italic" | "bolditalic" {
-  if (bold && italic) return "bolditalic";
-  if (bold) return "bold";
-  if (italic) return "italic";
-  return "normal";
-}
-
-function downloadPdf(
-  editor: Editor,
-  title: string,
-  titleSize: number,
-  lineHeight: number,
-) {
-  const pdf = new jsPDF({ unit: "pt", format: "letter" });
-  const margin = 54;
-  const pageWidth = pdf.internal.pageSize.getWidth();
-  const pageHeight = pdf.internal.pageSize.getHeight();
-  const width = pageWidth - margin * 2;
-  let y = margin;
-
-  const ensureSpace = (h: number) => {
-    if (y + h <= pageHeight - margin) return;
-    pdf.addPage();
-    y = margin;
-  };
-
-  pdf.setFont("times", "bold");
-  pdf.setFontSize(titleSize);
-  const titleLh = titleSize * lineHeight;
-  const titleLines = pdf.splitTextToSize(title || "Document", width);
-  for (const line of titleLines) {
-    ensureSpace(titleLh);
-    pdf.text(line, margin, y);
-    y += titleLh;
-  }
-  y += titleSize * 0.5;
-
-  editor.state.doc.forEach((block) => {
-    if (!block.isTextblock) return;
-
-    const runs: {
-      text: string;
-      size: number;
-      bold: boolean;
-      italic: boolean;
-      family: string | undefined;
-    }[] = [];
-
-    block.forEach((child) => {
-      if (!child.isText || !child.text) return;
-      const sizeAttr = child.marks.find((m) => m.attrs.fontSize)?.attrs
-        .fontSize as string | undefined;
-      const parsed = sizeAttr ? Number.parseInt(sizeAttr, 10) : NaN;
-      runs.push({
-        text: child.text,
-        size: Number.isFinite(parsed) ? parsed : DEFAULT_BODY_FONT_SIZE,
-        bold: child.marks.some((m) => m.type.name === "bold"),
-        italic: child.marks.some((m) => m.type.name === "italic"),
-        family: child.marks.find((m) => m.attrs.fontFamily)?.attrs.fontFamily as
-          | string
-          | undefined,
-      });
-    });
-
-    if (runs.length === 0) {
-      y += DEFAULT_BODY_FONT_SIZE * lineHeight;
-      return;
-    }
-
-    let x = margin;
-    let rowSize = runs[0].size;
-    for (const run of runs) {
-      pdf.setFont(fontFace(run.family), fontStyle(run.bold, run.italic));
-      pdf.setFontSize(run.size);
-      const lh = run.size * lineHeight;
-      rowSize = Math.max(rowSize, run.size);
-      const parts = run.text.split(/(\s+)/);
-      for (const part of parts) {
-        if (!part) continue;
-        const w = pdf.getTextWidth(part);
-        if (x > margin && x + w > margin + width) {
-          y += rowSize * lineHeight;
-          x = margin;
-          rowSize = run.size;
-          ensureSpace(lh);
-        } else {
-          ensureSpace(lh);
-        }
-        pdf.text(part, x, y);
-        x += w;
-      }
-    }
-    y += rowSize * lineHeight;
+/** Print the rendered editor so lists, images, links and equations are preserved. */
+function downloadPdf(editor: Editor, title: string, titleSize: number, lineHeight: number) {
+  const frame = document.createElement("iframe");
+  frame.title = "Document print preview";
+  frame.style.cssText = "position:fixed;right:0;bottom:0;width:0;height:0;border:0";
+  document.body.appendChild(frame);
+  const printDocument = frame.contentDocument;
+  if (!printDocument) { frame.remove(); return; }
+  const base = printDocument.createElement("base"); base.href = window.location.origin; printDocument.head.appendChild(base);
+  document.querySelectorAll('link[rel="stylesheet"], style').forEach(node => printDocument.head.appendChild(node.cloneNode(true)));
+  const style = printDocument.createElement("style");
+  style.textContent = "@page { size: letter; margin: 0.75in; } body { background:white !important; color:black; overflow:visible !important; } .doc-editor { min-height:0; font-size:18pt; } h1,h2,h3 { break-after:avoid; } img { max-width:100%; break-inside:avoid; }";
+  printDocument.head.appendChild(style);
+  printDocument.title = title || "Document";
+  const heading = printDocument.createElement("h1"); heading.textContent = title; heading.style.cssText = "font-size:" + titleSize + "pt;line-height:" + lineHeight + ";margin-bottom:0.5em";
+  printDocument.body.appendChild(heading);
+  const content = editor.view.dom.cloneNode(true) as HTMLElement; content.removeAttribute("contenteditable"); content.style.lineHeight = String(lineHeight); printDocument.body.appendChild(content);
+  const ready = [...printDocument.images].map(image => image.complete ? Promise.resolve() : new Promise<void>(resolve => { image.onload = () => resolve(); image.onerror = () => resolve(); }));
+  void Promise.race([Promise.all([...ready, printDocument.fonts.ready]), new Promise(resolve => setTimeout(resolve, 3000))]).then(() => {
+    frame.contentWindow?.focus(); frame.contentWindow?.print(); setTimeout(() => frame.remove(), 60000);
   });
-
-  const safe = (title || "document").replace(/[^\w\-]+/g, "-").slice(0, 48);
-  pdf.save(`${safe || "document"}.pdf`);
 }
 
 export default function DocToolbar({
@@ -305,6 +223,7 @@ export default function DocToolbar({
   editMode,
   onEditModeChange,
   onFindOpen,
+  onAddComment,
   docTitle,
   titleFontSize,
   compact = false,
@@ -428,8 +347,10 @@ export default function DocToolbar({
     if (!editor) return;
     const note = window.prompt("Comment");
     if (!note?.trim()) return;
+    const { from, to } = editor.state.selection;
+    const quote = editor.state.doc.textBetween(from, to, " ");
     editor.chain().focus().setHighlight({ color: "#FEF0C7" }).run();
-    window.alert(`Comment saved on selection:\n\n${note.trim()}`);
+    onAddComment?.(quote, note.trim());
   };
 
   return (
@@ -497,7 +418,7 @@ export default function DocToolbar({
         </Btn>
         {compact ? null : (
           <Btn
-            label="Download PDF"
+            label="Print or save PDF"
             disabled={!editor}
             onClick={() =>
               editor &&
@@ -723,7 +644,7 @@ export default function DocToolbar({
             if (!editor) return;
             const tex = window.prompt("Equation (TeX)", "E = mc^2");
             if (!tex?.trim()) return;
-            editor.chain().focus().insertContent(`$${tex.trim()}$`).run();
+            editor.chain().focus().insertInlineMath({ latex: tex.trim() }).run();
           }}
         >
           <span className="font-serif text-[15px] leading-none text-[#3D3D3D]">

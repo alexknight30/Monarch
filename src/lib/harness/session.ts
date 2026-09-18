@@ -25,6 +25,8 @@ export async function buildSessionContext(
 ): Promise<string> {
   const store = await readViewStore(viewId);
   const lines: string[] = ["## Session context"];
+  lines.push(`Current date and time: ${new Date().toISOString()}. Local timezone: ${Intl.DateTimeFormat().resolvedOptions().timeZone}.`);
+  lines.push(`Courses: ${store.courses.map((item) => `${item.code} — ${item.title} (${item.id})`).join("; ")}. Use get_course for full details, deadlines and policies.`);
 
   const course = focus.courseSlug
     ? store.courses.find(
@@ -95,8 +97,11 @@ export async function buildSessionContext(
           .join("\n")}`,
       );
     }
+    lines.push(`Course policies: ${JSON.stringify(course.policies ?? {})}`);
+    lines.push(`Office hours: ${JSON.stringify(course.officeHours ?? [])}`);
     const upcoming = store.calendar
-      .filter((event) => event.courseId === course.id || event.courseSlug === course.slug)
+      .filter((event) => (event.courseId === course.id || event.courseSlug === course.slug) && event.startsAt >= new Date().toISOString().slice(0, 10))
+      .sort((a, b) => a.startsAt.localeCompare(b.startsAt))
       .slice(0, 8);
     if (upcoming.length) {
       lines.push(

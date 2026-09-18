@@ -11,12 +11,14 @@
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.116.0",
+    "@excalidraw/excalidraw": "^0.18.1",
     "@hugeicons/core-free-icons": "^4.2.3",
     "@hugeicons/react": "^1.1.9",
     "@tiptap/extension-color": "^3.29.2",
     "@tiptap/extension-highlight": "^3.29.2",
     "@tiptap/extension-image": "^3.29.2",
     "@tiptap/extension-link": "^3.29.2",
+    "@tiptap/extension-mathematics": "^3.31.3",
     "@tiptap/extension-placeholder": "^3.29.2",
     "@tiptap/extension-subscript": "^3.29.2",
     "@tiptap/extension-superscript": "^3.29.2",
@@ -31,12 +33,18 @@
     "jspdf": "^4.2.1",
     "katex": "^0.18.7",
     "lucide-react": "^1.30.0",
+    "mammoth": "^1.12.3",
     "mermaid": "^11.16.1",
     "motion": "^13.0.0",
-    "next": "16.3.0",
+    "next": "^16.3.5",
+    "openai": "^7.17.0",
+    "pdf-parse": "^2.4.5",
+    "pdfjs-dist": "^5.4.296",
+    "pptxgenjs": "^4.0.1",
     "react": "19.2.8",
     "react-dom": "19.2.8",
-    "tailwind-merge": "^3.6.0"
+    "tailwind-merge": "^3.6.0",
+    "tldraw": "^5.4.2"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
@@ -44,8 +52,9 @@
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "eslint": "^9",
-    "eslint-config-next": "16.3.0",
+    "eslint-config-next": "^16.3.5",
     "tailwindcss": "^4",
+    "tsx": "^4.23.13",
     "typescript": "^5"
   }
 }

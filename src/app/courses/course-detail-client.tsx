@@ -21,6 +21,8 @@ import {
 } from "@/lib/mock-data";
 import { STATUS_LABEL, type PlannerIssue } from "@/lib/planner";
 import type { ViewId } from "@/lib/views";
+import { AcademicManager } from "@/components/academic-manager";
+import { CourseEditor } from "@/components/course-editor";
 
 type CourseDocument = {
   id: string;
@@ -457,6 +459,7 @@ export default function CourseDetailClient({
     <div className="relative flex min-h-0 flex-1 flex-col">
       <div className="flex min-h-0 flex-1 flex-col overflow-hidden px-10 pt-11 pb-6">
         <div className="shrink-0">
+          <div className="mb-4 flex flex-wrap gap-2"><CourseEditor course={course} /><AcademicManager mode="assignments" course={course} /><AcademicManager mode="calendar" course={course} /></div>
           <div className="flex items-center gap-3">
             <Link
               href="/courses"

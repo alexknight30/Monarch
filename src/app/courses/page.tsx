@@ -4,5 +4,5 @@ import { getServerViewDataset } from "@/lib/views-server";
 
 export default async function CoursesPage() {
   const { courses } = await getServerViewDataset();
-  return <CoursesClient courses={listedCourses(courses)} />;
+  return <CoursesClient courses={listedCourses(courses)} today={new Date().toLocaleDateString("en-CA")} />;
 }

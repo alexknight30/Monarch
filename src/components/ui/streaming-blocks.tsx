@@ -2,7 +2,6 @@
 
 import {
   useEffect,
-  useRef,
   useState,
   type ReactNode,
 } from "react";
@@ -103,7 +102,7 @@ export function StreamingBlocks({
   const blocks = splitContentBlocks(text);
   const complete = completeBlockCount(text, streaming);
   const [shown, setShown] = useState(() => (streaming ? 0 : blocks.length));
-  const animateFrom = useRef(streaming ? 0 : Number.POSITIVE_INFINITY);
+  const [animateFrom] = useState(() => streaming ? 0 : Number.POSITIVE_INFINITY);
 
   useEffect(() => {
     if (!streaming) {
@@ -111,7 +110,6 @@ export function StreamingBlocks({
         const t = window.setTimeout(() => setShown((n) => n + 1), 160);
         return () => window.clearTimeout(t);
       }
-      if (shown !== blocks.length) setShown(blocks.length);
       return;
     }
 
@@ -130,7 +128,7 @@ export function StreamingBlocks({
       {blocks.slice(0, shown).map((block, index) => (
         <div
           key={index}
-          className={index >= animateFrom.current ? "chat-block-in" : undefined}
+          className={index >= animateFrom ? "chat-block-in" : undefined}
         >
           {renderBlock(block, index)}
         </div>

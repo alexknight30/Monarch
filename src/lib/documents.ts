@@ -17,12 +17,15 @@ export type DocumentStatus = "Draft" | "Submitted" | "Returned";
 export type DocChatTurn = {
   role: "user" | "assistant";
   content: string;
+  attachments?: import("./chat-attachments").ChatAttachmentMeta[];
   /** Readings the answer leaned on. Only the seeded turns carry these. */
   sources?: string[];
 };
+export type DocumentComment = { id: string; quote: string; text: string; createdAt: string; resolved?: boolean };
 
 /** Writing-surface fields carried by document artifacts. */
 export type DocumentContent = {
+  comments?: DocumentComment[];
   /** Short name for the breadcrumb — the full title is too long for it. */
   shortTitle: string;
   course: string;
@@ -76,14 +79,21 @@ export function resolveBodyHtml(
 
 /** Plain text for word counts, chat context, and PDF export. */
 export function htmlToPlainText(html: string): string {
+  const prepared = html
+    .replace(/<(span|div)\b([^>]*)>[\s\S]*?<\/\1>/gi, (whole, _tag: string, attributes: string) => {
+      const latex = /data-latex=(["'])(.*?)\1/i.exec(attributes)?.[2];
+      if (latex === undefined) return whole;
+      const delimiter = attributes.includes("block-math") ? "$$" : "$";
+      return delimiter + latex + delimiter;
+    })
+    .replace(/<br\s*\/?>/gi, "\n")
+    .replace(/<\/(p|div|h[1-6]|li|blockquote)>/gi, "\n\n");
   if (typeof document !== "undefined") {
     const el = document.createElement("div");
-    el.innerHTML = html;
-    return (el.textContent || "").replace(/\u00A0/g, " ").trim();
+    el.innerHTML = prepared;
+    return (el.textContent || "").replace(/\u00A0/g, " ").replace(/\n{3,}/g, "\n\n").trim();
   }
-  return html
-    .replace(/<br\s*\/?>/gi, "\n")
-    .replace(/<\/p>/gi, "\n\n")
+  return prepared
     .replace(/<[^>]+>/g, "")
     .replace(/&nbsp;/g, " ")
     .replace(/&amp;/g, "&")

@@ -87,6 +87,7 @@ function textFields(raw: Record<string, unknown>, title: string) {
     bodyHtml: typeof raw.bodyHtml === "string" ? raw.bodyHtml : empty.bodyHtml,
     blocks: Array.isArray(raw.blocks) ? raw.blocks : empty.blocks,
     thread: Array.isArray(raw.thread) ? raw.thread : empty.thread,
+    comments: Array.isArray(raw.comments) ? raw.comments : [],
   };
 }
 
@@ -110,6 +111,8 @@ export function normalizeArtifact(
   );
   const course = courses.find((item) => item.id === courseId);
   const base = {
+    revision: typeof raw.revision === "number" ? raw.revision : 0,
+    updatedAt: typeof raw.updatedAt === "string" ? raw.updatedAt : undefined,
     id: typeof raw.id === "string" && raw.id.trim() ? raw.id : slug,
     slug,
     title,
@@ -141,6 +144,8 @@ export function normalizeArtifact(
     const artifact: DiagramArtifact = {
       kind: "diagram",
       ...base,
+      ...(raw.snapshot && typeof raw.snapshot === "object" ? { snapshot: raw.snapshot as DiagramArtifact["snapshot"] } : {}),
+      ...(raw.whiteboard && typeof raw.whiteboard === "object" ? { whiteboard: raw.whiteboard as DiagramArtifact["whiteboard"] } : {}),
       spec: spec ?? {
         title,
         layout: "tree",
@@ -177,6 +182,7 @@ export function normalizeArtifact(
     const artifact: FlashcardsArtifact = {
       kind: "flashcards",
       ...base,
+      study: raw.study && typeof raw.study === "object" ? raw.study as FlashcardsArtifact["study"] : undefined,
       cards: Array.isArray(raw.cards)
         ? (raw.cards as FlashcardsArtifact["cards"])
         : [],
@@ -187,6 +193,7 @@ export function normalizeArtifact(
     const artifact: PracticeTestArtifact = {
       kind: "practice-test",
       ...base,
+      attempts: Array.isArray(raw.attempts) ? raw.attempts as PracticeTestArtifact["attempts"] : [],
       items: Array.isArray(raw.items)
         ? (raw.items as PracticeTestArtifact["items"])
         : [],
@@ -197,6 +204,7 @@ export function normalizeArtifact(
     const artifact: LessonArtifact = {
       kind: "lesson",
       ...base,
+      progress: raw.progress && typeof raw.progress === "object" ? raw.progress as LessonArtifact["progress"] : {},
       blocks: Array.isArray(raw.blocks)
         ? (raw.blocks as LessonArtifact["blocks"])
         : [],
@@ -242,18 +250,20 @@ function stampIssue(
   courses: Course[],
   artifacts: Artifact[],
 ): PlannerIssue {
-  const courseId = courseIdFrom(courses, issue.courseSlug ?? issue.courseId, issue.course);
+  const courseId = courseIdFrom(courses, issue.courseId ?? issue.courseSlug, issue.course);
   const course = courses.find((item) => item.id === courseId);
   const tagIds =
-    issue.tagIds && issue.tagIds.length
+    Array.isArray(issue.tagIds)
       ? sanitizeTagIds(issue.tagIds, "task")
       : tagsFromPlannerLabels(issue.labels);
   let artifactId = issue.artifactId;
   if (!artifactId && issue.artifact) {
-    const hit = artifacts.find(
+    const matches = artifacts.filter(
       (artifact) =>
         artifact.title === issue.artifact || artifact.slug === issue.artifact,
     );
+    const inCourse=matches.filter(item=>item.courseId===courseId);
+    const hit=inCourse.length===1?inCourse[0]:matches.length===1?matches[0]:undefined;
     if (hit) artifactId = hit.id;
   }
   const children = issue.children?.map((child) =>
@@ -267,7 +277,7 @@ function stampIssue(
       ? { courseSlug: course.slug, course: course.code }
       : { courseSlug: UNASSIGNED_COURSE_ID, course: "Unassigned" }),
     tagIds,
-    ...(artifactId ? { artifactId } : {}),
+    ...(artifactId ? { artifactId,artifact:artifacts.find(item=>item.id===artifactId)?.title||issue.artifact } : {}),
     ...(children?.length ? { children } : {}),
   };
 }
@@ -296,7 +306,7 @@ export function normalizeCalendar(
         event.timing ??
         (kind === "deadline" || kind === "exam" ? "deadline" : "meeting"),
       tagIds:
-        event.tagIds && event.tagIds.length
+        Array.isArray(event.tagIds)
           ? sanitizeTagIds(event.tagIds, "event")
           : tagsFromCalendarKind(kind),
     };
@@ -360,6 +370,18 @@ export function artifactBodyText(artifact: Artifact): string {
     return artifact.bodyText || htmlToPlainText(artifact.bodyHtml ?? "");
   }
   if (artifact.kind === "diagram") {
+    if (artifact.whiteboard) return artifact.whiteboard.pages.map(page => page.name + "\n" + page.elements.filter(element => !element.isDeleted && element.type === "text").map(element => "text" in element ? element.text : "").join("\n")).join("\n\n");
+    if (artifact.snapshot) {
+      const richText = (value: unknown): string => {
+        if (!value || typeof value !== "object") return "";
+        const record = value as Record<string, unknown>;
+        return typeof record.text === "string" ? record.text : Array.isArray(record.content) ? record.content.map(richText).join(" ") : "";
+      };
+      return Object.values(artifact.snapshot.store).filter(record => record.typeName === "shape").map(record => {
+        const props = (record as unknown as { props: Record<string, unknown> }).props;
+        return richText(props.richText) || (typeof props.text === "string" ? props.text : "");
+      }).filter(Boolean).join("\n");
+    }
     return artifact.spec.nodes.map((node) => node.label).join("\n");
   }
   if (artifact.kind === "flashcards") {
@@ -372,10 +394,10 @@ export function artifactBodyText(artifact: Artifact): string {
   }
   if (artifact.kind === "lesson") {
     return artifact.blocks
-      .map((block) => block.html || block.prompt || "")
+      .map((block) => block.text || htmlToPlainText(block.html || "") || block.prompt || "")
       .join("\n");
   }
-  return artifact.slides.map((slide) => `${slide.title}\n${slide.bodyHtml}`).join("\n");
+  return artifact.slides.map((slide) => `${slide.title}\n${slide.elements ? slide.elements.map(e => e.text || "").join("\n") : htmlToPlainText(slide.bodyHtml)}\n${slide.notes || ""}`).join("\n");
 }
 
 export function allIssueKeys(planner: PlannerIssue[]) {

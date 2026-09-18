@@ -23,7 +23,7 @@ export type ChatTurn = {
   actions?: ChatTurnAction[];
   /** Keeps the save button idempotent across reloads. */
   savedDiagrams?: SavedDiagram[];
-  /** Files attached to this user turn (metadata only — bytes are not persisted). */
+  /** File metadata and view-scoped IDs for retrieving persisted attachment bytes. */
   attachments?: ChatAttachmentMeta[];
 };
 
@@ -53,7 +53,53 @@ function activeChatKey() {
 }
 
 function canUseStorage() {
-  return typeof window !== "undefined" && typeof window.localStorage !== "undefined";
+  return typeof window !== "undefined";
+}
+const memoryCache=new Map<string,ChatThread[]>();
+const EMPTY_THREADS:ChatThread[]=[];
+const pending=new Map<string,{viewId:string;thread:ChatThread}>();
+let syncTimer:ReturnType<typeof setTimeout>|undefined;
+let syncing:Promise<void>|null=null;
+export const CHAT_SYNC_EVENT="monarch:chat-sync";
+export const CHAT_HISTORY_EVENT="monarch:chat-history";
+export const CHAT_LIST_EVENT="monarch:chat-list";
+function announce(status:string){if(typeof window!=="undefined")window.dispatchEvent(new CustomEvent(CHAT_SYNC_EVENT,{detail:status}));}
+function writeCache(key:string,threads:ChatThread[]){
+  memoryCache.set(key,threads);
+  try{window.localStorage.setItem(key,JSON.stringify(threads));}catch{announce("Browser draft storage is full. Keep this page open until saved to disk.");}
+  window.dispatchEvent(new Event(CHAT_LIST_EVENT));
+}
+export function flushChatHistory():Promise<void>{
+  if(syncTimer){clearTimeout(syncTimer);syncTimer=undefined;}
+  if(syncing)return syncing;
+  syncing=(async()=>{
+    while(pending.size){
+      const [key,entry]=pending.entries().next().value!;
+      pending.delete(key);
+      try{
+        const response=await fetch(`/api/${entry.viewId}/chats`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(entry.thread)});
+        if(!response.ok){const data=await response.json();throw new Error(data.error||"Conversation could not be saved to disk.");}
+      }catch(cause){if(!pending.has(key))pending.set(key,entry);announce(cause instanceof Error?cause.message:"Conversation is only saved in this browser. Reconnect to sync.");return;}
+    }
+    announce("Saved to disk");
+  })().finally(()=>{syncing=null;});
+  return syncing;
+}
+function queueDiskSave(viewId:string,thread:ChatThread){pending.set(viewId+":"+thread.id,{viewId,thread});announce("Saving conversation…");if(syncTimer)clearTimeout(syncTimer);syncTimer=setTimeout(()=>void flushChatHistory(),500);}
+/** Merge disk history with newer browser drafts, then migrate unsynced local conversations. */
+export async function hydrateChatHistory(){
+  if(typeof window==="undefined")return;
+  const viewId=readViewIdFromDocument();const key=`monarch.chat.threads.${viewId}`;
+  try{
+    const response=await fetch(`/api/${viewId}/chats`);const data=await response.json();if(!response.ok)throw new Error(data.error||"Could not load saved conversations.");
+    if(readViewIdFromDocument()!==viewId)return;
+    const local=listChatThreads();const remote=(data.threads||[]) as ChatThread[];
+    const merged=new Map(remote.map(thread=>[thread.id,thread]));
+    for(const thread of local){const saved=merged.get(thread.id);if(!saved||thread.updatedAt>saved.updatedAt){merged.set(thread.id,thread);queueDiskSave(viewId,thread);}}
+    writeCache(key,[...merged.values()].sort((a,b)=>b.updatedAt-a.updatedAt));
+    window.dispatchEvent(new Event(CHAT_HISTORY_EVENT));
+    if(!pending.size)announce("Saved to disk");
+  }catch(cause){announce(cause instanceof Error?cause.message:"Disk history is unavailable; using browser drafts.");}
 }
 
 /** Last open chat for this view — used to resume when returning Home. */
@@ -69,21 +115,26 @@ export function getActiveChatId(): string | null {
 
 export function setActiveChatId(id: string | null): void {
   if (!canUseStorage()) return;
+  try {
   if (!id) {
     window.localStorage.removeItem(activeChatKey());
+    window.dispatchEvent(new Event(CHAT_LIST_EVENT));
     return;
   }
   window.localStorage.setItem(activeChatKey(), id);
+  window.dispatchEvent(new Event(CHAT_LIST_EVENT));
+  } catch { /* Conversation content is independently saved to disk. */ }
 }
 
 export function listChatThreads(): ChatThread[] {
-  if (!canUseStorage()) return [];
+  if (!canUseStorage()) return EMPTY_THREADS;
+  const cached=memoryCache.get(storageKey());if(cached)return cached;
   try {
     const raw = window.localStorage.getItem(storageKey());
-    if (!raw) return [];
+    if (!raw) {memoryCache.set(storageKey(),EMPTY_THREADS);return EMPTY_THREADS;}
     const parsed = JSON.parse(raw) as ChatThread[];
-    if (!Array.isArray(parsed)) return [];
-    return parsed
+    if (!Array.isArray(parsed)) return EMPTY_THREADS;
+    const threads=parsed
       .filter(
         (t) =>
           t &&
@@ -92,8 +143,10 @@ export function listChatThreads(): ChatThread[] {
           Array.isArray(t.messages),
       )
       .sort((a, b) => b.updatedAt - a.updatedAt);
+    memoryCache.set(storageKey(),threads);
+    return threads;
   } catch {
-    return [];
+    return EMPTY_THREADS;
   }
 }
 
@@ -105,7 +158,8 @@ export function saveChatThread(thread: ChatThread): void {
   if (!canUseStorage()) return;
   const others = listChatThreads().filter((t) => t.id !== thread.id);
   const next = [thread, ...others].sort((a, b) => b.updatedAt - a.updatedAt);
-  window.localStorage.setItem(storageKey(), JSON.stringify(next));
+  writeCache(storageKey(),next);
+  queueDiskSave(readViewIdFromDocument(),thread);
 }
 
 /** Persist a model-generated title for a thread. */

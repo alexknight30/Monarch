@@ -2,6 +2,7 @@
 
 import { useEffect } from "react";
 import DocumentWorkspace from "@/app/documents/document-workspace";
+import { ArtifactLinkedSidebar } from "@/components/artifact-linked-sidebar";
 import {
   documentRecordFromArtifact,
   type DocumentArtifact,
@@ -28,16 +29,18 @@ export default function DocumentArtifactDialog({
 
   return (
     <div
-      className="fixed inset-y-0 right-0 left-[66px] z-30 flex flex-col bg-white"
+      className="fixed inset-y-0 right-0 left-[66px] z-30 flex bg-white"
       role="dialog"
       aria-modal="true"
       aria-label={artifact.title}
     >
       <DocumentWorkspace
+        key={artifact.id}
         doc={documentRecordFromArtifact(artifact)}
         breadcrumbRoot="Artifacts"
         onClose={onClose}
       />
+      <ArtifactLinkedSidebar artifactId={artifact.id} />
     </div>
   );
 }

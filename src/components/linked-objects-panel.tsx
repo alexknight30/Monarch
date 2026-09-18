@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo,useRef, useState } from "react";
 import Link from "next/link";
 import { useViewId } from "@/components/view-provider";
 import { TagChips } from "@/components/ui/tag-chips";
@@ -42,22 +42,32 @@ export function LinkedObjectsPanel({
   const [open, setOpen] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const loadSequence=useRef(0);
 
-  const load = useCallback(async () => {
+  const load = useCallback(async (signal?:AbortSignal) => {
+    const sequence=++loadSequence.current;
+    try {
     const res = await fetch(
       `/api/${viewId}/links?kind=${object.kind}&id=${encodeURIComponent(object.id)}`,
+      {signal},
     );
     const data = (await res.json()) as { neighbors?: Neighbor[]; error?: string };
+    if(signal?.aborted||sequence!==loadSequence.current)return;
     if (!res.ok) {
       setError(data.error ?? "Could not load links.");
       return;
     }
     setNeighbors(data.neighbors ?? []);
     setError(null);
+    }catch(cause){if(!signal?.aborted&&sequence===loadSequence.current)setError(cause instanceof Error?cause.message:"Could not load links.");}
   }, [viewId, object.kind, object.id]);
 
   useEffect(() => {
-    void load();
+    const controller=new AbortController();
+    // Fetch external relationship records; only the asynchronous response updates state.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    void load(controller.signal);
+    return ()=>controller.abort();
   }, [load]);
 
   useEffect(() => {

@@ -27,6 +27,8 @@ const PLACEHOLDERS = [
 ];
 
 export type ChatSubmitMeta = {
+  study?:boolean;
+  research?:boolean;
   skill?: Skill;
   files?: File[];
 };
@@ -86,15 +88,6 @@ const AIChatInput = ({
   const query = selectedSkill ? null : slashQuery(inputValue);
   const menuOpen = query !== null;
   const filtered = menuOpen ? filterSkills(query, skills) : [];
-
-  // Refresh skills when the menu opens (custom skills may have changed in Settings).
-  useEffect(() => {
-    if (menuOpen) setSkills(listSkills());
-  }, [menuOpen]);
-
-  useEffect(() => {
-    setHighlight(0);
-  }, [query]);
 
   // Cycle placeholder text when input is inactive (skip when static)
   useEffect(() => {
@@ -191,6 +184,8 @@ const AIChatInput = ({
     const value = inputValue.trim();
     if (!value && !selectedSkill && files.length === 0) return;
     onSubmit?.(value, {
+      study:thinkActive,
+      research:deepSearchActive,
       ...(selectedSkill ? { skill: selectedSkill } : {}),
       ...(files.length ? { files: [...files] } : {}),
     });
@@ -412,7 +407,7 @@ const AIChatInput = ({
                   type="text"
                   value={inputValue}
                   autoFocus={autoFocus}
-                  onChange={(e) => setInputValue(e.target.value)}
+                  onChange={(e) => {setInputValue(e.target.value);setHighlight(0);if(e.target.value.startsWith("/"))setSkills(listSkills());}}
                   onKeyDown={(e) => {
                     if (menuOpen) {
                       if (e.key === "ArrowDown") {
@@ -605,7 +600,8 @@ const AIChatInput = ({
                     ? "bg-blue-600/10 text-blue-950 outline outline-blue-600/60"
                     : "bg-gray-100 text-gray-700 hover:bg-gray-200"
                 }`}
-                title="Think"
+                title="Study mode: explanations with guided practice"
+                aria-pressed={thinkActive}
                 type="button"
                 onClick={(e) => {
                   e.stopPropagation();
@@ -616,7 +612,7 @@ const AIChatInput = ({
                   className="transition-all group-hover:fill-yellow-300"
                   size={compact ? 14 : 18}
                 />
-                Think
+                Study
               </button>
 
               {/* Deep Search Toggle */}
@@ -628,7 +624,8 @@ const AIChatInput = ({
                     ? "bg-blue-600/10 text-blue-950 outline outline-blue-600/60"
                     : "bg-gray-100 text-gray-700 hover:bg-gray-200"
                 }`}
-                title="Deep Search"
+                title="Research the public web with source links"
+                aria-pressed={deepSearchActive}
                 type="button"
                 onClick={(e) => {
                   e.stopPropagation();

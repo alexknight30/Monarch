@@ -1,6 +1,4 @@
-import type Anthropic from "@anthropic-ai/sdk";
-import { structuredMessage } from "@/lib/syllabus/anthropic";
-import { EXTRACT_MODEL } from "@/lib/syllabus/models";
+import { structuredMessage,type SyllabusInput } from "@/lib/syllabus/provider";
 import {
   normalizeExtraction,
   type SyllabusExtraction,
@@ -34,17 +32,10 @@ Rules:
 
 Return only the JSON object.`;
 
-export async function extractSyllabus(opts: {
-  client: Anthropic;
-  fileApiId: string;
-  mime: string;
-}): Promise<SyllabusExtraction> {
+export async function extractSyllabus(opts:SyllabusInput): Promise<SyllabusExtraction> {
   const raw = await structuredMessage<SyllabusExtraction>({
-    client: opts.client,
-    model: EXTRACT_MODEL,
+    ...opts,
     instruction: EXTRACT_PROMPT,
-    fileApiId: opts.fileApiId,
-    mime: opts.mime,
     maxTokens: 16000,
   });
   return normalizeExtraction(raw);

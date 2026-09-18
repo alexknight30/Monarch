@@ -42,10 +42,6 @@ for (const view of views) {
       console.log("keep", path.relative(root, target));
       continue;
     }
-    if (view === "mock-one") {
-      console.log("skip", path.relative(root, target), "(app seeds on first read)");
-      continue;
-    }
     await writeFile(
       target,
       file === "memory.json"

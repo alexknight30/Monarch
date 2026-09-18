@@ -1,265 +1,34 @@
 "use client";
-
-import { useEffect, useState } from "react";
+import { useState } from "react";
+import UsageDashboard from "./usage-dashboard";
+import { useRouter } from "next/navigation";
+import { WorkspaceBackupControls } from "@/components/workspace-backup-controls";
 import { Button } from "@/components/ui/button";
-import { Copy01Icon } from "@/components/ui/copy-01";
-import { IconButton } from "@/components/ui/icon-button";
 import { TextTabs } from "@/components/ui/text-tabs";
-import {
-  addCustomSkill,
-  listSkills,
-  removeCustomSkill,
-  type Skill,
-} from "@/lib/skills";
-
-const TABS = ["Student info", "Usage", "API key", "Skills"] as const;
-type Tab = (typeof TABS)[number];
-
-type Student = {
-  fullName: string;
-  preferredName: string;
-  email: string;
-  studentId: string;
-  major: string;
-  year: string;
-  school: string;
-};
-
-type Usage = {
-  plan: string;
-  periodLabel: string;
-  messagesUsed: number;
-  messagesLimit: number;
-  tokensUsed: string;
-  tokensLimit: string;
-  storageUsed: string;
-  storageLimit: string;
-};
-
-const MOCK_API_KEY = "lms_live_8f3a2c91e0b74d6a9c1e5f28d0a4b7c3";
-
-function Field({
-  label,
-  value,
-  hint,
-}: {
-  label: string;
-  value: string;
-  hint?: string;
-}) {
-  return (
-    <label className="flex flex-col gap-1.5">
-      <span className="text-[13px] leading-4 font-medium text-[#5E5E5E]">{label}</span>
-      <input
-        type="text"
-        defaultValue={value}
-        className="h-10 rounded-lg border border-[#E6E6E6] bg-white px-3 text-sm leading-[18px] text-[#0A0A0A] outline-none transition-colors placeholder:text-[#B0B0AC] focus:border-[#0A0A0A]"
-      />
-      {hint ? (
-        <span className="text-[12.5px] leading-4 text-[#9A9A98]">{hint}</span>
-      ) : null}
-    </label>
-  );
-}
-
-function UsageMeter({
-  label,
-  used,
-  limit,
-  pct,
-}: {
-  label: string;
-  used: string;
-  limit: string;
-  pct: number;
-}) {
-  return (
-    <div className="flex flex-col gap-2">
-      <div className="flex items-baseline justify-between gap-3">
-        <span className="text-sm leading-[18px] text-[#0A0A0A]">{label}</span>
-        <span className="text-[13px] leading-4 text-[#9A9A98] tabular-nums">
-          {used} <span className="text-[#C4C4C0]">/</span> {limit}
-        </span>
-      </div>
-      <div className="h-1.5 overflow-hidden rounded-full bg-[#EFEFED]">
-        <div
-          className="h-full rounded-full bg-[#0A0A0A]"
-          style={{ width: `${Math.min(100, Math.max(0, pct))}%` }}
-        />
-      </div>
-    </div>
-  );
-}
-
-export default function SettingsClient({
-  student,
-  usage,
-}: {
-  student: Student;
-  usage: Usage;
-}) {
-  const [tab, setTab] = useState<Tab>("Student info");
-  const [revealed, setRevealed] = useState(false);
-  const [copied, setCopied] = useState(false);
-  const [apiKey, setApiKey] = useState(MOCK_API_KEY);
-  const [skills, setSkills] = useState<Skill[]>([]);
-  const [addingSkill, setAddingSkill] = useState(false);
-  const [skillForm, setSkillForm] = useState({
-    command: "",
-    name: "",
-    description: "",
-    prompt: "",
-  });
-  const [skillError, setSkillError] = useState<string | null>(null);
-
-  const masked = `${apiKey.slice(0, 12)}${"•".repeat(20)}${apiKey.slice(-4)}`;
-  const messagesPct = (usage.messagesUsed / usage.messagesLimit) * 100;
-
-  useEffect(() => {
-    if (tab === "Skills") setSkills(listSkills());
-  }, [tab]);
-
-  const copyKey = async () => {
-    try {
-      await navigator.clipboard.writeText(apiKey);
-      setCopied(true);
-      window.setTimeout(() => setCopied(false), 1600);
-    } catch {
-      // ignore
-    }
-  };
-
-  const regenerate = () => {
-    const next = `lms_live_${Array.from({ length: 32 }, () =>
-      Math.floor(Math.random() * 16).toString(16),
-    ).join("")}`;
-    setApiKey(next);
-    setRevealed(true);
-    setCopied(false);
-  };
-
-  return (
-    <div className="flex min-h-0 flex-1 flex-col items-center overflow-y-auto pt-13 pb-16">
-      <div className="w-240">
-        <h1 className="font-display text-[34px] leading-[42px] tracking-[-0.015em] text-[#0A0A0A]">
-          Settings
-        </h1>
-        <p className="pt-2.5 text-[15px] leading-[22px] text-[#9A9A98]">
-          Manage your profile, plan usage, skills, and developer access.
-        </p>
-
-        <div className="pt-[30px]">
-          <TextTabs items={TABS} value={tab} onChange={setTab} />
-        </div>
-
-        {tab === "Student info" ? (
-          <section className="mt-8 flex flex-col gap-5">
-            <div className="grid grid-cols-2 gap-4">
-              <Field label="Full name" value={student.fullName} />
-              <Field label="Preferred name" value={student.preferredName} />
-              <Field
-                label="School email"
-                value={student.email}
-                hint="Used for sign-in and course notifications."
-              />
-              <Field
-                label="Student ID"
-                value={student.studentId}
-                hint="Assigned by your registrar."
-              />
-              <Field label="Major" value={student.major} />
-              <Field label="Course year" value={student.year} />
-            </div>
-            <Field label="School" value={student.school} />
-            <div className="flex justify-end pt-2">
-              <Button>Save changes</Button>
-            </div>
-          </section>
-        ) : null}
-
-        {tab === "Usage" ? (
-          <section className="mt-8 flex flex-col gap-7">
-            <div className="flex items-end justify-between gap-4">
-              <div>
-                <p className="text-[13px] leading-4 text-[#9A9A98]">Current plan</p>
-                <p className="pt-1 text-base font-semibold leading-5 tracking-[-0.005em] text-[#0A0A0A]">
-                  {usage.plan}
-                </p>
-              </div>
-              <p className="text-[13px] leading-4 text-[#9A9A98]">{usage.periodLabel}</p>
-            </div>
-
-            <div className="flex flex-col gap-5">
-              <UsageMeter
-                label="Messages"
-                used={String(usage.messagesUsed)}
-                limit={String(usage.messagesLimit)}
-                pct={messagesPct}
-              />
-              <UsageMeter
-                label="Tokens"
-                used={usage.tokensUsed}
-                limit={usage.tokensLimit}
-                pct={viewTokensPct(usage.tokensUsed, usage.tokensLimit)}
-              />
-              <UsageMeter
-                label="File storage"
-                used={usage.storageUsed}
-                limit={usage.storageLimit}
-                pct={viewStoragePct(usage.storageUsed, usage.storageLimit)}
-              />
-            </div>
-
-            <p className="text-[13px] leading-[18px] text-[#9A9A98]">
-              Usage resets at the start of each billing period. Contact your school
-              admin if you need a higher limit.
-            </p>
-          </section>
-        ) : null}
-
-        {tab === "API key" ? (
-          <section className="mt-8 flex flex-col gap-5">
-            <div>
-              <h2 className="text-base font-semibold leading-5 tracking-[-0.005em] text-[#0A0A0A]">
-                Personal API key
-              </h2>
-              <p className="pt-1.5 text-[13px] leading-[18px] text-[#9A9A98]">
-                Use this key to call Monarch from your own scripts and course tools.
-                Keep it private — anyone with it can act as you.
-              </p>
-            </div>
-
-            <label className="flex flex-col gap-1.5">
-              <span className="text-[13px] leading-4 font-medium text-[#5E5E5E]">
-                Key
-              </span>
-              <div className="flex items-center gap-2">
-                <input
-                  type="text"
-                  readOnly
-                  value={revealed ? apiKey : masked}
-                  className="h-10 min-w-0 flex-1 rounded-lg border border-[#E6E6E6] bg-[#FAFAFA] px-3 font-mono text-[13px] leading-[18px] text-[#0A0A0A] outline-none"
-                />
-                <Button variant="secondary" onClick={() => setRevealed((v) => !v)}>
-                  {revealed ? "Hide" : "Reveal"}
-                </Button>
-                <IconButton
-                  icon={Copy01Icon}
-                  label={copied ? "Copied" : "Copy"}
-                  onClick={copyKey}
-                />
-              </div>
-            </label>
-
-            <div className="flex items-center justify-between gap-4 pt-1">
-              <p className="text-[13px] leading-[18px] text-[#9A9A98]">
-                Regenerating immediately invalidates the previous key.
-              </p>
-              <Button onClick={regenerate}>Regenerate</Button>
-            </div>
-          </section>
-        ) : null}
-
+import { useViewId } from "@/components/view-provider";
+import { PROFILE_FIELDS, type StudentProfile } from "@/lib/profile";
+import { addCustomSkill, listSkills, removeCustomSkill, type Skill } from "@/lib/skills";
+const TABS=["Student info","Workspace","Usage","Connection","Skills"] as const;
+type Tab=(typeof TABS)[number];
+export default function SettingsClient({student,counts,connection}:{student:StudentProfile;counts:{courses:number;artifacts:number;tasks:number;events:number;chats:number};connection:{xai:boolean;haiku:boolean;model:string}}){
+  const viewId=useViewId();
+  const router=useRouter();
+  const [tab,setTab]=useState<Tab>("Student info");
+  const [profile,setProfile]=useState(student);
+  const [status,setStatus]=useState("");const [busy,setBusy]=useState(false);
+  const [skills,setSkills]=useState<Skill[]>([]);
+  const [addingSkill,setAddingSkill]=useState(false);
+  const [skillForm,setSkillForm]=useState({command:"",name:"",description:"",prompt:""});
+  const [skillError,setSkillError]=useState<string|null>(null);
+  const labels:Record<keyof StudentProfile,string>={fullName:"Full name",preferredName:"Preferred name",email:"School email",studentId:"Student ID",major:"Major",year:"Course year",school:"School"};
+  const save=async()=>{setBusy(true);setStatus("");try{const res=await fetch("/api/"+viewId+"/profile",{method:"PATCH",headers:{"Content-Type":"application/json"},body:JSON.stringify(profile)});const result=await res.json();if(!res.ok)throw new Error(result.error||"Could not save your profile.");setProfile(result.profile);setStatus("Profile saved.");router.refresh();}catch(cause){setStatus(cause instanceof Error?cause.message:"Could not save.");}finally{setBusy(false);}};
+  return <div className="flex min-h-0 flex-1 justify-center overflow-y-auto px-6 pt-12 pb-16"><div className="w-full max-w-4xl">
+    <h1 className="font-display text-[34px] tracking-tight">Settings</h1><p className="mt-2 text-sm text-stone-500">Your profile, local workspace, model connection, and chat skills.</p>
+    <div className="mt-8"><TextTabs items={TABS} value={tab} onChange={value=>{setTab(value);if(value==="Skills")setSkills(listSkills());}}/></div>
+    {tab==="Student info"&&<form className="mt-8 space-y-6" onSubmit={e=>{e.preventDefault();void save();}}><div className="grid gap-5 sm:grid-cols-2">{PROFILE_FIELDS.map(key=><label key={key} className="text-xs font-medium text-stone-500">{labels[key]}<input type={key==="email"?"email":"text"} maxLength={500} className="mt-2 w-full rounded-lg border border-stone-200 p-3 text-sm text-stone-900 outline-none focus:border-stone-500" value={profile[key]} onChange={e=>setProfile({...profile,[key]:e.target.value})}/></label>)}</div><p className="text-xs text-stone-400">Saved only in this local workspace. These fields do not sign you into a school account or send notifications.</p><div className="flex items-center justify-between"><p role="status" className="text-sm text-stone-500">{status}</p><Button disabled={busy}>{busy?"Saving…":"Save profile"}</Button></div></form>}
+    {tab==="Workspace"&&<section className="mt-8 space-y-7"><div className="grid gap-3 sm:grid-cols-3">{Object.entries(counts).map(([label,count])=><div key={label} className="rounded-xl border border-stone-200 p-5"><p className="text-3xl font-medium">{count}</p><p className="mt-2 text-xs capitalize text-stone-500">{label}</p></div>)}</div><div className="rounded-xl bg-stone-50 p-5 text-sm leading-6 text-stone-600"><p>Schoolwork is stored on this Mac. Saved changes create rolling workspace snapshots automatically.</p><p className="mt-3">Model costs are handled by your provider account. Open the Usage tab for recorded tokens, spending, and a monthly forecast.</p></div><a href={"/api/"+viewId+"/workspace/export"} download className="inline-block rounded-lg border border-stone-200 px-4 py-2 text-sm">Export workspace records</a><p className="text-xs text-stone-400">Exports courses, artifacts, tasks, dates, links, profile and saved conversations as JSON. Original uploaded files remain in your local data folder and are not included in this records export.</p><WorkspaceBackupControls/></section>}
+    {tab==="Usage"&&<UsageDashboard/>}
+    {tab==="Connection"&&<section className="mt-8 space-y-5"><div className="rounded-xl border border-stone-200 p-6"><h2 className="font-medium">Grok 4.5</h2><p className="mt-3 text-sm text-stone-600">{connection.xai?"xAI API key is configured on this Mac.":"No xAI API key is configured."}</p><p className="mt-2 text-xs text-stone-400">Model: {connection.model}</p></div><div className="rounded-xl border border-stone-200 p-6"><h2 className="font-medium">Optional Haiku tasks</h2><p className="mt-3 text-sm text-stone-600">{connection.haiku?"An Anthropic key is present. Its validity is checked when used.":"No Anthropic key is configured."}</p></div><p className="text-xs leading-5 text-stone-400">Provider keys are configured in the local environment. Monarch does not issue a separate personal API key.</p></section>}
         {tab === "Skills" ? (
           <section className="mt-8 flex flex-col gap-6">
             <div>
@@ -439,27 +208,5 @@ export default function SettingsClient({
             )}
           </section>
         ) : null}
-      </div>
-    </div>
-  );
-}
-
-function viewTokensPct(used: string, limit: string) {
-  const u = parseFloat(used);
-  const l = parseFloat(limit);
-  if (!Number.isFinite(u) || !Number.isFinite(l) || l === 0) return 0;
-  return (u / l) * 100;
-}
-
-function viewStoragePct(used: string, limit: string) {
-  const toMb = (raw: string) => {
-    const n = parseFloat(raw);
-    if (!Number.isFinite(n)) return 0;
-    if (raw.toLowerCase().includes("gb")) return n * 1024;
-    return n;
-  };
-  const u = toMb(used);
-  const l = toMb(limit);
-  if (l === 0) return 0;
-  return (u / l) * 100;
+  </div></div>;
 }

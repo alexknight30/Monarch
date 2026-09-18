@@ -1,6 +1,7 @@
 export const HAIKU_MODEL = "claude-haiku-4-5";
 export const SONNET_MODEL = "claude-sonnet-5";
-export const GROK_MODEL = "grok-4";
+// Pin the requested generation; never use an alias that advances to 4.6.
+export const GROK_MODEL = "grok-4.5";
 
 export type TeachingProvider = "anthropic" | "xai";
 

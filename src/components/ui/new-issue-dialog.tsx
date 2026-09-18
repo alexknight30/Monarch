@@ -12,6 +12,9 @@ import { createPortal } from "react-dom";
 import { useRouter } from "next/navigation";
 import { useViewId } from "@/components/view-provider";
 import { STATUS_LABEL, type PlannerStatus } from "@/lib/planner";
+import { ObjectTagPicker } from "./object-tag-picker";
+import type { TagId } from "@/lib/objects/tags";
+import { formatDisplayDate } from "@/lib/calendar-events";
 
 type NewIssueDialogProps = {
   open: boolean;
@@ -19,13 +22,8 @@ type NewIssueDialogProps = {
 };
 
 const STATUSES: PlannerStatus[] = ["todo", "in-progress", "backlog", "done"];
-const DUE_DATES = ["Aug 9", "Aug 11", "Aug 12", "Aug 21", "Aug 28", "Sep 4"];
 
-type TaskMeta = {
-  courses: string[];
-  artifacts: string[];
-  assignments: string[];
-};
+import type { TaskMeta } from "@/lib/task-meta";
 
 const MetaChip = ({
   children,
@@ -239,6 +237,8 @@ function MenuItem({
 export function NewIssueDialog({ open, onClose }: NewIssueDialogProps) {
   const titleId = useId();
   const titleRef = useRef<HTMLInputElement>(null);
+  const fileRef = useRef<HTMLInputElement>(null);
+  const creationRequestId=useRef<string|null>(null);
   const router = useRouter();
   const viewId = useViewId();
 
@@ -249,6 +249,8 @@ export function NewIssueDialog({ open, onClose }: NewIssueDialogProps) {
   const [artifact, setArtifact] = useState<string | null>(null);
   const [assignment, setAssignment] = useState<string | null>(null);
   const [due, setDue] = useState<string | null>(null);
+  const [tagIds,setTagIds]=useState<TagId[]>([]);
+  const [attachment,setAttachment]=useState<File|null>(null);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [menu, setMenu] = useState<
@@ -296,10 +298,10 @@ export function NewIssueDialog({ open, onClose }: NewIssueDialogProps) {
           current && next.courses.includes(current) ? current : null,
         );
         setArtifact((current) =>
-          current && next.artifacts.includes(current) ? current : null,
+          current && next.artifacts.some(item=>item.id===current) ? current : null,
         );
         setAssignment((current) =>
-          current && next.assignments.includes(current) ? current : null,
+          current && next.assignments.some(item=>item.id===current) ? current : null,
         );
       } catch {
         if (!cancelled) {
@@ -323,6 +325,8 @@ export function NewIssueDialog({ open, onClose }: NewIssueDialogProps) {
     setArtifact(null);
     setAssignment(null);
     setDue(null);
+    setTagIds([]);
+    setAttachment(null);creationRequestId.current=null;
     setMenu(null);
     setError(null);
   };
@@ -337,21 +341,26 @@ export function NewIssueDialog({ open, onClose }: NewIssueDialogProps) {
     setSaving(true);
     setError(null);
     try {
-      const res = await fetch(`/api/${viewId}/planner`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
+      const task = {
           title: title.trim(),
           status,
           course,
-          artifact,
-          assignment,
-          due,
+          artifactId:artifact,
+          assignmentId:assignment,
+          dueAt:due,
+          tagIds,
           description: description.trim() || undefined,
-        }),
-      });
+        };
+      let request:RequestInit={method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(task)};
+      if(attachment) {
+        creationRequestId.current ||= crypto.randomUUID();
+        const form=new FormData();form.append("task",JSON.stringify(task));form.append("file",attachment);form.append("requestId",creationRequestId.current);
+        request={method:"POST",body:form};
+      }
+      const res = await fetch(`/api/${viewId}/planner`, request);
       const data = (await res.json().catch(() => ({}))) as { error?: string };
       if (!res.ok) {
+        creationRequestId.current=null;
         setError(data.error ?? "Could not create task.");
         return;
       }
@@ -533,7 +542,7 @@ export function NewIssueDialog({ open, onClose }: NewIssueDialogProps) {
             onToggle={() => setMenu(menu === "artifact" ? null : "artifact")}
             onClose={() => setMenu(null)}
             active={Boolean(artifact)}
-            label={artifact ?? "Artifact"}
+            label={meta.artifacts.find(item=>item.id===artifact)?.title ?? "Artifact"}
             icon={
               <svg width="13" height="13" viewBox="0 0 24 24" className="shrink-0">
                 <rect
@@ -571,14 +580,14 @@ export function NewIssueDialog({ open, onClose }: NewIssueDialogProps) {
             ) : (
               meta.artifacts.map((p) => (
                 <MenuItem
-                  key={p}
-                  active={artifact === p}
+                  key={p.id}
+                  active={artifact === p.id}
                   onClick={() => {
-                    setArtifact(p);
+                    setArtifact(p.id);
                     setMenu(null);
                   }}
                 >
-                  {p}
+                  {p.title} · {p.course}
                 </MenuItem>
               ))
             )}
@@ -591,7 +600,7 @@ export function NewIssueDialog({ open, onClose }: NewIssueDialogProps) {
             }
             onClose={() => setMenu(null)}
             active={Boolean(assignment)}
-            label={assignment ?? "Assignment"}
+            label={meta.assignments.find(item=>item.id===assignment)?.title ?? "Assignment"}
             icon={
               <svg width="13" height="13" viewBox="0 0 24 24" className="shrink-0">
                 <path
@@ -627,14 +636,16 @@ export function NewIssueDialog({ open, onClose }: NewIssueDialogProps) {
             ) : (
               meta.assignments.map((item) => (
                 <MenuItem
-                  key={item}
-                  active={assignment === item}
+                  key={item.id}
+                  active={assignment === item.id}
                   onClick={() => {
-                    setAssignment(item);
+                    setAssignment(item.id);
+                    setCourse(item.course);
+                    setDue(item.dueAt||null);
                     setMenu(null);
                   }}
                 >
-                  {item}
+                  {item.title} · {item.course}
                 </MenuItem>
               ))
             )}
@@ -645,7 +656,7 @@ export function NewIssueDialog({ open, onClose }: NewIssueDialogProps) {
             onToggle={() => setMenu(menu === "due" ? null : "due")}
             onClose={() => setMenu(null)}
             active={Boolean(due)}
-            label={due ?? "Due date"}
+            label={due ? formatDisplayDate(due) : "Due date"}
             icon={
               <svg width="13" height="13" viewBox="0 0 24 24" className="shrink-0">
                 <rect
@@ -677,26 +688,20 @@ export function NewIssueDialog({ open, onClose }: NewIssueDialogProps) {
             >
               No due date
             </MenuItem>
-            {DUE_DATES.map((d) => (
-              <MenuItem
-                key={d}
-                active={due === d}
-                onClick={() => {
-                  setDue(d);
-                  setMenu(null);
-                }}
-              >
-                {d}
-              </MenuItem>
-            ))}
+            <div className="grid gap-2 p-2"><label className="text-xs text-stone-500">Date<input aria-label="New task due date" type="date" className="mt-1 block rounded border border-stone-200 p-2" value={due?.slice(0,10)||""} onChange={event=>setDue(event.target.value ? event.target.value+(due?.includes("T")?due.slice(10):""):null)}/></label><label className="text-xs text-stone-500">Time (optional)<input aria-label="New task due time" type="time" disabled={!due} className="mt-1 block rounded border border-stone-200 p-2" value={due?.includes("T")?due.slice(11,16):""} onChange={event=>{if(due)setDue(due.slice(0,10)+(event.target.value?`T${event.target.value}`:""));}}/></label><button type="button" className="rounded bg-stone-900 p-2 text-xs text-white" onClick={()=>setMenu(null)}>Done</button></div>
           </ChipMenu>
         </div>
 
         {/* Footer */}
+        <div className="px-4 pb-4"><ObjectTagPicker kind="task" value={tagIds} onChange={setTagIds} disabled={saving}/></div>
+        <input ref={fileRef} className="hidden" type="file" accept=".pdf,.docx,.txt,.md" onChange={event=>{setAttachment(event.target.files?.[0]||null);creationRequestId.current=null;event.target.value="";}}/>
+        {attachment&&<div className="flex items-center justify-between gap-3 border-t border-stone-100 px-4 py-3 text-xs text-stone-600"><span>{attachment.name} · Saved as a linked reading</span><button type="button" disabled={saving} className="underline" onClick={()=>{setAttachment(null);creationRequestId.current=null;}}>Remove</button></div>}
         <div className="flex items-center justify-between border-t border-[#F0F0F0] px-4 py-3">
           <button
             type="button"
             aria-label="Attach file"
+            disabled={saving}
+            onClick={()=>fileRef.current?.click()}
             className="flex h-8 w-8 items-center justify-center rounded-full border border-[#E6E6E6] text-[#5E5E5E] transition-colors hover:bg-[#FAFAFA]"
           >
             <svg width="15" height="15" viewBox="0 0 24 24">

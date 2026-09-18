@@ -7,6 +7,7 @@ import {
 } from "@/lib/local-db";
 import type { ArtifactKind } from "@/lib/mock-data";
 import { ARTIFACT_KINDS } from "@/lib/mock-data";
+import { prepareStudyArtifact } from "@/lib/study-artifacts";
 
 export const runtime = "nodejs";
 
@@ -34,9 +35,9 @@ export async function POST(request: Request, context: RouteContext) {
   const resolved = await resolveApiView(raw);
   if ("error" in resolved) return resolved.error;
 
-  let body: CreateArtifactInput;
+  let body: Omit<CreateArtifactInput, "source"> & { source?: string | CreateArtifactInput["source"]; sourceIds?: string[]; sourceDocumentId?: string };
   try {
-    body = (await request.json()) as CreateArtifactInput;
+    body = await request.json();
   } catch {
     return NextResponse.json({ error: "Invalid JSON body." }, { status: 400 });
   }
@@ -46,10 +47,9 @@ export async function POST(request: Request, context: RouteContext) {
   }
 
   try {
-    const artifact = await createArtifact(resolved.viewId, {
-      ...body,
-      kind: parseKind(body.kind),
-    });
+    const artifact = body.spec ? await createArtifact(resolved.viewId, { ...body, source: typeof body.source === "object" ? body.source : undefined }) : await prepareStudyArtifact(resolved.viewId, {
+      ...body, source: typeof body.source === "string" ? body.source : undefined, kind: parseKind(body.kind) || "document",
+    }, false);
     return NextResponse.json({ artifact }, { status: 201 });
   } catch (err) {
     const message =

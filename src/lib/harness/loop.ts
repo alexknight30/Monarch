@@ -1,34 +1,27 @@
 import Anthropic from "@anthropic-ai/sdk";
+import { meteredAnthropicResponse } from "@/lib/usage-store";
 import type { ChatToolAction } from "@/lib/chat-tools";
 import type { DocumentChatContext } from "@/lib/document-tools";
-import { buildPolicyText } from "@/lib/harness/policy";
-import {
-  anthropicCacheSystem,
-  decideTeachingModel,
-  hasAnthropicKey,
-  hasXaiKey,
-  type ModelChoice,
-} from "@/lib/harness/models";
-import { buildSessionContext } from "@/lib/harness/session";
-import {
-  anthropicToolDefs,
-  executeHarnessTool,
-  openaiToolsFromAnthropic,
-  toolCatalog,
-  type ToolContext,
-} from "@/lib/harness/tools";
+import { buildPolicyText } from "./policy";
+import { anthropicCacheSystem, decideTeachingModel, hasAnthropicKey, type ModelChoice } from "./models";
+import { buildSessionContext } from "./session";
+import { anthropicToolDefs, executeHarnessTool, toolCatalog, type ToolContext } from "./tools";
+import { continuationItems, streamXai, xaiInput } from "./xai";
 import type { ViewId } from "@/lib/views";
+import type { ChatAttachmentMeta } from "@/lib/chat-attachments";
 
 export const MAX_TOOL_ROUNDS = 12;
-
 export type HarnessRequest = {
+  study?:boolean;
+  research?:boolean;
   viewId: ViewId;
   messages: Anthropic.MessageParam[];
   document?: DocumentChatContext;
   courseSlug?: string;
   toolsEnabled?: boolean;
+  signal?: AbortSignal;
+  attachments?: ChatAttachmentMeta[];
 };
-
 export type HarnessDone = {
   actions: ChatToolAction[];
   plannerChanged: boolean;
@@ -37,348 +30,91 @@ export type HarnessDone = {
   model: ModelChoice;
 };
 
-function sseChunk(payload: unknown) {
-  return `data: ${JSON.stringify(payload)}\n\n`;
-}
-
 export function runHarnessStream(request: HarnessRequest) {
   const encoder = new TextEncoder();
+  const abort = new AbortController();
+  const signal = request.signal ? AbortSignal.any([request.signal, abort.signal]) : abort.signal;
+  let canceled = false;
   return new ReadableStream({
     async start(controller) {
       const send = (payload: unknown) => {
-        controller.enqueue(encoder.encode(sseChunk(payload)));
+        if (!canceled && !signal.aborted) controller.enqueue(encoder.encode(`data: ${JSON.stringify(payload)}\n\n`));
       };
       try {
-        const done = await runHarness(request, (text) => {
-          send({ type: "delta", text });
-        });
-        send({
-          type: "done",
-          actions: done.actions,
-          plannerChanged: done.plannerChanged,
-          documentChanged: done.documentChanged,
-          ...(done.documentHtml ? { documentHtml: done.documentHtml } : {}),
-        });
+        if (request.attachments?.length) send({ type: "attachments", attachments: request.attachments });
+        const done = await runHarness({ ...request, signal }, (text) => send({ type: "delta", text }));
+        send({ type: "done", ...done });
       } catch (error) {
-        console.error("[harness]", error);
-        send({
-          type: "error",
-          error: error instanceof Error ? error.message : "Failed to reach the model.",
-        });
-      } finally {
-        controller.close();
-      }
+        if (!signal.aborted) send({ type: "error", error: error instanceof Error ? error.message : "The model could not complete this request." });
+      } finally { if (!canceled) controller.close(); }
     },
+    cancel() { canceled = true; abort.abort(); },
   });
 }
 
-export async function runHarness(
-  request: HarnessRequest,
-  onText?: (text: string) => void,
-): Promise<HarnessDone> {
-  const toolsEnabled = request.toolsEnabled !== false;
-  const policy = buildPolicyText(toolCatalog());
-  const session = await buildSessionContext(request.viewId, {
-    courseSlug: request.courseSlug,
-    document: request.document,
-    artifactId: request.document?.slug,
-  });
+export async function runHarness(request: HarnessRequest, onText?: (text: string) => void): Promise<HarnessDone> {
+  const policy = [buildPolicyText(toolCatalog()),
+    request.study?"Study mode: explain the concept in manageable steps, check assumptions, and end with a short question or similar practice example for the student to try. Support learning without completing graded work.":"",
+    request.research?"Research mode: use web_search or web_sources_search before answering factual research questions. Base the answer on returned evidence, include clickable source links, distinguish the provider's synthesis from direct quotations, and say clearly if search fails. Search only for public topic information; exclude private student details and verbatim private document passages from search queries.":"",
+  ].filter(Boolean).join("\n\n");
+  const session = await buildSessionContext(request.viewId, { courseSlug: request.courseSlug, document: request.document, artifactId: request.document?.slug });
   const model = decideTeachingModel();
-  const tools = toolsEnabled ? anthropicToolDefs() : [];
-  const bound = tools.filter((tool) => {
-    if (tool.name === "emit_diagram") return false;
-    if (tool.name === "update_document" && !request.document) return false;
-    return true;
-  });
-
-  const ctx: ToolContext = {
-    viewId: request.viewId,
-    documentSlug: request.document?.slug,
-    modelChoice: model,
-  };
+  const tools = (request.toolsEnabled === false ? [] : anthropicToolDefs()).filter((tool) =>
+    tool.name !== "emit_diagram" && (tool.name !== "update_document" || Boolean(request.document)));
+  const ctx: ToolContext = { viewId: request.viewId, documentSlug: request.document?.slug, modelChoice: model,signal:request.signal };
   const actions: ChatToolAction[] = [];
   let documentHtml: string | undefined;
   let convo = request.messages;
-  let rounds = 0;
+  let grokInput = model.provider === "xai" ? await xaiInput(convo) : [];
+  let textSent = false;
+  const emit = (text: string) => { if (text.trim()) textSent = true; onText?.(text); };
 
-  while (true) {
-    const turn =
-      model.provider === "xai" && hasXaiKey()
-        ? await turnGrok({
-            model: model.model,
-            policy,
-            session,
-            messages: convo,
-            tools: bound,
-            onText,
-          })
-        : await turnAnthropic({
-            model: model.model,
-            policy,
-            session,
-            messages: convo,
-            tools: bound,
-            onText,
-          });
-
-    if (
-      toolsEnabled &&
-      turn.stopReason === "tool_use" &&
-      turn.toolUses.length &&
-      rounds < MAX_TOOL_ROUNDS &&
-      !ctx.goalComplete
-    ) {
-      rounds += 1;
-      const toolResults: Anthropic.ToolResultBlockParam[] = [];
-      for (const use of turn.toolUses) {
-        try {
-          const applied = await executeHarnessTool(ctx, use.name, use.input);
-          if (applied.action) actions.push(applied.action);
-          if (
-            use.name === "update_document" &&
-            applied.result &&
-            typeof applied.result === "object" &&
-            "bodyHtml" in applied.result &&
-            typeof (applied.result as { bodyHtml?: unknown }).bodyHtml === "string"
-          ) {
-            documentHtml = (applied.result as { bodyHtml: string }).bodyHtml;
-          }
-          toolResults.push({
-            type: "tool_result",
-            tool_use_id: use.id,
-            content: JSON.stringify(applied.result),
-          });
-        } catch (err) {
-          toolResults.push({
-            type: "tool_result",
-            tool_use_id: use.id,
-            is_error: true,
-            content: JSON.stringify({
-              error: err instanceof Error ? err.message : "Tool failed.",
-            }),
-          });
-        }
-      }
-      convo = [
-        ...convo,
-        { role: "assistant", content: turn.assistantContent },
-        { role: "user", content: toolResults },
-      ];
-      if (ctx.goalComplete) break;
-      continue;
+  for (let round = 0; round <= MAX_TOOL_ROUNDS; round++) {
+    request.signal?.throwIfAborted();
+    // Finish with a student-facing summary after complete_goal or the tool budget.
+    const bound = round === MAX_TOOL_ROUNDS || ctx.goalComplete ? [] : tools;
+    let calls: { id: string; name: string; input: Record<string, unknown> }[];
+    let assistant: Anthropic.ContentBlock[] = [];
+    if (model.provider === "xai") {
+      const turn = await streamXai({ instructions: `${policy}\n\n${session}`, input: grokInput, tools: bound, onText: emit, signal: request.signal });
+      calls = turn.calls;
+      grokInput = [...grokInput, ...continuationItems(turn.output)];
+    } else {
+      if (!hasAnthropicKey()) throw new Error("Add XAI_API_KEY or ANTHROPIC_API_KEY to .env.local to connect chat.");
+      const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+      const stream = client.messages.stream({ model: model.model, max_tokens: 8192,
+        system: anthropicCacheSystem(policy, session), messages: convo,
+        ...(bound.length ? { tools: bound } : {}) }, { signal: request.signal });
+      stream.on("text", emit);
+      const response = await meteredAnthropicResponse(stream.finalMessage(), model.model);
+      if (response.stop_reason === "max_tokens") throw new Error("The response reached its limit. Ask to continue with a smaller section.");
+      assistant = response.content;
+      calls = response.content.filter((b): b is Anthropic.ToolUseBlock => b.type === "tool_use")
+        .map((b) => ({ id: b.id, name: b.name, input: b.input as Record<string, unknown> }));
     }
-    break;
-  }
-
-  if (ctx.lastModelReport) {
-    console.info("[harness] model report", model, ctx.lastModelReport);
-  }
-
-  return {
-    actions,
-    plannerChanged: !request.document && actions.length > 0,
-    documentChanged: Boolean(documentHtml),
-    ...(documentHtml ? { documentHtml } : {}),
-    model,
-  };
-}
-
-type ToolUse = { id: string; name: string; input: Record<string, unknown> };
-
-type Turn = {
-  stopReason: string;
-  toolUses: ToolUse[];
-  assistantContent: Anthropic.ContentBlock[];
-};
-
-async function turnAnthropic(opts: {
-  model: string;
-  policy: string;
-  session: string;
-  messages: Anthropic.MessageParam[];
-  tools: Anthropic.Tool[];
-  onText?: (text: string) => void;
-}): Promise<Turn> {
-  if (!hasAnthropicKey()) {
-    throw new Error("ANTHROPIC_API_KEY is not configured.");
-  }
-  const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
-  const stream = client.messages.stream({
-    model: opts.model,
-    max_tokens: 1024,
-    system: anthropicCacheSystem(opts.policy, opts.session),
-    messages: opts.messages,
-    ...(opts.tools.length ? { tools: opts.tools } : {}),
-  });
-  stream.on("text", (delta) => opts.onText?.(delta));
-  const response = await stream.finalMessage();
-  const toolUses = response.content
-    .filter((block): block is Anthropic.ToolUseBlock => block.type === "tool_use")
-    .map((block) => ({
-      id: block.id,
-      name: block.name,
-      input:
-        block.input && typeof block.input === "object"
-          ? (block.input as Record<string, unknown>)
-          : {},
-    }));
-  return {
-    stopReason: response.stop_reason ?? "end_turn",
-    toolUses,
-    assistantContent: response.content,
-  };
-}
-
-async function turnGrok(opts: {
-  model: string;
-  policy: string;
-  session: string;
-  messages: Anthropic.MessageParam[];
-  tools: Anthropic.Tool[];
-  onText?: (text: string) => void;
-}): Promise<Turn> {
-  const key = process.env.XAI_API_KEY;
-  if (!key) throw new Error("XAI_API_KEY is not configured.");
-
-  const openaiMessages = grokMessages(opts.policy, opts.session, opts.messages);
-  const res = await fetch("https://api.x.ai/v1/chat/completions", {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${key}`,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      model: opts.model,
-      stream: true,
-      messages: openaiMessages,
-      ...(opts.tools.length
-        ? { tools: openaiToolsFromAnthropic(opts.tools) }
-        : {}),
-    }),
-  });
-  if (!res.ok || !res.body) {
-    const text = await res.text().catch(() => "");
-    throw new Error(text || "Grok request failed.");
-  }
-
-  const reader = res.body.getReader();
-  const decoder = new TextDecoder();
-  let buffer = "";
-  let content = "";
-  const toolAcc: Record<
-    number,
-    { id: string; name: string; arguments: string }
-  > = {};
-
-  while (true) {
-    const { done, value } = await reader.read();
-    if (done) break;
-    buffer += decoder.decode(value, { stream: true });
-    const lines = buffer.split("\n");
-    buffer = lines.pop() ?? "";
-    for (const line of lines) {
-      const trimmed = line.trim();
-      if (!trimmed.startsWith("data:")) continue;
-      const data = trimmed.slice(5).trim();
-      if (data === "[DONE]") continue;
+    if (!calls.length || !bound.length) break;
+    const results: Anthropic.ToolResultBlockParam[] = [];
+    for (const call of calls) {
+      request.signal?.throwIfAborted();
+      let result: unknown;
+      let failed = false;
       try {
-        const json = JSON.parse(data) as {
-          choices?: {
-            delta?: {
-              content?: string;
-              tool_calls?: {
-                index?: number;
-                id?: string;
-                function?: { name?: string; arguments?: string };
-              }[];
-            };
-            finish_reason?: string | null;
-          }[];
-        };
-        const delta = json.choices?.[0]?.delta;
-        if (delta?.content) {
-          content += delta.content;
-          opts.onText?.(delta.content);
-        }
-        for (const call of delta?.tool_calls ?? []) {
-          const index = call.index ?? 0;
-          const current = toolAcc[index] ?? { id: "", name: "", arguments: "" };
-          if (call.id) current.id = call.id;
-          if (call.function?.name) current.name = call.function.name;
-          if (call.function?.arguments) current.arguments += call.function.arguments;
-          toolAcc[index] = current;
-        }
-      } catch {
-        // ignore malformed SSE lines
-      }
+        if (ctx.goalComplete) throw new Error("The goal is already complete. Summarize the result.");
+        if (!bound.some((tool) => tool.name === call.name)) throw new Error("This tool is unavailable in the current workspace.");
+        const applied = await executeHarnessTool(ctx, call.name, call.input);
+        result = applied.result;
+        if (applied.action) actions.push(applied.action);
+        if (call.name === "update_document" && result && typeof result === "object" && "bodyHtml" in result && typeof result.bodyHtml === "string") documentHtml = result.bodyHtml;
+      } catch (error) { failed = true; result = { error: error instanceof Error ? error.message : "Tool failed." }; }
+      const output = JSON.stringify(result ?? null);
+      grokInput.push({ type: "function_call_output", call_id: call.id, output });
+      results.push({ type: "tool_result", tool_use_id: call.id, content: output, ...(failed ? { is_error: true } : {}) });
     }
+    convo = [...convo, { role: "assistant", content: assistant }, { role: "user", content: results }];
+    emit("\n\n");
   }
-
-  const toolUses: ToolUse[] = Object.values(toolAcc)
-    .filter((item) => item.name)
-    .map((item, index) => {
-      let parsed: Record<string, unknown> = {};
-      try {
-        parsed = JSON.parse(item.arguments || "{}") as Record<string, unknown>;
-      } catch {
-        parsed = {};
-      }
-      return {
-        id: item.id || `tool_${index}`,
-        name: item.name,
-        input: parsed,
-      };
-    });
-
-  const assistantContent: Anthropic.ContentBlock[] = [];
-  if (content) {
-    assistantContent.push({ type: "text", text: content } as Anthropic.TextBlock);
-  }
-  for (const use of toolUses) {
-    assistantContent.push({
-      type: "tool_use",
-      id: use.id,
-      name: use.name,
-      input: use.input,
-    } as Anthropic.ToolUseBlock);
-  }
-
-  return {
-    stopReason: toolUses.length ? "tool_use" : "end_turn",
-    toolUses,
-    assistantContent,
-  };
-}
-
-function grokMessages(
-  policy: string,
-  session: string,
-  messages: Anthropic.MessageParam[],
-) {
-  const out: { role: string; content: string }[] = [
-    { role: "system", content: `${policy}\n\n${session}` },
-  ];
-  for (const message of messages) {
-    if (typeof message.content === "string") {
-      out.push({ role: message.role, content: message.content });
-      continue;
-    }
-    const text = message.content
-      .map((block) => {
-        if ("text" in block && typeof block.text === "string") return block.text;
-        if (block.type === "tool_result") {
-          return `Tool result ${block.tool_use_id}: ${
-            typeof block.content === "string" ? block.content : JSON.stringify(block.content)
-          }`;
-        }
-        if (block.type === "tool_use") {
-          return `Called ${block.name}(${JSON.stringify(block.input)})`;
-        }
-        return "";
-      })
-      .filter(Boolean)
-      .join("\n");
-    out.push({ role: message.role, content: text });
-  }
-  return out;
+  if (!textSent && actions.length) emit(actions.map((a) => a.summary).join("\n"));
+  if (!textSent) throw new Error("The model returned no answer. Please retry.");
+  return { actions, plannerChanged: actions.length > 0, documentChanged: documentHtml !== undefined,
+    ...(documentHtml !== undefined ? { documentHtml } : {}), model };
 }

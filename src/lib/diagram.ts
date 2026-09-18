@@ -243,8 +243,8 @@ export function normalizeDiagramSpec(
     ? buildLinear(nodes)
     : buildHierarchy(nodes, detail, layout === "compare" ? 2 : DIAGRAM_LIMITS.branches);
 
-  // Missing nodes is the only unrecoverable case: one box isn't a diagram.
-  if (built.length < 2) return null;
+  // A one-node diagram is a valid starting point for an editable whiteboard.
+  if (built.length === 0) return null;
 
   // A missing title is recoverable and does happen — `required` in a tool
   // schema is a hint, not a guarantee. Fall back rather than lose the diagram.

@@ -100,6 +100,7 @@ export async function executeDocumentTool(
   name: string,
   input: Record<string, unknown>,
   fallbackSlug?: string,
+  artifactReads?: Map<string,Record<string,unknown>>,
 ): Promise<{ result: unknown; action?: ChatToolAction }> {
   switch (name) {
     case "get_document": {
@@ -111,6 +112,8 @@ export async function executeDocumentTool(
       }
       const bodyHtml = resolveBodyHtml(artifact);
       const bodyText = htmlToPlainText(bodyHtml);
+      artifactReads?.set(artifact.id,artifact as unknown as Record<string,unknown>);
+      artifactReads?.set(artifact.slug,artifact as unknown as Record<string,unknown>);
       return {
         result: {
           slug: artifact.slug,
@@ -148,7 +151,11 @@ export async function executeDocumentTool(
         savedAt: "Saved just now",
       };
 
-      const artifact = await updateDocumentArtifact(viewId, slug, payload);
+      const base=artifactReads?.get(existing.id)||artifactReads?.get(existing.slug);
+      if(artifactReads&&!base)throw new Error("Read the document with read_object before editing it, then preserve content outside your intended change.");
+      const artifact = await updateDocumentArtifact(viewId, slug, payload,base);
+      artifactReads?.set(artifact.id,artifact as unknown as Record<string,unknown>);
+      artifactReads?.set(artifact.slug,artifact as unknown as Record<string,unknown>);
       if (!isTextArtifact(artifact)) {
         throw new Error("Updated artifact is not a document.");
       }

@@ -35,6 +35,7 @@ export type PlannerIssue = {
   courseId?: string;
   courseSlug?: string;
   dueAt?: string;
+  creationRequestId?: string;
   children?: PlannerIssue[];
 };
 

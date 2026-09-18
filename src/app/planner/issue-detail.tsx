@@ -11,6 +11,9 @@ import {
 import { createPortal } from "react-dom";
 import { useRouter } from "next/navigation";
 import { useViewId } from "@/components/view-provider";
+import { TaskTagEditor } from "@/components/ui/object-tag-picker";
+import { LinkedObjectsPanel } from "@/components/linked-objects-panel";
+import { useHydrated } from "@/lib/use-hydrated";
 import {
   STATUS_LABEL,
   subtreeProgress,
@@ -19,13 +22,8 @@ import {
 } from "@/lib/planner";
 
 const STATUSES: PlannerStatus[] = ["todo", "in-progress", "backlog", "done"];
-const DUE_DATES = ["Aug 9", "Aug 11", "Aug 12", "Aug 21", "Aug 28", "Sep 4"];
 
-type TaskMeta = {
-  courses: string[];
-  artifacts: string[];
-  assignments: string[];
-};
+import type { TaskMeta } from "@/lib/task-meta";
 
 type IssueDetailProps = {
   issue: PlannerIssue;
@@ -172,7 +170,10 @@ function MenuItem({
   );
 }
 
-export default function IssueDetail({ issue, onClose, onOpenIssue }: IssueDetailProps) {
+export default function IssueDetail(props:IssueDetailProps) {
+  return <IssueDetailContent key={props.issue.key} {...props}/>;
+}
+function IssueDetailContent({ issue, onClose, onOpenIssue }: IssueDetailProps) {
   const titleId = useId();
   const router = useRouter();
   const viewId = useViewId();
@@ -187,7 +188,7 @@ export default function IssueDetail({ issue, onClose, onOpenIssue }: IssueDetail
     originY: number;
   } | null>(null);
 
-  const [mounted, setMounted] = useState(false);
+  const mounted=useHydrated();
   const [title, setTitle] = useState(issue.title);
   const [description, setDescription] = useState(issue.description ?? "");
   const [addingSubtask, setAddingSubtask] = useState(false);
@@ -205,10 +206,6 @@ export default function IssueDetail({ issue, onClose, onOpenIssue }: IssueDetail
     artifacts: [],
     assignments: [],
   });
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
 
   // Same view-scoped options as the new-task dialog (no seed catalogs).
   useEffect(() => {
@@ -234,25 +231,13 @@ export default function IssueDetail({ issue, onClose, onOpenIssue }: IssueDetail
     };
   }, [viewId]);
 
-  // Sync when navigating to a different issue (not on every child refresh).
-  useEffect(() => {
-    setTitle(issue.title);
-    setDescription(issue.description ?? "");
-    setAddingSubtask(false);
-    setSubtaskTitle("");
-    setSubtaskDescription("");
-    setMenu(null);
-    setError(null);
-    setDragOffset({ x: 0, y: 0 });
-    dragRef.current = null;
-    setDragging(false);
-  }, [issue.key]);
-
-  // Keep title/description fields in sync if they change externally for this issue.
-  useEffect(() => {
-    setTitle(issue.title);
-    setDescription(issue.description ?? "");
-  }, [issue.title, issue.description]);
+  // Refresh clean fields without erasing a local draft during another task update.
+  const [received,setReceived]=useState({title:issue.title,description:issue.description??""});
+  if(received.title!==issue.title||received.description!==(issue.description??"")){
+    if(title===received.title)setTitle(issue.title);
+    if(description===received.description)setDescription(issue.description??"");
+    setReceived({title:issue.title,description:issue.description??""});
+  }
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -777,7 +762,7 @@ export default function IssueDetail({ issue, onClose, onOpenIssue }: IssueDetail
                   active={!issue.artifact}
                   onClick={() => {
                     setMenu(null);
-                    void patch({ artifact: null });
+                    void patch({ artifactId: null });
                   }}
                 >
                   No artifact
@@ -789,14 +774,14 @@ export default function IssueDetail({ issue, onClose, onOpenIssue }: IssueDetail
                 ) : (
                   meta.artifacts.map((p) => (
                     <MenuItem
-                      key={p}
-                      active={issue.artifact === p}
+                      key={p.id}
+                      active={issue.artifactId === p.id}
                       onClick={() => {
                         setMenu(null);
-                        void patch({ artifact: p });
+                        void patch({ artifactId: p.id });
                       }}
                     >
-                      {p}
+                      {p.title} · {p.course}
                     </MenuItem>
                   ))
                 )}
@@ -833,7 +818,7 @@ export default function IssueDetail({ issue, onClose, onOpenIssue }: IssueDetail
                   active={!issue.assignment}
                   onClick={() => {
                     setMenu(null);
-                    void patch({ assignment: null });
+                    void patch({ assignmentId: null });
                   }}
                 >
                   No assignment
@@ -845,14 +830,14 @@ export default function IssueDetail({ issue, onClose, onOpenIssue }: IssueDetail
                 ) : (
                   meta.assignments.map((a) => (
                     <MenuItem
-                      key={a}
-                      active={issue.assignment === a}
+                      key={a.id}
+                      active={issue.assignmentId === a.id}
                       onClick={() => {
                         setMenu(null);
-                        void patch({ assignment: a });
+                        void patch({ assignmentId:a.id,courseId:a.courseId,dueAt:a.dueAt||null });
                       }}
                     >
-                      {a}
+                      {a.title} · {a.course}
                     </MenuItem>
                   ))
                 )}
@@ -890,26 +875,28 @@ export default function IssueDetail({ issue, onClose, onOpenIssue }: IssueDetail
                   active={!issue.due}
                   onClick={() => {
                     setMenu(null);
-                    void patch({ due: null });
+                    void patch({ dueAt: null });
                   }}
                 >
                   No due date
                 </MenuItem>
-                {DUE_DATES.map((d) => (
-                  <MenuItem
-                    key={d}
-                    active={issue.due === d}
-                    onClick={() => {
-                      setMenu(null);
-                      void patch({ due: d });
-                    }}
-                  >
-                    {d}
-                  </MenuItem>
-                ))}
+                <form className="grid gap-2 p-2" onSubmit={(event) => {
+                  event.preventDefault();
+                  const values = new FormData(event.currentTarget);
+                  const day = String(values.get("day") || "");
+                  const time = String(values.get("time") || "");
+                  setMenu(null);
+                  void patch({ dueAt: day ? day + (time ? `T${time}` : "") : null });
+                }}>
+                  <label className="grid gap-1 text-xs">Date<input name="day" aria-label="Task due date" type="date" required defaultValue={issue.dueAt?.slice(0,10) || ""} className="rounded border p-2" /></label>
+                  <label className="grid gap-1 text-xs">Time (optional)<input name="time" aria-label="Task due time" type="time" defaultValue={issue.dueAt?.includes("T") ? issue.dueAt.slice(11,16) : ""} className="rounded border p-2" /></label>
+                  <button type="submit" className="rounded bg-[#1F1E1C] p-2 text-xs text-white">Set due date</button>
+                </form>
               </Menu>
             </div>
           </div>
+          <TaskTagEditor key={issue.key+JSON.stringify(issue.tagIds)} value={issue.tagIds||[]} onSave={tagIds=>patch({tagIds})}/>
+          <div className="mt-5 border-t border-stone-200 pt-4"><LinkedObjectsPanel object={{kind:"task",id:issue.id||issue.key}}/></div>
         </aside>
         </div>
       </div>

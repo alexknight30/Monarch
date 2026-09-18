@@ -6,14 +6,17 @@
  *   data/alex-seager/...
  *   data/test-one/...
  *
- * Disk is the source of truth for those collections. Missing files are
- * seeded once from the in-memory mocks (mock-one) or empty arrays (blank views).
+ * Reads legacy collections until the first mutation atomically writes workspace.json.
+ * Original collection files are preserved; subsequent reads use the workspace snapshot.
+ * Missing legacy collections fall back to mocks (mock-one) or empty arrays.
  */
 
 import { promises as fs } from "fs";
 import path from "path";
 import type { Assignment } from "@/lib/assignments";
 import type { StoredCalendarEvent } from "@/lib/calendar-events";
+import { formatDisplayDate } from "@/lib/calendar-events";
+import { validateStoredDate } from "./stored-date";
 import { normalizeDiagramSpec } from "@/lib/diagram";
 import { emptyDocumentContent } from "@/lib/documents";
 import {
@@ -80,7 +83,13 @@ import type {
   SourceDocument,
 } from "@/lib/source-documents";
 import { expandRecurrence, resolveRecurrence } from "@/lib/syllabus/materialize";
+import { syncReviewedAssignments, validateReviewedProposal } from "@/lib/syllabus/review";
 import { VIEWS, type ViewId } from "@/lib/views";
+import { readWorkspace, withWorkspaceTransaction, writeWorkspaceCollections } from "@/lib/workspace-store";
+import { emptyProfile, type StudentProfile } from "./profile";
+import type { ChatThread } from "./chat-history";
+import type { TrashedArtifact } from "./artifact-lifecycle";
+import { checkArtifactBase } from "./artifact-conflict";
 
 export type ViewStore = {
   planner: PlannerIssue[];
@@ -92,9 +101,12 @@ export type ViewStore = {
   ingestRuns: IngestRun[];
   links: ObjectLink[];
   memory: MemoryState;
+  profile: StudentProfile;
+  chats: ChatThread[];
+  trash: TrashedArtifact[];
 };
 
-const DATA_ROOT = path.join(process.cwd(), "data");
+const DATA_ROOT = process.env.MONARCH_DATA_ROOT || path.join(process.cwd(), "data");
 
 const VIEW_IDS = new Set<string>(VIEWS.map((v) => v.id));
 
@@ -103,7 +115,7 @@ export function isViewId(value: string): value is ViewId {
 }
 
 function viewDir(viewId: ViewId) {
-  return path.join(DATA_ROOT, viewId);
+  return path.join(/*turbopackIgnore: true*/ DATA_ROOT, viewId);
 }
 
 function filePath(viewId: ViewId, name: keyof ViewStore) {
@@ -112,7 +124,7 @@ function filePath(viewId: ViewId, name: keyof ViewStore) {
 
 function emptyExtras(): Pick<
   ViewStore,
-  "assignments" | "calendar" | "documents" | "ingestRuns" | "links" | "memory"
+  "assignments" | "calendar" | "documents" | "ingestRuns" | "links" | "memory" | "profile" | "chats" | "trash"
 > {
   return {
     assignments: [],
@@ -121,6 +133,9 @@ function emptyExtras(): Pick<
     ingestRuns: [],
     links: [],
     memory: emptyMemory(),
+    profile: emptyProfile(),
+    chats: [],
+    trash: [],
   };
 }
 
@@ -164,9 +179,7 @@ async function readCollection<K extends keyof ViewStore>(
   viewId: ViewId,
   name: K,
 ): Promise<ViewStore[K]> {
-  await ensureFile(viewId, name);
-  const raw = await fs.readFile(filePath(viewId, name), "utf8");
-  return JSON.parse(raw) as ViewStore[K];
+  return (await readWorkspace(viewId, seedFor(viewId)))[name];
 }
 
 async function writeCollection<K extends keyof ViewStore>(
@@ -174,33 +187,13 @@ async function writeCollection<K extends keyof ViewStore>(
   name: K,
   data: ViewStore[K],
 ) {
-  await fs.mkdir(viewDir(viewId), { recursive: true });
-  await fs.writeFile(filePath(viewId, name), `${JSON.stringify(data, null, 2)}\n`, "utf8");
+  await writeWorkspaceCollections(viewId, seedFor(viewId), { [name]: data });
 }
 
 export async function readViewStore(viewId: ViewId): Promise<ViewStore> {
-  await ensureViewStore(viewId);
-  const [
-    plannerRaw,
-    artifactsRaw,
-    coursesRaw,
-    assignments,
-    calendarRaw,
-    documents,
-    ingestRuns,
-    linksRaw,
-    memoryRaw,
-  ] = await Promise.all([
-    readCollection(viewId, "planner"),
-    readCollection(viewId, "artifacts"),
-    readCollection(viewId, "courses"),
-    readCollection(viewId, "assignments"),
-    readCollection(viewId, "calendar"),
-    readCollection(viewId, "documents"),
-    readCollection(viewId, "ingestRuns"),
-    readCollection(viewId, "links"),
-    readCollection(viewId, "memory"),
-  ]);
+  const { planner: plannerRaw, artifacts: artifactsRaw, courses: coursesRaw,
+    assignments, calendar: calendarRaw, documents, ingestRuns, links: linksRaw, memory: memoryRaw, profile, chats, trash,
+  } = await readWorkspace(viewId, seedFor(viewId));
   const courses = ensureCourses(coursesRaw);
   const artifacts = normalizeArtifacts(artifactsRaw, courses);
   const planner = normalizePlanner(plannerRaw, courses, artifacts);
@@ -209,6 +202,9 @@ export async function readViewStore(viewId: ViewId): Promise<ViewStore> {
   const memory = normalizeMemory(memoryRaw);
   return {
     planner,
+    profile: { ...emptyProfile(), ...profile },
+    chats: chats ?? [],
+    trash: trash ?? [],
     artifacts,
     courses,
     assignments,
@@ -244,11 +240,13 @@ export type CreatePlannerIssueInput = {
   artifactId?: string | null;
   /** Assignment name, e.g. "Problem Set 7". */
   assignment?: string | null;
+  assignmentId?: string | null;
   due?: string | null;
+  dueAt?: string | null;
   description?: string;
 };
 
-export async function createPlannerIssue(
+async function createPlannerIssueImpl(
   viewId: ViewId,
   input: CreatePlannerIssueInput,
 ): Promise<PlannerIssue> {
@@ -261,10 +259,17 @@ export async function createPlannerIssue(
   const artifact = input.artifact?.trim() || undefined;
   const assignment = input.assignment?.trim() || undefined;
   const due = input.due?.trim() || undefined;
+  const dueAt = validateStoredDate(input.dueAt);
   const courseId =
     input.courseId?.trim() ||
     store.courses.find((item) => item.code === course || item.slug === course)?.id ||
     UNASSIGNED_COURSE_ID;
+  const selectedCourse = store.courses.find(item => item.id === courseId);
+  if (!selectedCourse) throw new Error("Choose an existing course.");
+  const selectedArtifact=input.artifactId?store.artifacts.find(item=>item.id===input.artifactId):undefined;
+  const selectedAssignment=input.assignmentId?store.assignments.find(item=>item.id===input.assignmentId):undefined;
+  if(input.artifactId&&!selectedArtifact)throw new Error("Choose an existing artifact.");
+  if(input.assignmentId&&!selectedAssignment)throw new Error("Choose an existing assignment.");
   const key = nextIssueKey(store.planner);
   const issue: PlannerIssue = {
     id: key,
@@ -272,16 +277,19 @@ export async function createPlannerIssue(
     title,
     status: input.status ?? "todo",
     courseId,
-    tagIds: input.tagIds?.length
+    tagIds: Array.isArray(input.tagIds)
       ? sanitizeTagIds(input.tagIds, "task")
       : tagsFromPlannerLabels(input.label ? [input.label] : []),
     ...(description ? { description } : {}),
     ...(input.label ? { labels: [input.label] } : {}),
-    ...(course ? { course } : {}),
+    course: selectedCourse.code,
+    courseSlug: selectedCourse.slug,
     ...(artifact ? { artifact } : {}),
-    ...(input.artifactId ? { artifactId: input.artifactId } : {}),
+    ...(selectedArtifact ? { artifactId:selectedArtifact.id,artifact:selectedArtifact.title } : {}),
     ...(assignment ? { assignment } : {}),
+    ...(selectedAssignment ? { assignmentId:selectedAssignment.id,assignment:selectedAssignment.title } : {}),
     ...(due ? { due } : {}),
+    ...(dueAt ? { dueAt, due: formatDisplayDate(dueAt) } : {}),
   };
 
   store.planner.unshift(issue);
@@ -290,11 +298,11 @@ export async function createPlannerIssue(
 }
 
 export async function listPlanner(viewId: ViewId) {
-  return readCollection(viewId, "planner");
+  return (await readViewStore(viewId)).planner;
 }
 
 export async function getPlannerIssue(viewId: ViewId, key: string) {
-  const planner = await readCollection(viewId, "planner");
+  const planner = (await readViewStore(viewId)).planner;
   return findIssue(planner, key);
 }
 
@@ -310,7 +318,9 @@ export type UpdatePlannerIssueInput = {
   artifact?: string | null;
   artifactId?: string | null;
   assignment?: string | null;
+  assignmentId?: string | null;
   due?: string | null;
+  dueAt?: string | null;
 };
 
 function applyOptionalString(
@@ -324,12 +334,13 @@ function applyOptionalString(
   else delete updated[key];
 }
 
-export async function updatePlannerIssue(
+async function updatePlannerIssueImpl(
   viewId: ViewId,
   key: string,
   input: UpdatePlannerIssueInput,
 ): Promise<PlannerIssue> {
-  const planner = await readCollection(viewId, "planner");
+  const store = await readViewStore(viewId);
+  const planner = store.planner;
   const existing = findIssue(planner, key);
   if (!existing) throw new Error("Task not found.");
 
@@ -354,16 +365,42 @@ export async function updatePlannerIssue(
     applyOptionalString(updated, "artifact", input.artifact);
     applyOptionalString(updated, "assignment", input.assignment);
     applyOptionalString(updated, "due", input.due);
+    if (input.dueAt !== undefined) {
+      const dueAt = validateStoredDate(input.dueAt);
+      if (dueAt) { updated.dueAt = dueAt; updated.due = formatDisplayDate(dueAt); }
+      else { delete updated.dueAt; delete updated.due; }
+    } else if (input.due !== undefined) {
+      // Legacy callers can still set a display label, but never retain a conflicting date.
+      delete updated.dueAt;
+    }
     if (input.tagIds !== undefined) {
       updated.tagIds = sanitizeTagIds(input.tagIds, "task");
     }
-    if (input.courseId !== undefined) {
-      if (input.courseId?.trim()) updated.courseId = input.courseId.trim();
-      else updated.courseId = UNASSIGNED_COURSE_ID;
+    if (input.courseId !== undefined || input.course !== undefined) {
+      const requested = input.courseId !== undefined ? input.courseId : input.course;
+      const course = store.courses.find(c => c.id === (requested || UNASSIGNED_COURSE_ID) || c.slug === requested || c.code === requested);
+      if (!course) throw new Error("Choose an existing course.");
+      updated.courseId = course.id; updated.courseSlug = course.slug; updated.course = course.code;
     }
     if (input.artifactId !== undefined) {
-      if (input.artifactId?.trim()) updated.artifactId = input.artifactId.trim();
-      else delete updated.artifactId;
+      const artifact=input.artifactId?store.artifacts.find(item=>item.id===input.artifactId):undefined;
+      if(input.artifactId&&!artifact)throw new Error("Choose an existing artifact.");
+      if(artifact){updated.artifactId=artifact.id;updated.artifact=artifact.title;}
+      else {delete updated.artifactId;delete updated.artifact;}
+    }else if(input.artifact!==undefined){
+      delete updated.artifactId;
+      const matches=store.artifacts.filter(item=>item.title===input.artifact);
+      if(matches.length===1)updated.artifactId=matches[0].id;
+    }
+    if(input.assignmentId!==undefined){
+      const assignment=input.assignmentId?store.assignments.find(item=>item.id===input.assignmentId):undefined;
+      if(input.assignmentId&&!assignment)throw new Error("Choose an existing assignment.");
+      if(assignment){updated.assignmentId=assignment.id;updated.assignment=assignment.title;}
+      else {delete updated.assignmentId;delete updated.assignment;}
+    }else if(input.assignment!==undefined){
+      delete updated.assignmentId;
+      const matches=store.assignments.filter(item=>item.title===input.assignment&&item.courseSlug===updated.courseSlug);
+      if(matches.length===1)updated.assignmentId=matches[0].id;
     }
     return updated;
   });
@@ -380,7 +417,7 @@ export type CreateSubtaskInput = {
   description?: string;
 };
 
-export async function deletePlannerIssue(
+async function deletePlannerIssueImpl(
   viewId: ViewId,
   key: string,
 ): Promise<PlannerIssue> {
@@ -389,11 +426,13 @@ export async function deletePlannerIssue(
   if (!existing) throw new Error("Task not found.");
 
   await writeCollection(viewId, "planner", removeIssue(planner, key));
-  await dropLinksFor(viewId, { kind: "task", id: existing.id || existing.key });
+  for (const removed of flatten(existing)) {
+    await dropLinksFor(viewId, { kind: "task", id: removed.id || removed.key });
+  }
   return existing;
 }
 
-export async function createSubtask(
+async function createSubtaskImpl(
   viewId: ViewId,
   parentKey: string,
   input: CreateSubtaskInput,
@@ -490,20 +529,21 @@ function artifactShell(
   };
 }
 
-export async function createArtifact(
+async function createArtifactImpl(
   viewId: ViewId,
   input: CreateArtifactInput,
 ): Promise<Artifact> {
   const title = input.title.trim();
   if (!title) throw new Error("Title is required.");
 
-  const artifacts = await readCollection(viewId, "artifacts");
-  const base = artifactShell(artifacts, input);
+  const store = await readViewStore(viewId);
+  const artifacts = store.artifacts;
+  const base = artifactShell([...artifacts, ...store.trash.map(item=>item.artifact)], input);
   const kind = parseArtifactKind(input.kind);
 
   let artifact: Artifact;
   if (kind === "diagram") {
-    const spec = normalizeDiagramSpec(input.spec);
+    const spec = input.spec ? normalizeDiagramSpec(input.spec) : { title, layout: "tree" as const, detail: 1 as const, nodes: [{ id: "root", label: title }] };
     if (!spec) throw new Error("A diagram artifact needs a valid spec.");
     artifact = {
       ...base,
@@ -584,7 +624,7 @@ export async function getArtifact(
  * page — the reason a diagram is stored as a spec rather than an image is so
  * this is a normal edit and not a re-export.
  */
-export async function updateDiagramArtifact(
+async function updateDiagramArtifactImpl(
   viewId: ViewId,
   slug: string,
   input: { spec: unknown },
@@ -599,6 +639,9 @@ export async function updateDiagramArtifact(
   const current = artifacts[index];
   if (current.kind !== "diagram") {
     throw new Error("Only diagram artifacts can be updated this way.");
+  }
+  if (current.snapshot || current.whiteboard) {
+    throw new Error("This diagram has whiteboard edits. Edit it in the whiteboard, or save a new diagram to keep your drawing intact.");
   }
 
   const next: DiagramArtifact = { ...current, spec, updated: "Just now" };
@@ -616,10 +659,11 @@ export type UpdateDocumentArtifactInput = {
   status?: DocumentArtifact["status"];
 };
 
-export async function updateDocumentArtifact(
+async function updateDocumentArtifactImpl(
   viewId: ViewId,
   slug: string,
   input: UpdateDocumentArtifactInput,
+  base?: Record<string, unknown>,
 ): Promise<Artifact> {
   const artifacts = await readCollection(viewId, "artifacts");
   const index = artifacts.findIndex((a) => a.slug === slug || a.id === slug);
@@ -629,6 +673,7 @@ export async function updateDocumentArtifact(
   if (!isTextArtifact(current)) {
     throw new Error("Only document and notes artifacts can be updated this way.");
   }
+  checkArtifactBase(current, { ...input }, base);
 
   const next = {
     ...current,
@@ -669,7 +714,7 @@ export type CreateCourseInput = {
   needsReview?: string[];
 };
 
-export async function createCourse(
+async function createCourseImpl(
   viewId: ViewId,
   input: CreateCourseInput,
 ): Promise<Course> {
@@ -738,7 +783,7 @@ export async function getSourceDocument(viewId: ViewId, id: string) {
   return documents.find((document) => document.id === id) ?? null;
 }
 
-export async function createSourceDocument(
+async function createSourceDocumentImpl(
   viewId: ViewId,
   input: Omit<SourceDocument, "id" | "uploadedAt" | "status" | "kind"> & {
     kind?: SourceDocument["kind"];
@@ -764,7 +809,7 @@ export async function createSourceDocument(
   return document;
 }
 
-export async function updateSourceDocument(
+async function updateSourceDocumentImpl(
   viewId: ViewId,
   id: string,
   patch: Partial<SourceDocument>,
@@ -778,7 +823,7 @@ export async function updateSourceDocument(
   return next;
 }
 
-export async function createIngestRun(
+async function createIngestRunImpl(
   viewId: ViewId,
   documentId: string,
 ): Promise<IngestRun> {
@@ -799,7 +844,7 @@ export async function getIngestRun(viewId: ViewId, id: string) {
   return runs.find((run) => run.id === id) ?? null;
 }
 
-export async function updateIngestRun(
+async function updateIngestRunImpl(
   viewId: ViewId,
   id: string,
   patch: Partial<IngestRun>,
@@ -843,11 +888,23 @@ function remintPlannerForest(
   return tasks.map(assign);
 }
 
-export async function applyIngestProposal(
+async function applyIngestProposalImpl(
   viewId: ViewId,
   proposal: Proposal,
 ): Promise<{ course: Course }> {
   const store = await readViewStore(viewId);
+  const previousRun = store.ingestRuns.find((run) => run.id === proposal.runId);
+  if (!previousRun) throw new Error("Ingest run not found.");
+  if (previousRun.documentId !== proposal.documentId) throw new Error("This proposal belongs to a different source document.");
+  if (previousRun.status === "applied") {
+    const existing = store.courses.find((course) => course.sourceDocumentId === proposal.documentId);
+    if (existing) return { course: existing };
+    throw new Error("This import has already been applied.");
+  }
+  if (previousRun.status !== "proposed") throw new Error("Wait for the syllabus proposal to finish before applying it.");
+  if (!Array.isArray(proposal.assignments) || !Array.isArray(proposal.tasks) || !Array.isArray(proposal.calendarEvents)) throw new Error("The syllabus proposal is incomplete.");
+  proposal = syncReviewedAssignments(proposal);
+  validateReviewedProposal(proposal);
 
   const slugBase = slugify(proposal.course.code || proposal.course.slug);
   let slug = slugBase;
@@ -867,13 +924,19 @@ export async function applyIngestProposal(
       "Schedule TBD",
   };
 
-  const assignments = proposal.assignments.map((assignment) => ({
-    ...assignment,
-    courseSlug: slug,
-  }));
+  const assignmentIds = new Map<string, string>();
+  const usedAssignmentIds = store.assignments.map((assignment) => assignment.id);
+  const assignments = proposal.assignments.map((assignment) => {
+    const id = nextPrefixed(usedAssignmentIds, "ASG");
+    usedAssignmentIds.push(id);
+    assignmentIds.set(assignment.id, id);
+    return { ...assignment, id, courseSlug: slug };
+  });
 
   let calendar = proposal.calendarEvents.map((event) => ({
     ...event,
+    id: `EVT-${crypto.randomUUID()}`,
+    ...(event.assignmentId ? { assignmentId: assignmentIds.get(event.assignmentId) } : {}),
     courseSlug: slug,
     courseId: slug,
   }));
@@ -891,14 +954,17 @@ export async function applyIngestProposal(
     ];
   }
 
-  const tasks = remintPlannerForest(
-    proposal.tasks.map((task) => ({
+  const mapTask = (task: PlannerIssue): PlannerIssue => ({
       ...task,
       id: task.id || task.key,
       course: course.code,
       courseSlug: slug,
       courseId: slug,
-    })),
+      ...(task.assignmentId ? { assignmentId: assignmentIds.get(task.assignmentId) } : {}),
+      ...(task.children ? { children: task.children.map(mapTask) } : {}),
+    });
+  const tasks = remintPlannerForest(
+    proposal.tasks.map(mapTask),
     store.planner,
   );
 
@@ -917,33 +983,32 @@ export async function applyIngestProposal(
       ? {
           ...run,
           status: "applied" as const,
-          proposal,
+          proposal: { ...proposal, course },
           appliedAt: new Date().toISOString(),
         }
       : run,
   );
 
-  await Promise.all([
-    writeCollection(viewId, "courses", store.courses),
-    writeCollection(viewId, "assignments", store.assignments),
-    writeCollection(viewId, "calendar", store.calendar),
-    writeCollection(viewId, "planner", store.planner),
-    writeCollection(viewId, "documents", documents),
-    writeCollection(viewId, "ingestRuns", ingestRuns),
-  ]);
+  await writeWorkspaceCollections(viewId, seedFor(viewId), { ...store, documents, ingestRuns });
 
   return { course };
 }
 
-export async function patchArtifact(
+async function patchArtifactImpl(
   viewId: ViewId,
   slug: string,
   patch: Record<string, unknown>,
+  base?: Record<string, unknown>,
 ): Promise<Artifact> {
   const store = await readViewStore(viewId);
   const index = store.artifacts.findIndex((a) => a.slug === slug || a.id === slug);
   if (index < 0) throw new Error(`Artifact not found: ${slug}`);
-  const merged = { ...store.artifacts[index], ...patch, updated: "Just now" };
+  const current = store.artifacts[index];
+  checkArtifactBase(current,patch,base);
+  if (patch.courseId !== undefined && !store.courses.some(c => c.id === patch.courseId)) throw new Error("Course not found.");
+  if (patch.sourceDocumentId !== undefined && !store.documents.some(d => d.id === patch.sourceDocumentId)) throw new Error("Source file not found.");
+  const merged = { ...current, ...patch, id: current.id, slug: current.slug, kind: current.kind,
+    updated: "Just now", updatedAt: new Date().toISOString(), revision: (current.revision ?? 0) + 1 };
   const next = normalizeArtifacts([merged], store.courses)[0];
   store.artifacts[index] = next;
   await writeCollection(viewId, "artifacts", store.artifacts);
@@ -970,12 +1035,17 @@ async function dropLinksFor(viewId: ViewId, ref: ObjectRef) {
   }
 }
 
-export async function linkObjects(
+async function linkObjectsImpl(
   viewId: ViewId,
   a: ObjectRef,
   b: ObjectRef,
 ): Promise<ObjectLink> {
   if (refsEqual(a, b)) throw new Error("Cannot link an object to itself.");
+  const store = await readViewStore(viewId);
+  const exists = (ref: ObjectRef) => ref.kind === "artifact" ? store.artifacts.some(item => item.id === ref.id)
+    : ref.kind === "event" ? store.calendar.some(item => item.id === ref.id)
+    : store.planner.some(item => flatten(item).some(task => task.id === ref.id || task.key === ref.id));
+  if (!exists(a) || !exists(b)) throw new Error("One of the objects no longer exists. Refresh and choose it again.");
   const [left, right] = canonLinkPair(a, b);
   const links = await readCollection(viewId, "links");
   const existing = links.find(
@@ -993,7 +1063,7 @@ export async function linkObjects(
   return link;
 }
 
-export async function unlinkObjects(viewId: ViewId, id: string) {
+async function unlinkObjectsImpl(viewId: ViewId, id: string) {
   const links = await readCollection(viewId, "links");
   const next = links.filter((link) => link.id !== id);
   await writeCollection(viewId, "links", next);
@@ -1004,7 +1074,7 @@ export async function readMemory(viewId: ViewId) {
   return store.memory;
 }
 
-export async function recordMemory(
+async function recordMemoryImpl(
   viewId: ViewId,
   event: { kind: "page" | "create" | "link" | "copy" | "note"; text: string },
 ) {
@@ -1014,7 +1084,7 @@ export async function recordMemory(
   return next;
 }
 
-export async function recordCopyFlag(
+async function recordCopyFlagImpl(
   viewId: ViewId,
   flag: { turn?: string; source?: "chat" | "document-paste" },
 ) {
@@ -1124,4 +1194,52 @@ export async function updateAdminUser(
   users[index] = next;
   await writeAdminUsers(users);
   return next;
+}
+
+// Every read–modify–write operation owns one re-entrant workspace transaction.
+export const createPlannerIssue = (...args: Parameters<typeof createPlannerIssueImpl>) =>
+  withWorkspaceTransaction(args[0], seedFor(args[0]), () => createPlannerIssueImpl(...args));
+export const updatePlannerIssue = (...args: Parameters<typeof updatePlannerIssueImpl>) =>
+  withWorkspaceTransaction(args[0], seedFor(args[0]), () => updatePlannerIssueImpl(...args));
+export const deletePlannerIssue = (...args: Parameters<typeof deletePlannerIssueImpl>) =>
+  withWorkspaceTransaction(args[0], seedFor(args[0]), () => deletePlannerIssueImpl(...args));
+export const createSubtask = (...args: Parameters<typeof createSubtaskImpl>) =>
+  withWorkspaceTransaction(args[0], seedFor(args[0]), () => createSubtaskImpl(...args));
+export const createArtifact = (...args: Parameters<typeof createArtifactImpl>) =>
+  withWorkspaceTransaction(args[0], seedFor(args[0]), () => createArtifactImpl(...args));
+export const updateDiagramArtifact = (...args: Parameters<typeof updateDiagramArtifactImpl>) =>
+  withWorkspaceTransaction(args[0], seedFor(args[0]), () => updateDiagramArtifactImpl(...args));
+export const updateDocumentArtifact = (...args: Parameters<typeof updateDocumentArtifactImpl>) =>
+  withWorkspaceTransaction(args[0], seedFor(args[0]), () => updateDocumentArtifactImpl(...args));
+export const createCourse = (...args: Parameters<typeof createCourseImpl>) =>
+  withWorkspaceTransaction(args[0], seedFor(args[0]), () => createCourseImpl(...args));
+export const createSourceDocument = (...args: Parameters<typeof createSourceDocumentImpl>) =>
+  withWorkspaceTransaction(args[0], seedFor(args[0]), () => createSourceDocumentImpl(...args));
+export const updateSourceDocument = (...args: Parameters<typeof updateSourceDocumentImpl>) =>
+  withWorkspaceTransaction(args[0], seedFor(args[0]), () => updateSourceDocumentImpl(...args));
+export const createIngestRun = (...args: Parameters<typeof createIngestRunImpl>) =>
+  withWorkspaceTransaction(args[0], seedFor(args[0]), () => createIngestRunImpl(...args));
+export const updateIngestRun = (...args: Parameters<typeof updateIngestRunImpl>) =>
+  withWorkspaceTransaction(args[0], seedFor(args[0]), () => updateIngestRunImpl(...args));
+export const applyIngestProposal = (...args: Parameters<typeof applyIngestProposalImpl>) =>
+  withWorkspaceTransaction(args[0], seedFor(args[0]), () => applyIngestProposalImpl(...args));
+export const patchArtifact = (...args: Parameters<typeof patchArtifactImpl>) =>
+  withWorkspaceTransaction(args[0], seedFor(args[0]), () => patchArtifactImpl(...args));
+export const linkObjects = (...args: Parameters<typeof linkObjectsImpl>) =>
+  withWorkspaceTransaction(args[0], seedFor(args[0]), () => linkObjectsImpl(...args));
+export const unlinkObjects = (...args: Parameters<typeof unlinkObjectsImpl>) =>
+  withWorkspaceTransaction(args[0], seedFor(args[0]), () => unlinkObjectsImpl(...args));
+export const recordMemory = (...args: Parameters<typeof recordMemoryImpl>) =>
+  withWorkspaceTransaction(args[0], seedFor(args[0]), () => recordMemoryImpl(...args));
+export const recordCopyFlag = (...args: Parameters<typeof recordCopyFlagImpl>) =>
+  withWorkspaceTransaction(args[0], seedFor(args[0]), () => recordCopyFlagImpl(...args));
+
+export async function createArtifactWithContent(viewId: ViewId, input: CreateArtifactInput, content: Record<string, unknown>, sourceIds: string[] = []) {
+  return withWorkspaceTransaction(viewId, seedFor(viewId), async () => {
+    const artifact = await createArtifact(viewId, { ...input, ...(content.spec ? { spec: content.spec } : {}) });
+    const saved = Object.keys(content).length ? await patchArtifact(viewId, artifact.id, content) : artifact;
+    for (const id of sourceIds) await linkObjects(viewId, { kind: "artifact", id: saved.id }, { kind: "artifact", id });
+    await recordMemory(viewId, { kind: "create", text: `Created ${saved.kind} “${saved.title}” (${saved.id}).` });
+    return saved;
+  });
 }

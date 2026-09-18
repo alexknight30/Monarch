@@ -29,7 +29,7 @@ export function ButterflyMeadow({ className }: { className?: string }) {
     let raf = 0;
     let last = 0;
 
-    function applySize() {
+    const applySize = () => {
       const width = wrap.clientWidth;
       const height = wrap.clientHeight;
       if (width < 2 || height < 2) return false;
@@ -47,7 +47,7 @@ export function ButterflyMeadow({ className }: { className?: string }) {
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
       scene.resize(width, height);
       return true;
-    }
+    };
 
     function frame(now: number) {
       raf = requestAnimationFrame(frame);

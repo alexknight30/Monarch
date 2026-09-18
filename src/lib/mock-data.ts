@@ -108,6 +108,8 @@ export function isArtifactKind(value: string): value is ArtifactKind {
 }
 
 type ArtifactBase = {
+  revision?: number;
+  updatedAt?: string;
   id: string;
   slug: string;
   title: string;
@@ -126,6 +128,7 @@ type ArtifactBase = {
 };
 
 type TextArtifactFields = {
+  comments?: import("./documents").DocumentComment[];
   shortTitle: string;
   course: string;
   due: string;
@@ -159,37 +162,44 @@ export type ReadingArtifact = ArtifactBase & {
 };
 
 export type Flashcard = { id: string; front: string; back: string };
+export type FlashcardStudy = { known: string[]; starred: string[]; reverse: boolean };
 
 export type FlashcardsArtifact = ArtifactBase & {
   kind: "flashcards";
   cards: Flashcard[];
+  study?: FlashcardStudy;
 };
 
 export type PracticeItem = {
   id: string;
   prompt: string;
   answer: string;
+  explanation?: string;
   studentAnswer?: string;
 };
 
 export type PracticeTestArtifact = ArtifactBase & {
   kind: "practice-test";
   items: PracticeItem[];
+  attempts?: { id: string; startedAt: string; submittedAt?: string; answers: Record<string, string>; marks: Record<string, boolean>; questions: PracticeItem[] }[];
 };
 
 export type LessonBlock = {
   id: string;
   type: "text" | "prompt";
   html?: string;
+  text?: string;
   prompt?: string;
 };
 
 export type LessonArtifact = ArtifactBase & {
   kind: "lesson";
   blocks: LessonBlock[];
+  progress?: Record<string, { complete?: boolean; answer?: string; feedback?: string }>;
 };
 
-export type Slide = { id: string; title: string; bodyHtml: string };
+export type SlideElement = { id: string; type: "text" | "rectangle" | "ellipse" | "image"; x: number; y: number; width: number; height: number; text?: string; src?: string; color: string; fill: string; fontSize: number; bold?: boolean; align?: "left" | "center" | "right"; rotation?: number };
+export type Slide = { id: string; title: string; bodyHtml: string; notes?: string; background?: string; elements?: SlideElement[] };
 
 export type SlidesArtifact = ArtifactBase & {
   kind: "slides";
@@ -203,6 +213,8 @@ export type SlidesArtifact = ArtifactBase & {
 export type DiagramArtifact = ArtifactBase & {
   kind: "diagram";
   spec: DiagramSpec;
+  snapshot?: import("tldraw").TLStoreSnapshot;
+  whiteboard?: import("./whiteboard").WhiteboardDocument;
   /** Where it came from, so the artifact can link back to the thread. */
   source?: { threadId?: string; threadTitle?: string };
 };
@@ -269,6 +281,7 @@ export function documentRecordFromArtifact(
     bodyHtml: artifact.bodyHtml,
     blocks: artifact.blocks,
     thread: artifact.thread,
+    comments: artifact.comments,
   };
 }
 

@@ -12,13 +12,12 @@ import {
   runTasksAgent,
 } from "@/lib/syllabus/agents";
 import {
-  anthropicClient,
   isImage,
   isPdf,
-  uploadSyllabusFile,
 } from "@/lib/syllabus/anthropic";
 import { materializeProposal } from "@/lib/syllabus/materialize";
 import type { ViewId } from "@/lib/views";
+import {prepareSyllabusInput} from "./provider";
 
 async function timed<T>(
   name: string,
@@ -45,6 +44,7 @@ async function timed<T>(
 export async function runSyllabusIngest(
   viewId: ViewId,
   documentId: string,
+  signal?:AbortSignal,
 ): Promise<Proposal> {
   const document = await getSourceDocument(viewId, documentId);
   if (!document) throw new Error("Document not found.");
@@ -57,31 +57,15 @@ export async function runSyllabusIngest(
   await updateSourceDocument(viewId, documentId, { status: "extracting" });
 
   try {
-    const client = anthropicClient();
-    const fileApiId =
-      document.fileApiId ??
-      (await timed("upload", stages, async () => {
-        const id = await uploadSyllabusFile({
-          client,
-          storedPath: document.storedPath,
-          filename: document.filename,
-          mime: document.mime,
-        });
-        await updateSourceDocument(viewId, documentId, { fileApiId: id });
-        return id;
-      }));
-
-    if (document.fileApiId) {
-      stages.push({ name: "upload", status: "done", ms: 0 });
-    }
+    const source=await timed("upload",stages,()=>prepareSyllabusInput(document,signal));
 
     const [courseAgent, assignmentsAgent, scheduleAgent, tasksAgent] =
       await timed("fan-out", stages, () =>
         Promise.all([
-          runCourseAgent({ client, fileApiId, mime: document.mime }),
-          runAssignmentsAgent({ client, fileApiId, mime: document.mime }),
-          runScheduleAgent({ client, fileApiId, mime: document.mime }),
-          runTasksAgent({ client, fileApiId, mime: document.mime }),
+          runCourseAgent(source),
+          runAssignmentsAgent(source),
+          runScheduleAgent(source),
+          runTasksAgent(source),
         ]),
       );
 

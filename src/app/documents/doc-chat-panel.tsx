@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { AIChatInput, type ChatSubmitMeta } from "@/components/ui/ai-chat-input";
 import { ShiningText } from "@/components/ui/shining-text";
 import { ThinkingMark } from "@/components/ui/thinking-mark";
+import { StudyInline } from "@/components/ui/study-inline";
 import { buildChatRequest, contentForApi } from "@/lib/chat-attachments";
 import { consumeChatSse } from "@/lib/chat-sse";
 import {
@@ -29,23 +30,36 @@ function Avatar() {
 
 export default function DocChatPanel({
   doc,
+  turns,
+  onTurnsChange,
   bodyHtml,
   selection,
   onClose,
   onDocumentUpdate,
 }: {
   doc: DocumentRecord;
+  turns: DocChatTurn[];
+  onTurnsChange: (turns: DocChatTurn[]) => void;
   bodyHtml: string;
   selection: string;
   onClose: () => void;
   onDocumentUpdate?: (html: string) => void;
 }) {
-  const [turns, setTurns] = useState<DocChatTurn[]>(doc.thread);
+  const turnsRef = useRef(turns);
+  const requestRef = useRef<AbortController | null>(null);
+  const [proposedHtml, setProposedHtml] = useState<string | null>(null);
+  const lastRequest = useRef<{text:string;meta?:ChatSubmitMeta;history:DocChatTurn[]} | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const threadRef = useRef<HTMLDivElement>(null);
   const bodyHtmlRef = useRef(bodyHtml);
   const selectionRef = useRef(selection);
+  useEffect(()=>{turnsRef.current=turns;},[turns]);
+  useEffect(()=>()=>{requestRef.current?.abort();requestRef.current=null;},[]);
+  function setTurns(value:DocChatTurn[] | ((previous:DocChatTurn[])=>DocChatTurn[])) {
+    const next=typeof value === "function" ? value(turnsRef.current) : value;
+    turnsRef.current=next;onTurnsChange(next);
+  }
 
   useEffect(() => {
     bodyHtmlRef.current = bodyHtml;
@@ -59,17 +73,19 @@ export default function DocChatPanel({
     threadRef.current?.scrollTo({ top: threadRef.current.scrollHeight });
   }, [turns, isLoading]);
 
-  async function send(text: string, meta?: ChatSubmitMeta) {
+  async function send(text: string, meta?: ChatSubmitMeta, history=turnsRef.current) {
     const trimmed = text.trim();
-    if ((!trimmed && !meta?.skill && !meta?.files?.length) || isLoading) return;
+    if ((!trimmed && !meta?.skill && !meta?.files?.length) || requestRef.current) return;
+    const controller=new AbortController();requestRef.current=controller;
+    lastRequest.current={text,meta,history};
 
     const fileLabel = meta?.files?.length
       ? meta.files.map((file) => file.name).join(", ")
       : "";
-    const display = trimmed || (fileLabel ? `Attached ${fileLabel}` : "");
+    const display = trimmed || (fileLabel ? `Attached ${fileLabel}` : meta?.skill ? `/${meta.skill.command}` : "");
     const next: DocChatTurn[] = display
-      ? [...turns, { role: "user", content: display }]
-      : turns;
+      ? [...history, { role: "user", content: display, attachments: meta?.files?.map(file=>({name:file.name,mime:file.type,size:file.size})) }]
+      : history;
     if (display) setTurns(next);
     setError(null);
     setIsLoading(true);
@@ -77,11 +93,18 @@ export default function DocChatPanel({
     const html = bodyHtmlRef.current;
     const bodyText = htmlToPlainText(html);
     const sel = selectionRef.current.trim();
+    const acceptDocument = (updated:string) => {
+      if(bodyHtmlRef.current!==html) {
+        setProposedHtml(updated);
+        // A model edit may have reached the server after the student's newer autosave.
+        onDocumentUpdate?.(bodyHtmlRef.current);
+      } else onDocumentUpdate?.(updated);
+    };
 
     try {
       const res = await fetch(
         "/api/chat",
-        buildChatRequest(
+        { ...buildChatRequest(
           {
             message: contentForApi({
               content: trimmed,
@@ -91,7 +114,9 @@ export default function DocChatPanel({
                 size: file.size,
               })),
             }),
-            messages: next.map((t) => ({ role: t.role, content: t.content })),
+            messages: next.map((t) => ({ role: t.role, content: contentForApi(t), attachments:t.attachments })),
+            study:meta?.study,
+            research:meta?.research,
             ...(meta?.skill
               ? {
                   skill: {
@@ -110,7 +135,7 @@ export default function DocChatPanel({
             },
           },
           meta?.files,
-        ),
+        ), signal:controller.signal },
       );
 
       const contentType = res.headers.get("content-type") ?? "";
@@ -123,7 +148,12 @@ export default function DocChatPanel({
         let assembled = "";
         let documentHtml: string | undefined;
         await consumeChatSse(res, {
+          onAttachments: (attachments) => {
+            if(requestRef.current!==controller||controller.signal.aborted)return;
+            setTurns(previous=>previous.map((turn,index)=>index===next.length-1?{...turn,attachments}:turn));
+          },
           onDelta: (chunk) => {
+            if(requestRef.current!==controller||controller.signal.aborted)return;
             assembled += chunk;
             setTurns((prev) => {
               const last = prev.at(-1);
@@ -134,13 +164,15 @@ export default function DocChatPanel({
             });
           },
           onDone: (meta) => {
+            if(requestRef.current!==controller||controller.signal.aborted)return;
             if (meta.documentChanged && meta.documentHtml) {
               documentHtml = meta.documentHtml;
             }
           },
         });
+        if(requestRef.current!==controller||controller.signal.aborted)return;
         if (!assembled.trim()) throw new Error("Empty response from model.");
-        if (documentHtml) onDocumentUpdate?.(documentHtml);
+        if (documentHtml) acceptDocument(documentHtml);
       } else {
         const data = (await res.json()) as {
           message?: { content?: string };
@@ -148,6 +180,7 @@ export default function DocChatPanel({
           documentChanged?: boolean;
           documentHtml?: string;
         };
+        if(requestRef.current!==controller||controller.signal.aborted)return;
         if (!data.message?.content) throw new Error("Empty response from model.");
 
         setTurns((prev) => [
@@ -156,13 +189,13 @@ export default function DocChatPanel({
         ]);
 
         if (data.documentChanged && data.documentHtml) {
-          onDocumentUpdate?.(data.documentHtml);
+          acceptDocument(data.documentHtml);
         }
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Something went wrong.");
+      if(requestRef.current===controller)setError(controller.signal.aborted?"Response stopped. Your conversation has been kept.":err instanceof Error ? err.message : "Something went wrong.");
     } finally {
-      setIsLoading(false);
+      if(requestRef.current===controller){requestRef.current=null;setIsLoading(false);}
     }
   }
 
@@ -212,6 +245,7 @@ export default function DocChatPanel({
                 <span className="text-sm leading-[21px] text-[#1A1A1A]">
                   {turn.content}
                 </span>
+                {!!turn.attachments?.length && <div className="mt-2 flex flex-wrap gap-1">{turn.attachments.map((file,index)=><span key={file.id||index} className="rounded border border-stone-200 px-2 py-1 text-[11px]">{file.name}</span>)}</div>}
               </div>
             </div>
           ) : (
@@ -221,8 +255,8 @@ export default function DocChatPanel({
                 text={turn.content}
                 streaming={isLoading && i === turns.length - 1}
                 renderBlock={(block) => (
-                  <p className="text-sm leading-[22px] text-[#1A1A1A]">
-                    {block}
+                  <p className="whitespace-pre-wrap text-sm leading-[22px] text-[#1A1A1A]">
+                    <StudyInline text={block}/>
                   </p>
                 )}
               />
@@ -273,6 +307,14 @@ export default function DocChatPanel({
       </div>
 
       <div className="flex shrink-0 flex-col gap-2.5 border-t border-[#F2F2F2] px-3 pt-3 pb-3.5">
+        {proposedHtml && <div role="status" className="rounded-lg bg-amber-50 p-3 text-xs leading-5">You edited while Monarch was responding. Your writing has been kept.<div className="mt-2 flex gap-3"><button className="underline" onClick={()=>{onDocumentUpdate?.(proposedHtml);setProposedHtml(null);}}>Use Monarch’s version</button><button className="underline" onClick={()=>setProposedHtml(null)}>Keep mine</button></div></div>}
+        {isLoading && <button className="self-end text-xs underline" onClick={()=>requestRef.current?.abort()}>Stop response</button>}
+        {error && !isLoading && <button className="self-end text-xs underline" onClick={()=>{
+          const last=lastRequest.current;
+          const attached=turnsRef.current.findLast(t=>t.role==="user")?.attachments;
+          if(last?.meta?.files?.length && !attached?.some(a=>a.id))void send(last.text,last.meta,last.history);
+          else void send("Continue the interrupted response. Check the current document before repeating changes.");
+        }}>Continue response</button>}
         <div className="flex shrink-0 flex-wrap items-center gap-1.5">
           {SUGGESTIONS.map((suggestion) => (
             <button

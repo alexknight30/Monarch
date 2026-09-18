@@ -11,7 +11,7 @@ import { CourseSetupCard } from "./course-setup-card";
 import type { Course } from "@/lib/mock-data";
 
 const TABS = [
-  { id: "term", label: "This term" },
+  { id: "term", label: "Active courses" },
   { id: "past", label: "Past courses" },
   { id: "all", label: "All" },
 ] as const;
@@ -26,16 +26,11 @@ const SORT_OPTIONS = [
 
 type CourseSort = (typeof SORT_OPTIONS)[number]["id"];
 
-const CURRENT_TERMS = new Set(["fall 2026", "this term", "spring 2026", "summer 2026"]);
-
-function isCurrentTerm(term: string) {
-  return CURRENT_TERMS.has(term.trim().toLowerCase());
-}
-
-function filterByTab(courses: Course[], tab: CourseTab): Course[] {
+function filterByTab(courses: Course[], tab: CourseTab, today: string): Course[] {
   if (tab === "all") return courses;
-  if (tab === "term") return courses.filter((c) => isCurrentTerm(c.term));
-  return courses.filter((c) => !isCurrentTerm(c.term));
+  const isPast=(course:Course)=>!!course.termEndsAt&&course.termEndsAt.slice(0,10)<today;
+  if (tab === "term") return courses.filter((course) => !isPast(course));
+  return courses.filter(isPast);
 }
 
 function filterByQuery(courses: Course[], query: string): Course[] {
@@ -65,7 +60,7 @@ function sortCourses(courses: Course[], sort: CourseSort): Course[] {
   return next;
 }
 
-export default function CoursesClient({ courses }: { courses: Course[] }) {
+export default function CoursesClient({ courses, today }: { courses: Course[]; today:string }) {
   const [setupOpen, setSetupOpen] = useState(false);
   const [tab, setTab] = useState<CourseTab>("term");
   const [sort, setSort] = useState<CourseSort>("code");
@@ -76,8 +71,8 @@ export default function CoursesClient({ courses }: { courses: Course[] }) {
   const sortRef = useRef<HTMLDivElement>(null);
 
   const visible = useMemo(
-    () => sortCourses(filterByQuery(filterByTab(courses, tab), query), sort),
-    [courses, tab, query, sort],
+    () => sortCourses(filterByQuery(filterByTab(courses, tab, today), query), sort),
+    [courses, tab, query, sort, today],
   );
   const sortLabel = SORT_OPTIONS.find((o) => o.id === sort)?.label ?? "Course code";
   const isEmpty = courses.length === 0;
@@ -169,7 +164,7 @@ export default function CoursesClient({ courses }: { courses: Course[] }) {
                 ) : null}
               </div>
 
-              <Button onClick={() => setSetupOpen(true)}>Join course</Button>
+              <Button onClick={() => setSetupOpen(true)}>Add course</Button>
             </div>
           ) : null}
         </div>
@@ -182,7 +177,7 @@ export default function CoursesClient({ courses }: { courses: Course[] }) {
               Nothing to see here yet
             </p>
             <BlankEmptyPlus
-              addLabel="Join course"
+              addLabel="Add course"
               onCreate={() => setSetupOpen(true)}
             />
           </>
@@ -191,6 +186,7 @@ export default function CoursesClient({ courses }: { courses: Course[] }) {
             <div className="pt-[30px]">
               <TextTabs items={TABS} value={tab} onChange={setTab} />
             </div>
+            <p className="mt-3 text-xs text-stone-400">Courses move to Past after their term end date. Set dates in Edit course.</p>
 
             {visible.length === 0 ? (
               <div className="flex flex-col items-center gap-2 pt-16 text-center">

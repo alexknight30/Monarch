@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
+import { AcademicManager } from "@/components/academic-manager";
 import {
   buildMonthGrid,
   buildWeekDays,
@@ -460,7 +461,7 @@ export function CalendarClient({ source }: { source: CalendarSource }) {
           </button>
         </div>
 
-        <ViewToggle value={mode} onChange={setMode} />
+        <div className="flex items-center gap-3"><AcademicManager mode="calendar" /><AcademicManager mode="assignments" /><ViewToggle value={mode} onChange={setMode} /></div>
       </div>
 
       <div className="relative min-h-0 flex-1">

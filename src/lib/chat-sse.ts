@@ -1,4 +1,5 @@
 import type { ChatTurnAction } from "@/lib/chat-history";
+import type { ChatAttachmentMeta } from "@/lib/chat-attachments";
 
 export type ChatStreamDone = {
   type: "done";
@@ -9,6 +10,7 @@ export type ChatStreamDone = {
 };
 
 export type ChatStreamEvent =
+  | { type: "attachments"; attachments: ChatAttachmentMeta[] }
   | { type: "delta"; text: string }
   | ChatStreamDone
   | { type: "error"; error: string };
@@ -18,6 +20,7 @@ export async function consumeChatSse(
   handlers: {
     onDelta: (text: string) => void;
     onDone: (event: ChatStreamDone) => void;
+    onAttachments?: (attachments: ChatAttachmentMeta[]) => void;
   },
 ): Promise<void> {
   if (!response.body) throw new Error("Empty response.");
@@ -36,6 +39,7 @@ export async function consumeChatSse(
     const event = JSON.parse(payload) as ChatStreamEvent;
     if (event.type === "error") throw new Error(event.error);
     if (event.type === "delta") handlers.onDelta(event.text);
+    if (event.type === "attachments") handlers.onAttachments?.(event.attachments);
     if (event.type === "done") {
       finished = true;
       handlers.onDone(event);

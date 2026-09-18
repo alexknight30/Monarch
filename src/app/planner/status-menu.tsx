@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useId, useLayoutEffect, useRef, useState } from "react";
+import { useEffect, useId, useRef, useState } from "react";
+import { useHydrated } from "@/lib/use-hydrated";
 import { createPortal } from "react-dom";
 import { STATUS_LABEL, type PlannerStatus } from "@/lib/planner";
 
@@ -79,7 +80,7 @@ export default function StatusMenu({
 }: StatusMenuProps) {
   const labelId = useId();
   const inputRef = useRef<HTMLInputElement>(null);
-  const [mounted, setMounted] = useState(false);
+  const mounted=useHydrated();
   const [query, setQuery] = useState("");
   const [activeIndex, setActiveIndex] = useState(() =>
     Math.max(
@@ -93,20 +94,11 @@ export default function StatusMenu({
   );
 
   useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  useEffect(() => {
     const t = window.setTimeout(() => inputRef.current?.focus(), 10);
     return () => window.clearTimeout(t);
   }, []);
 
-  useEffect(() => {
-    setActiveIndex((i) => {
-      if (filtered.length === 0) return 0;
-      return Math.min(i, filtered.length - 1);
-    });
-  }, [filtered.length]);
+  const selectedIndex=Math.min(activeIndex,Math.max(0,filtered.length-1));
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -132,7 +124,7 @@ export default function StatusMenu({
 
       if (e.key === "Enter") {
         e.preventDefault();
-        const pick = filtered[activeIndex];
+        const pick = filtered[selectedIndex];
         if (pick) onSelect(pick);
         return;
       }
@@ -146,11 +138,11 @@ export default function StatusMenu({
 
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [activeIndex, filtered, onClose, onSelect, query]);
+  }, [selectedIndex, filtered, onClose, onSelect, query]);
 
   // Keep the menu on-screen if the anchor is near the bottom edge.
-  const [pos, setPos] = useState({ top: 0, left: 0 });
-  useLayoutEffect(() => {
+  if (!mounted) return null;
+  const pos=(()=>{
     const width = 240;
     const estimatedHeight = 210;
     const gap = 6;
@@ -162,10 +154,8 @@ export default function StatusMenu({
     if (left + width > window.innerWidth - 8) {
       left = Math.max(8, window.innerWidth - width - 8);
     }
-    setPos({ top, left });
-  }, [anchorRect]);
-
-  if (!mounted) return null;
+    return { top, left };
+  })();
 
   return createPortal(
     <>
@@ -204,7 +194,7 @@ export default function StatusMenu({
           ) : (
             filtered.map((status, index) => {
               const selected = status === current;
-              const active = index === activeIndex;
+              const active = index === selectedIndex;
               const shortcut = MENU_STATUSES.indexOf(status) + 1;
               return (
                 <button

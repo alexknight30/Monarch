@@ -4,7 +4,7 @@ import type { Course } from "@/lib/mock-data";
 import type { PlannerIssue } from "@/lib/planner";
 import type { RecurrenceRule } from "@/lib/syllabus/schema";
 
-export type SourceDocumentKind = "syllabus";
+export type SourceDocumentKind = "syllabus" | "reading";
 
 export type SourceDocumentStatus =
   | "uploaded"

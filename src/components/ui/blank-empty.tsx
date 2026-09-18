@@ -4,7 +4,6 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useViewId } from "@/components/view-provider";
 import {
-  createArtifactForView,
   createCourseForView,
 } from "@/components/ui/create-entity";
 import { IconButton } from "@/components/ui/icon-button";
@@ -42,12 +41,10 @@ export function BlankEmptyPlus({
       return;
     }
     if (busy) return;
+    if (createKind === "artifact") { router.push("/artifacts/new"); return; }
     setBusy(true);
     try {
-      const created =
-        createKind === "artifact"
-          ? await createArtifactForView(viewId)
-          : await createCourseForView(viewId);
+      const created = await createCourseForView(viewId);
       if (created) router.refresh();
     } catch (err) {
       window.alert(err instanceof Error ? err.message : "Could not create.");

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { ButterflyMeadow } from "@/components/butterfly-meadow";
 import { Button } from "@/components/ui/button";
@@ -13,39 +13,10 @@ import { filterProposal, SyllabusProposal } from "./syllabus-proposal";
 type Mode = "syllabus" | "manual";
 type SyllabusPhase = "idle" | "playing" | "review" | "error";
 
-const STATUS_STEPS = [
-  "Starting up",
-  "Making a plan",
-  "Getting you organized",
-  "Adding polish",
-  "Finishing up",
-] as const;
-
-const STEP_MS = 2_800;
-const FADE_MS = 420;
-
 function MeadowStatus({ text }: { text: string }) {
-  const [shown, setShown] = useState(text);
-  const [opaque, setOpaque] = useState(true);
-
-  useEffect(() => {
-    if (text === shown) return;
-    setOpaque(false);
-    const swap = window.setTimeout(() => {
-      setShown(text);
-      setOpaque(true);
-    }, FADE_MS);
-    return () => window.clearTimeout(swap);
-  }, [text, shown]);
-
   return (
-    <p
-      className={`pointer-events-none absolute top-4 right-5 z-10 max-w-[220px] text-right font-display text-[22px] leading-7 tracking-[-0.015em] text-[#0A0A0A] transition-opacity ease-in-out ${
-        opaque ? "opacity-100" : "opacity-0"
-      }`}
-      style={{ transitionDuration: `${FADE_MS}ms` }}
-    >
-      {shown}
+    <p role="status" className="pointer-events-none absolute top-4 right-5 z-10 max-w-[220px] text-right font-display text-[22px] leading-7 tracking-[-0.015em] text-[#0A0A0A]">
+      {text}
     </p>
   );
 }
@@ -75,7 +46,7 @@ export function CourseSetupCard({ onCancel }: CourseSetupCardProps) {
   const [busy, setBusy] = useState(false);
   const [files, setFiles] = useState<File[]>([]);
   const [phase, setPhase] = useState<SyllabusPhase>("idle");
-  const [statusIndex, setStatusIndex] = useState(0);
+  const [statusText, setStatusText] = useState("Uploading syllabus…");
   const [proposal, setProposal] = useState<Proposal | null>(null);
   const [excluded, setExcluded] = useState<Set<string>>(new Set());
   const [error, setError] = useState<string | null>(null);
@@ -88,6 +59,7 @@ export function CourseSetupCard({ onCancel }: CourseSetupCardProps) {
 
   const saveManual = async () => {
     if (!code.trim() || !title.trim() || busy) return;
+    setError(null);
     setBusy(true);
     try {
       const res = await fetch(`/api/${viewId}/courses`, {
@@ -106,27 +78,11 @@ export function CourseSetupCard({ onCancel }: CourseSetupCardProps) {
       router.refresh();
       onCancel();
     } catch (err) {
-      window.alert(err instanceof Error ? err.message : "Could not create course.");
+      setError(err instanceof Error ? err.message : "Could not create course.");
     } finally {
       setBusy(false);
     }
   };
-
-  useEffect(() => {
-    if (phase !== "playing") return;
-    setStatusIndex(0);
-    let index = 0;
-    const timer = window.setInterval(() => {
-      index = Math.min(index + 1, STATUS_STEPS.length - 1);
-      setStatusIndex(index);
-    }, STEP_MS);
-    return () => window.clearInterval(timer);
-  }, [phase]);
-
-  useEffect(() => {
-    if (phase !== "playing" || !proposal) return;
-    if (statusIndex >= STATUS_STEPS.length - 1) setPhase("review");
-  }, [phase, proposal, statusIndex]);
 
   const runIngest = async (accepted: File[]) => {
     const file = accepted.find(isIngestible);
@@ -138,6 +94,7 @@ export function CourseSetupCard({ onCancel }: CourseSetupCardProps) {
 
     setError(null);
     setProposal(null);
+    setStatusText("Uploading syllabus…");
 
     try {
       const form = new FormData();
@@ -154,6 +111,7 @@ export function CourseSetupCard({ onCancel }: CourseSetupCardProps) {
         throw new Error(uploadBody.error ?? "Could not upload the syllabus.");
       }
 
+      setStatusText("Reading course details and deadlines…");
       const ingested = await fetch(`/api/${viewId}/ingest`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -173,6 +131,7 @@ export function CourseSetupCard({ onCancel }: CourseSetupCardProps) {
       }
       setProposal(next);
       setExcluded(new Set());
+      setPhase("review");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Could not read the syllabus.");
       setPhase("error");
@@ -188,6 +147,7 @@ export function CourseSetupCard({ onCancel }: CourseSetupCardProps) {
 
   const applyProposal = async () => {
     if (!proposal || busy) return;
+    setError(null);
     setBusy(true);
     try {
       const body = filterProposal(proposal, excluded);
@@ -201,7 +161,7 @@ export function CourseSetupCard({ onCancel }: CourseSetupCardProps) {
       router.refresh();
       onCancel();
     } catch (err) {
-      window.alert(err instanceof Error ? err.message : "Could not add the course.");
+      setError(err instanceof Error ? err.message : "Could not add the course.");
     } finally {
       setBusy(false);
     }
@@ -229,7 +189,7 @@ export function CourseSetupCard({ onCancel }: CourseSetupCardProps) {
     ) : (
       <div className="relative h-64 overflow-hidden rounded-[1.125rem] border border-dashed border-foreground/20 bg-background">
         <ButterflyMeadow className="absolute inset-0" />
-        <MeadowStatus text={STATUS_STEPS[statusIndex]} />
+        <MeadowStatus text={statusText} />
       </div>
     );
 
@@ -242,6 +202,7 @@ export function CourseSetupCard({ onCancel }: CourseSetupCardProps) {
             <button
               key={option}
               type="button"
+              disabled={phase === "playing" || busy}
               onClick={() => setMode(option)}
               className={`h-7 rounded-full px-3 text-[12px] leading-4 font-medium capitalize transition-colors ${
                 active
@@ -266,12 +227,12 @@ export function CourseSetupCard({ onCancel }: CourseSetupCardProps) {
             </p>
           </div>
           <FileUpload
-            multiple
+            multiple={false}
             showFileTypeBadge={false}
             title="Drop your syllabus here"
-            titleWhenHasFiles="Add another syllabus"
-            description="PDF, DOC/DOCX, or image"
-            accept=".pdf,.doc,.docx,.png,.jpg,.jpeg,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,image/png,image/jpeg"
+            titleWhenHasFiles="Replace syllabus"
+            description="One course at a time · PDF or image"
+            accept=".pdf,.png,.jpg,.jpeg,application/pdf,image/png,image/jpeg"
             onFilesAccepted={setFiles}
             onFilesChange={(items) => {
               if (items.length === 0) setFiles([]);
@@ -352,6 +313,7 @@ export function CourseSetupCard({ onCancel }: CourseSetupCardProps) {
         </div>
       )}
 
+      {error&&phase!=="error"&&<p role="alert" className="mt-4 text-sm text-red-700">{error}</p>}
       <div className="mt-5 flex items-center justify-end gap-2 border-t border-[#EFEFED] pt-4">
         <Button variant="ghost" onClick={onCancel}>
           Cancel
@@ -368,9 +330,7 @@ export function CourseSetupCard({ onCancel }: CourseSetupCardProps) {
             {busy ? "Adding…" : "Add course"}
           </Button>
         ) : phase === "error" ? (
-          <Button onClick={startMeadow} disabled={files.length === 0}>
-            Retry
-          </Button>
+          <><Button variant="ghost" onClick={()=>{setPhase("idle");setError(null);}}>Choose another file</Button><Button onClick={startMeadow} disabled={files.length === 0}>Retry</Button></>
         ) : (
           <Button
             onClick={startMeadow}

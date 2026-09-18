@@ -1,6 +1,9 @@
 "use client";
 
-import { createContext, useContext, useMemo, type ReactNode } from "react";
+import { createContext, useContext, useEffect, useMemo, type ReactNode } from "react";
+import { hydrateChatHistory, flushChatHistory } from "@/lib/chat-history";
+import { emptyProfile, type StudentProfile } from "@/lib/profile";
+import { ArtifactConflicts } from "./artifact-conflicts";
 import {
   DEFAULT_VIEW_ID,
   VIEW_COOKIE,
@@ -11,6 +14,7 @@ import {
 } from "@/lib/views";
 
 const ViewContext = createContext<ViewId>(DEFAULT_VIEW_ID);
+const ProfileContext = createContext<StudentProfile>(emptyProfile());
 
 /**
  * Seeded by the root layout from the request cookie, so the client renders the
@@ -18,12 +22,20 @@ const ViewContext = createContext<ViewId>(DEFAULT_VIEW_ID);
  */
 export function ViewProvider({
   viewId,
+  profile,
   children,
 }: {
   viewId: ViewId;
+  profile: StudentProfile;
   children: ReactNode;
 }) {
-  return <ViewContext value={viewId}>{children}</ViewContext>;
+  useEffect(() => {
+    void hydrateChatHistory();
+    const online=()=>{void hydrateChatHistory().then(flushChatHistory);};
+    window.addEventListener("online",online);
+    return ()=>{window.removeEventListener("online",online);void flushChatHistory();};
+  },[viewId]);
+  return <ViewContext value={viewId}><ProfileContext value={profile}><ArtifactConflicts>{children}</ArtifactConflicts></ProfileContext></ViewContext>;
 }
 
 export function useViewId(): ViewId {
@@ -32,7 +44,14 @@ export function useViewId(): ViewId {
 
 export function useViewDataset(): ViewDataset {
   const id = useViewId();
-  return useMemo(() => getViewDataset(id), [id]);
+  const profile = useContext(ProfileContext);
+  return useMemo(() => {
+    const dataset = getViewDataset(id);
+    return { ...dataset, user: {
+      firstName: profile.preferredName || profile.fullName.split(" ")[0] || dataset.user.firstName,
+      school: profile.school || dataset.user.school,
+    } };
+  }, [id, profile]);
 }
 
 /**

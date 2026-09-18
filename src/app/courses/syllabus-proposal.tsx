@@ -3,6 +3,8 @@
 import { formatDisplayDate } from "@/lib/calendar-events";
 import type { Proposal } from "@/lib/source-documents";
 import { rematerializeCalendar } from "@/lib/syllabus/materialize";
+import { syncReviewedAssignments } from "@/lib/syllabus/review";
+import type { Assignment } from "@/lib/assignments";
 
 type SyllabusProposalProps = {
   proposal: Proposal;
@@ -63,6 +65,9 @@ export function SyllabusProposal({
     }
     onChange(next);
   };
+  const patchAssignment = (id: string, patch: Partial<Assignment>) => {
+    onChange(syncReviewedAssignments({...proposal, assignments:proposal.assignments.map(a=>a.id===id?{...a,...patch,needsReview:false}:a)}));
+  };
 
   return (
     <div className="flex max-h-[420px] flex-col gap-4 overflow-y-auto rounded-[1.125rem] border border-dashed border-foreground/20 bg-background p-4">
@@ -115,7 +120,7 @@ export function SyllabusProposal({
         </h3>
         <ul className="mt-2 space-y-1.5">
           {proposal.assignments.map((assignment) => (
-            <li key={assignment.id}>
+            <li key={assignment.id} className="rounded-lg border border-stone-200 p-3">
               <label className="flex items-start gap-2 text-[13px] leading-5 text-[#1A1A1A]">
                 <input
                   type="checkbox"
@@ -133,6 +138,14 @@ export function SyllabusProposal({
                   </span>
                 </span>
               </label>
+              <div className="mt-2 grid grid-cols-2 gap-2">
+                <Field label="Assignment title" value={assignment.title} onChange={title=>patchAssignment(assignment.id,{title})}/>
+                <Field label="Grade weight (%)" type="number" value={assignment.weight === null ? "" : String(assignment.weight)} onChange={value=>patchAssignment(assignment.id,{weight:value === "" ? null : Number(value)})}/>
+                <Field label="Due date" type="date" value={assignment.dueAt?.slice(0,10) || ""} onChange={day=>patchAssignment(assignment.id,{dueAt:day ? day+(assignment.dueAt?.includes("T") ? assignment.dueAt.slice(10) : "") : null})}/>
+                <Field label="Time (optional)" type="time" value={assignment.dueAt?.includes("T") ? assignment.dueAt.slice(11,16) : ""} onChange={time=>{if(assignment.dueAt)patchAssignment(assignment.id,{dueAt:assignment.dueAt.slice(0,10)+(time?`T${time}`:"")});}}/>
+              </div>
+              {assignment.source?.quote && <blockquote className="mt-2 text-xs leading-5 text-stone-500">{assignment.source.quote}</blockquote>}
+              {assignment.needsReview && <p className="mt-1 text-xs text-amber-700">Check this assignment against the syllabus.</p>}
             </li>
           ))}
           {proposal.assignments.length === 0 && (

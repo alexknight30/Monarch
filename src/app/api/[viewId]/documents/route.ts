@@ -63,6 +63,7 @@ export async function POST(request: Request, context: RouteContext) {
   });
 
   const storedPath = path.join(
+    /*turbopackIgnore: true*/
     dir,
     `${document.id}${extensionFor(file.type, file.name)}`,
   );

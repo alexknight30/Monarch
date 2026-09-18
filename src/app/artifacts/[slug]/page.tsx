@@ -1,5 +1,5 @@
 import { notFound } from "next/navigation";
-import DiagramArtifactPage from "../diagram-artifact-page";
+import DiagramArtifactPage from "../whiteboard-page";
 import DocumentArtifactPage from "../document-artifact-page";
 import FlashcardsArtifactPage from "../flashcards-artifact-page";
 import LessonArtifactPage from "../lesson-artifact-page";
@@ -28,25 +28,25 @@ export default async function ArtifactDetailPage({
   if (!artifact) notFound();
 
   if (isTextArtifact(artifact)) {
-    return <DocumentArtifactPage artifact={artifact} />;
+    return <DocumentArtifactPage key={artifact.id} artifact={artifact} />;
   }
   if (isDiagramArtifact(artifact)) {
-    return <DiagramArtifactPage artifact={artifact} />;
+    return <DiagramArtifactPage key={artifact.id} artifact={artifact} />;
   }
   if (isReadingArtifact(artifact)) {
-    return <ReadingArtifactPage artifact={artifact} />;
+    return <ReadingArtifactPage key={artifact.id} artifact={artifact} />;
   }
   if (isFlashcardsArtifact(artifact)) {
-    return <FlashcardsArtifactPage artifact={artifact} />;
+    return <FlashcardsArtifactPage key={artifact.id} artifact={artifact} />;
   }
   if (isPracticeTestArtifact(artifact)) {
-    return <PracticeTestArtifactPage artifact={artifact} />;
+    return <PracticeTestArtifactPage key={artifact.id} artifact={artifact} />;
   }
   if (isLessonArtifact(artifact)) {
-    return <LessonArtifactPage artifact={artifact} />;
+    return <LessonArtifactPage key={artifact.id} artifact={artifact} />;
   }
   if (isSlidesArtifact(artifact)) {
-    return <SlidesArtifactPage artifact={artifact} />;
+    return <SlidesArtifactPage key={artifact.id} artifact={artifact} />;
   }
 
   notFound();

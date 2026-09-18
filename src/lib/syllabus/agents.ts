@@ -1,6 +1,4 @@
-import type Anthropic from "@anthropic-ai/sdk";
-import { structuredMessage } from "@/lib/syllabus/anthropic";
-import { AGENT_MODEL } from "@/lib/syllabus/models";
+import { structuredMessage,type SyllabusInput } from "@/lib/syllabus/provider";
 import {
   normalizeAssignmentsAgent,
   normalizeCourseAgent,
@@ -12,19 +10,12 @@ import {
   type TasksAgentResult,
 } from "@/lib/syllabus/schema";
 
-type AgentOpts = {
-  client: Anthropic;
-  fileApiId: string;
-  mime: string;
-};
+type AgentOpts = SyllabusInput;
 
 export async function runCourseAgent(opts: AgentOpts): Promise<CourseAgentResult> {
   return normalizeCourseAgent(
     await structuredMessage<CourseAgentResult>({
-      client: opts.client,
-      model: AGENT_MODEL,
-      fileApiId: opts.fileApiId,
-      mime: opts.mime,
+      ...opts,
       instruction: `Write a clean course profile from the syllabus header and logistics block.
 
 Return a FLAT JSON object with these top-level keys (do not nest them under "course"):
@@ -51,7 +42,7 @@ Rules:
 - meetings.days and officeHours.day MUST be integers: 0 = Sunday, 1 = Monday, … 6 = Saturday. "M/W" → [1, 3]. Never write weekday names.
 - start/end are 24-hour HH:mm. "1:30 – 3:30 pm" → "13:30" / "15:30".
 - termStartsAt / termEndsAt are ISO dates. If the syllabus states a year ("Fall Semester 2026") and a start/end day ("classes begin Monday, August 31", "instruction ends Friday, December 11"), emit "2026-08-31" and "2026-12-11". That is reading, not guessing.
-- needsReview must be []. Do not write reasoning.`,
+- needsReview lists missing or ambiguous facts for review. Do not invent them or write internal reasoning.`,
     }),
   );
 }
@@ -61,10 +52,7 @@ export async function runAssignmentsAgent(
 ): Promise<AssignmentsAgentResult> {
   return normalizeAssignmentsAgent(
     await structuredMessage<AssignmentsAgentResult>({
-      client: opts.client,
-      model: AGENT_MODEL,
-      fileApiId: opts.fileApiId,
-      mime: opts.mime,
+      ...opts,
       instruction: `Produce the discrete assignment list from the grading table and the schedule.
 
 Return:
@@ -83,10 +71,7 @@ Rules:
 export async function runScheduleAgent(opts: AgentOpts): Promise<ScheduleAgentResult> {
   return normalizeScheduleAgent(
     await structuredMessage<ScheduleAgentResult>({
-      client: opts.client,
-      model: AGENT_MODEL,
-      fileApiId: opts.fileApiId,
-      mime: opts.mime,
+      ...opts,
       instruction: `Emit recurrence rules and exception dates — not an expanded list of every class meeting.
 
 Return:
@@ -105,7 +90,7 @@ Rules:
 - from/to are ISO dates for the term. If the syllabus states a year and "classes begin Monday, August 31" / "instruction ends Friday, December 11", set from and to to those dates. If only a term label is given ("Fall 2026"), still emit the weekly rules and leave from/to empty.
 - skipDates: holidays, breaks, and cancelled meetings (ISO dates).
 - oneOffs: midterms, finals, single room changes, special sessions — not the regular weekly meetings.
-- warnings must be []. Do not write reasoning.`,
+- warnings lists missing or ambiguous schedule facts for review. Do not invent dates or write internal reasoning.`,
     }),
   );
 }
@@ -113,10 +98,7 @@ Rules:
 export async function runTasksAgent(opts: AgentOpts): Promise<TasksAgentResult> {
   return normalizeTasksAgent(
     await structuredMessage<TasksAgentResult>({
-      client: opts.client,
-      model: AGENT_MODEL,
-      fileApiId: opts.fileApiId,
-      mime: opts.mime,
+      ...opts,
       instruction: `Suggest a small planner tree for the major assignments (exams, papers, projects, presentations, problem sets).
 
 Return:

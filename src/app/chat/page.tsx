@@ -14,6 +14,7 @@ import {
   HistoryButton,
 } from "@/components/chat-history-pane";
 import { Button } from "@/components/ui/button";
+import { StudyInline } from "@/components/ui/study-inline";
 import { AIChatInput } from "@/components/ui/ai-chat-input";
 import { ChatAttachmentChips } from "@/components/ui/chat-attachment-chips";
 import { PlusSignIcon } from "@/components/ui/plus-sign";
@@ -23,13 +24,15 @@ import { ShiningText } from "@/components/ui/shining-text";
 import { ThinkingMark } from "@/components/ui/thinking-mark";
 import {
   createThreadId,
+  hydrateChatHistory,
+  flushChatHistory,
+  CHAT_SYNC_EVENT,
+  CHAT_HISTORY_EVENT,
   getChatThread,
-  listChatThreads,
   renameChatThread,
   saveChatThread,
   setActiveChatId,
   titleFromMessages,
-  type ChatThread,
   type ChatTurn,
   type SavedDiagram,
 } from "@/lib/chat-history";
@@ -54,6 +57,7 @@ import {
 } from "@/components/ui/streaming-blocks";
 import { useViewDataset, useViewId } from "@/components/view-provider";
 import { reportCopy } from "@/lib/integrity";
+import { useChatThreads } from "@/lib/use-chat-threads";
 
 const FOLLOW_UP_PLACEHOLDERS = ["Ask a follow-up…"];
 
@@ -71,28 +75,8 @@ function renderUserMessage(text: string) {
   );
 }
 
-/** Turn `**bold**` / `*italic*` markers into styled text and strip the asterisks. */
 function renderInlineMarkdown(text: string) {
-  const parts = text.split(/(\*\*[^*]+\*\*|\*[^*]+\*)/g);
-  return parts.map((part, i) => {
-    const bold = /^\*\*([^*]+)\*\*$/.exec(part);
-    if (bold) {
-      return (
-        <strong key={i} className="font-semibold">
-          {bold[1]}
-        </strong>
-      );
-    }
-    const italic = /^\*([^*]+)\*$/.exec(part);
-    if (italic) {
-      return (
-        <em key={i} className="italic">
-          {italic[1]}
-        </em>
-      );
-    }
-    return <span key={i}>{part}</span>;
-  });
+  return <StudyInline text={text}/>;
 }
 
 /**
@@ -284,8 +268,12 @@ function ChatScreen() {
   const [messages, setMessages] = useState<ChatTurn[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [syncStatus,setSyncStatus]=useState("");
+  const [composerVersion, setComposerVersion] = useState(0);
+  const requestRef=useRef<AbortController|null>(null);
+  const lastRequest=useRef<{text:string;history:ChatTurn[];id:string;skill?:Skill|null;files?:File[];modes?:{study?:boolean;research?:boolean}} | null>(null);
   const [historyOpen, setHistoryOpen] = useState(false);
-  const [threads, setThreads] = useState<ChatThread[]>([]);
+  const threads=useChatThreads();
   const [course, setCourse] = useState<{
     slug: string;
     code: string;
@@ -310,9 +298,20 @@ function ChatScreen() {
   const titleRequestIds = useRef(new Set<string>());
   const titleGeneratedRef = useRef(false);
 
-  const refreshThreads = useCallback(() => {
-    setThreads(listChatThreads());
-  }, []);
+  useEffect(()=>{
+    const status=(event:Event)=>setSyncStatus((event as CustomEvent<string>).detail);
+    const updated=()=>{
+      if(!threadParam||requestRef.current||(activeThreadRef.current&&activeThreadRef.current!==threadParam))return;
+      const saved=getChatThread(threadParam);if(!saved)return;
+      activeThreadRef.current=saved.id;sentInitial.current=true;titleGeneratedRef.current=!!saved.titleGenerated;
+      setThreadId(saved.id);setThreadTitle(saved.title);setMessages(saved.messages);
+      setCourse(saved.courseSlug?{slug:saved.courseSlug,code:saved.courseCode||saved.courseSlug,title:saved.courseTitle||""}:null);
+    };
+    window.addEventListener(CHAT_SYNC_EVENT,status);window.addEventListener(CHAT_HISTORY_EVENT,updated);
+    void hydrateChatHistory();
+    return ()=>{window.removeEventListener(CHAT_SYNC_EVENT,status);window.removeEventListener(CHAT_HISTORY_EVENT,updated);};
+  },[threadParam]);
+  useEffect(()=>()=>{requestRef.current?.abort();void flushChatHistory();},[]);
 
   // Cold-load a thread from ?id=. Skip when we already navigated here locally.
   useEffect(() => {
@@ -340,6 +339,8 @@ function ChatScreen() {
     sentInitial.current = true;
     activeThreadRef.current = existing.id;
     titleGeneratedRef.current = Boolean(existing.titleGenerated);
+    // Hydrate an external browser-storage record once for this URL, after SSR.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setThreadId(existing.id);
     setThreadTitle(existing.title);
     setMessages(existing.messages);
@@ -376,17 +377,12 @@ function ChatScreen() {
         : {}),
     });
     setActiveChatId(threadId);
-    refreshThreads();
-  }, [threadId, threadTitle, messages, course, refreshThreads]);
+  }, [threadId, threadTitle, messages, course]);
 
   // Keep resume pointer in sync when opening an existing thread from ?id=.
   useEffect(() => {
     if (threadId) setActiveChatId(threadId);
   }, [threadId]);
-
-  useEffect(() => {
-    refreshThreads();
-  }, [refreshThreads]);
 
   const generateTitle = useCallback(
     async (id: string, userMessage: string, reply: string) => {
@@ -405,16 +401,16 @@ function ChatScreen() {
           return;
         }
 
+        renameChatThread(id, data.title);
+        if(activeThreadRef.current!==id)return;
         titleGeneratedRef.current = true;
         setThreadTitle(data.title);
-        renameChatThread(id, data.title);
-        refreshThreads();
       } catch {
         titleRequestIds.current.delete(id);
         // Keep the provisional title if naming fails.
       }
     },
-    [refreshThreads],
+    [],
   );
 
   const send = useCallback(
@@ -424,7 +420,10 @@ function ChatScreen() {
       existingId: string | null,
       skill?: Skill | null,
       files?: File[],
+      modes?:{study?:boolean;research?:boolean},
     ) => {
+      if(requestRef.current)return;
+      const controller=new AbortController();requestRef.current=controller;
       const displayText = skill
         ? text
           ? `/${skill.command} ${text}`
@@ -442,6 +441,7 @@ function ChatScreen() {
       ];
 
       const id = existingId ?? createThreadId();
+      lastRequest.current={text,history,id,skill,files,modes};
       const isNewThread = !existingId;
       if (isNewThread) {
         titleGeneratedRef.current = false;
@@ -464,15 +464,18 @@ function ChatScreen() {
       try {
         const res = await fetch(
           "/api/chat",
-          buildChatRequest(
+          { ...buildChatRequest(
             {
               message: contentForApi({
                 content: displayText,
                 attachments,
               }),
+              study:modes?.study,
+              research:modes?.research,
               messages: nextMessages.map((turn) => ({
                 role: turn.role,
                 content: contentForApi(turn),
+                attachments: turn.attachments,
               })),
               skill: skill
                 ? {
@@ -484,7 +487,7 @@ function ChatScreen() {
               ...(course?.slug ? { courseSlug: course.slug } : {}),
             },
             files,
-          ),
+          ),signal:controller.signal },
         );
 
         const contentType = res.headers.get("content-type") ?? "";
@@ -497,7 +500,15 @@ function ChatScreen() {
         if (contentType.includes("text/event-stream")) {
           let assembled = "";
           await consumeChatSse(res, {
+            onAttachments: (saved) => {
+              if(requestRef.current!==controller||controller.signal.aborted)return;
+              setMessages((prev) => {
+                const index = prev.findLastIndex((turn) => turn.role === "user");
+                return prev.map((turn, i) => i === index ? { ...turn, attachments: saved } : turn);
+              });
+            },
             onDelta: (text) => {
+              if(requestRef.current!==controller||controller.signal.aborted)return;
               assembled += text;
               setMessages((prev) => {
                 const last = prev.at(-1);
@@ -508,6 +519,8 @@ function ChatScreen() {
               });
             },
             onDone: (meta) => {
+              if(requestRef.current!==controller||controller.signal.aborted)return;
+              if (meta.plannerChanged) router.refresh();
               if (meta.actions?.length) {
                 setMessages((prev) => {
                   const last = prev.at(-1);
@@ -517,6 +530,7 @@ function ChatScreen() {
               }
             },
           });
+          if(requestRef.current!==controller||controller.signal.aborted)return;
           if (!assembled.trim()) throw new Error("Empty response from model.");
           if (!titleGeneratedRef.current) {
             void generateTitle(
@@ -531,6 +545,7 @@ function ChatScreen() {
             actions?: ChatTurn["actions"];
             error?: string;
           };
+          if(requestRef.current!==controller||controller.signal.aborted)return;
 
           if (!data.message?.content) throw new Error("Empty response from model.");
 
@@ -550,9 +565,9 @@ function ChatScreen() {
           }
         }
       } catch (err) {
-        setError(err instanceof Error ? err.message : "Something went wrong.");
+        if(requestRef.current===controller)setError(controller.signal.aborted?"Response stopped. Your conversation has been kept.":err instanceof Error ? err.message : "Something went wrong.");
       } finally {
-        setIsLoading(false);
+        if(requestRef.current===controller){requestRef.current=null;setIsLoading(false);}
       }
     },
     [router, generateTitle, course],
@@ -561,15 +576,21 @@ function ChatScreen() {
   // Fire the prompt carried over from the home composer.
   useEffect(() => {
     if (sentInitial.current || threadParam) return;
+    // Consume the pending submission only after mount settles. Strict Mode's
+    // setup/cleanup replay must not consume it and then abort its request.
+    const timer = window.setTimeout(() => {
+    if (sentInitial.current) return;
     const pending = takePendingChat();
     if (pending) {
       sentInitial.current = true;
+      // This is the user's submitted home-composer request, carried across navigation.
       void send(
         pending.text,
         [],
         null,
         pending.skill ?? null,
         pending.files,
+        {study:pending.study,research:pending.research},
       );
       return;
     }
@@ -579,6 +600,8 @@ function ChatScreen() {
       ? getSkillByCommand(initialSkillCommand)
       : null;
     void send(initialPrompt, [], null, skill);
+    }, 0);
+    return () => window.clearTimeout(timer);
   }, [initialPrompt, initialSkillCommand, threadParam, send]);
 
   // Backfill model titles for threads that still use the raw prompt.
@@ -587,6 +610,8 @@ function ChatScreen() {
     const firstUser = messages.find((m) => m.role === "user")?.content;
     const firstAssistant = messages.find((m) => m.role === "assistant")?.content;
     if (!firstUser || !firstAssistant) return;
+    // Starts an asynchronous provider request; its in-flight ID guard prevents duplicates.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     void generateTitle(threadId, firstUser, firstAssistant);
   }, [threadId, messages, isLoading, generateTitle]);
 
@@ -598,6 +623,7 @@ function ChatScreen() {
   }, [messages, isLoading]);
 
   const openThread = (id: string) => {
+    requestRef.current?.abort();requestRef.current=null;setIsLoading(false);lastRequest.current=null;
     const existing = getChatThread(id);
     if (!existing) return;
 
@@ -629,6 +655,7 @@ function ChatScreen() {
   };
 
   const startNewChat = () => {
+    requestRef.current?.abort();requestRef.current=null;lastRequest.current=null;
     sentInitial.current = true;
     // Sentinel so a stale ?id= can't reload the previous thread mid-navigation.
     activeThreadRef.current = "__new__";
@@ -637,6 +664,8 @@ function ChatScreen() {
     setThreadId(null);
     setThreadTitle("New chat");
     setMessages([]);
+    setSyncStatus("");
+    setComposerVersion(version => version + 1);
     setError(null);
     setIsLoading(false);
     setHistoryOpen(false);
@@ -789,7 +818,6 @@ function ChatScreen() {
               </Button>
               <HistoryButton
                 onClick={() => {
-                  refreshThreads();
                   setHistoryOpen(true);
                 }}
               />
@@ -917,6 +945,14 @@ function ChatScreen() {
         {/* Composer dock */}
         <div className="shrink-0 px-6 pt-2 pb-[26px]">
           <div className="mx-auto w-full max-w-[732px]">
+            <div className="mb-2 flex items-center justify-between gap-3 text-xs text-stone-400">
+              {messages.length > 0 && <button title="Retry saving conversation to disk" onClick={()=>void flushChatHistory()}>{syncStatus}</button>}
+              {isLoading ? <button className="rounded-lg border border-stone-200 px-3 py-1.5 text-stone-700" onClick={()=>requestRef.current?.abort()}>Stop response</button> : error && messages.length>0 ? <button className="rounded-lg border border-stone-200 px-3 py-1.5 text-stone-700" onClick={()=>{
+                const failed=lastRequest.current;
+                if(failed?.files?.length && !messages.some(m=>m.attachments?.some(a=>a.id)))void send(failed.text,failed.history,failed.id,failed.skill,failed.files,failed.modes);
+                else void send("Continue the interrupted response. Check the current workspace before repeating any changes.",messages,threadId,null,undefined,failed?.modes);
+              }}>Continue response</button> : null}
+            </div>
             {course ? (
               <div className="mb-2.5 flex">
                 <span className="inline-flex items-center gap-1.5 rounded-full bg-[#F1F1EF] py-1 pr-1.5 pl-2.5 text-[12px] leading-4 text-[#3D3D3D]">
@@ -933,13 +969,14 @@ function ChatScreen() {
               </div>
             ) : null}
             <AIChatInput
+              key={composerVersion}
               autoFocus
               disabled={isLoading}
               staticPlaceholder
               placeholders={
                 course
                   ? [`Ask about ${course.code}…`]
-                  : FOLLOW_UP_PLACEHOLDERS
+                  : messages.length ? FOLLOW_UP_PLACEHOLDERS : ["What are you working on?"]
               }
               onSubmit={(value, meta) =>
                 void send(
@@ -948,6 +985,7 @@ function ChatScreen() {
                   threadId,
                   meta?.skill ?? null,
                   meta?.files,
+                  {study:meta?.study,research:meta?.research},
                 )
               }
             />

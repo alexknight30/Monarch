@@ -6,6 +6,7 @@ import {
   type CreatePlannerIssueInput,
 } from "@/lib/local-db";
 import type { PlannerLabel, PlannerStatus } from "@/lib/planner";
+import { createTaskWithSource } from "@/lib/task-source";
 
 export const runtime = "nodejs";
 
@@ -35,8 +36,14 @@ export async function POST(request: Request, context: RouteContext) {
   if ("error" in resolved) return resolved.error;
 
   let body: CreatePlannerIssueInput;
+  let file: File | null = null;
+  let requestId = "";
   try {
-    body = (await request.json()) as CreatePlannerIssueInput;
+    if(request.headers.get("content-type")?.includes("multipart/form-data")) {
+      const form=await request.formData();body=JSON.parse(String(form.get("task")||"null"));
+      const uploaded=form.get("file");if(!(uploaded instanceof File))throw new Error("Choose a file.");
+      file=uploaded;requestId=String(form.get("requestId")||"");
+    }else body = (await request.json()) as CreatePlannerIssueInput;
   } catch {
     return NextResponse.json({ error: "Invalid JSON body." }, { status: 400 });
   }
@@ -54,7 +61,7 @@ export async function POST(request: Request, context: RouteContext) {
   }
 
   try {
-    const issue = await createPlannerIssue(resolved.viewId, body);
+    const issue = file ? await createTaskWithSource(resolved.viewId,body,file,requestId) : await createPlannerIssue(resolved.viewId, body);
     return NextResponse.json({ issue }, { status: 201 });
   } catch (err) {
     const message = err instanceof Error ? err.message : "Failed to create task.";

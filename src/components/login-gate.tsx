@@ -1,7 +1,8 @@
 "use client";
 
 import { usePathname } from "next/navigation";
-import { useEffect, useState, type ReactNode } from "react";
+import { useEffect, useState,useSyncExternalStore, type ReactNode } from "react";
+import { useHydrated } from "@/lib/use-hydrated";
 import { ThinkingMark } from "@/components/ui/thinking-mark";
 import LoginScreen from "./login-screen";
 
@@ -14,6 +15,8 @@ const FADE_MS = 400;
 const LOADER_SIZE = 112;
 
 type Boot = "idle" | "loading" | "fading" | "done";
+const subscribeSession=()=>()=>{};
+const serverSession=()=>false;
 
 function readSignedIn() {
   try {
@@ -40,16 +43,9 @@ function persistSignedIn() {
 export default function LoginGate({ children }: { children: ReactNode }) {
   const [signedIn, setSignedIn] = useState(false);
   const [boot, setBoot] = useState<Boot>("idle");
-  const [ready, setReady] = useState(false);
+  const ready=useHydrated();
+  const savedSession=useSyncExternalStore(subscribeSession,readSignedIn,serverSession);
   const pathname = usePathname();
-
-  useEffect(() => {
-    if (readSignedIn()) {
-      setSignedIn(true);
-      setBoot("done");
-    }
-    setReady(true);
-  }, []);
 
   useEffect(() => {
     if (boot !== "loading") return;
@@ -69,7 +65,7 @@ export default function LoginGate({ children }: { children: ReactNode }) {
     return <div className="flex h-full min-h-0 flex-1 bg-white" />;
   }
 
-  if (!signedIn) {
+  if (!signedIn&&!savedSession) {
     return (
       <LoginScreen
         onSignIn={() => {

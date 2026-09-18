@@ -6,7 +6,8 @@
     "description": "Mechanisms, spectroscopy, and synthesis of organic compounds. Builds on CHEM 121 with a focus on carbonyl chemistry and multi-step routes.",
     "instructor": "Prof. Nadia Farouk",
     "schedule": "MWF · 10:00–10:50 AM",
-    "term": "Fall 2026"
+    "term": "Fall 2026",
+    "id": "chem-122"
   },
   {
     "slug": "stat-140",
@@ -15,7 +16,8 @@
     "description": "Probability, estimation, hypothesis testing, and regression. Weekly problem sets plus a midterm and final project.",
     "instructor": "Prof. Marcus Chen",
     "schedule": "TTh · 1:30–2:45 PM",
-    "term": "Fall 2026"
+    "term": "Fall 2026",
+    "id": "stat-140"
   },
   {
     "slug": "gov-201",
@@ -24,7 +26,8 @@
     "description": "Seminar on constitutional design, federalism, and legislative organization across democracies. Discussion-heavy; short weekly memos.",
     "instructor": "Prof. Elena Vasquez",
     "schedule": "Th · 3:00–5:30 PM",
-    "term": "Fall 2026"
+    "term": "Fall 2026",
+    "id": "gov-201"
   },
   {
     "slug": "cs-51",
@@ -33,7 +36,8 @@
     "description": "Functional programming in OCaml, modular design, and data structures. Pair programming labs every Friday.",
     "instructor": "Prof. James Okonkwo",
     "schedule": "MWF · 11:15–12:05 PM",
-    "term": "Fall 2026"
+    "term": "Fall 2026",
+    "id": "cs-51"
   },
   {
     "slug": "hist-210",
@@ -42,6 +46,17 @@
     "description": "Survey of European political and cultural history from 1789 to the present. Heavy reading load; two papers.",
     "instructor": "Prof. Claire Beaumont",
     "schedule": "TTh · 10:00–11:15 AM",
-    "term": "Spring 2025"
+    "term": "Spring 2025",
+    "id": "hist-210"
+  },
+  {
+    "id": "unassigned",
+    "slug": "unassigned",
+    "code": "Unassigned",
+    "title": "Unassigned",
+    "description": "Work that isn’t in a course yet.",
+    "instructor": "",
+    "schedule": "",
+    "term": ""
   }
 ]
