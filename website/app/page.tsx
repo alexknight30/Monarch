@@ -1,7 +1,4 @@
-import { Scaled } from "@/components/scaled";
 import { Hero } from "@/components/hero";
-import { PageTwo } from "@/components/page-two";
-import { PageThree } from "@/components/page-three";
 import { PinnedWordmark } from "@/components/pinned-wordmark";
 
 export default function Home() {
@@ -18,12 +15,8 @@ export default function Home() {
         <div id="site-hero">
           <Hero />
         </div>
-        <Scaled height={900}>
-          <PageTwo />
-        </Scaled>
-        <Scaled height={1328}>
-          <PageThree />
-        </Scaled>
+        {/* Later sections are retained in components/page-two.tsx and
+            components/page-three.tsx until the full site is ready to launch. */}
       </main>
     </>
   );

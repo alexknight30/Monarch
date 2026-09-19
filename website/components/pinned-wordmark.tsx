@@ -54,8 +54,8 @@ export function PinnedWordmark() {
         <Wordmark tone="inherit" />
       </div>
 
-      <button
-        type="button"
+      <a
+        href="https://app.monarch.education"
         style={{
           position: "fixed",
           right: LEFT * scale,
@@ -77,6 +77,7 @@ export function PinnedWordmark() {
           fontWeight: 500,
           lineHeight: "18px",
           cursor: "pointer",
+          textDecoration: "none",
           transition: "background-color 160ms ease",
         }}
         onMouseEnter={(event) => {
@@ -87,7 +88,7 @@ export function PinnedWordmark() {
         }}
       >
         Start Now
-      </button>
+      </a>
     </>
   );
 }
