@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, type CSSProperties } from "react";
 import { Wordmark } from "./wordmark";
 import { DESIGN_VIEWPORT_HEIGHT, useWidthScale } from "./use-page-scale";
 
@@ -39,22 +39,24 @@ export function PinnedWordmark() {
   return (
     <>
       <div
+        className="site-wordmark"
         style={{
           position: "fixed",
-          left: LEFT * scale,
-          top: TOP * scale,
+          "--wordmark-left": `${LEFT * scale}px`,
+          "--wordmark-top": `${TOP * scale}px`,
+          "--wordmark-scale": scale,
           zIndex: 50,
-          transform: `scale(${scale})`,
           transformOrigin: "top left",
           color: onHero ? "#FFFFFF" : "#0a0a0a",
           transition: "color 180ms ease",
           pointerEvents: "none",
-        }}
+        } as CSSProperties}
       >
         <Wordmark tone="inherit" />
       </div>
 
       <a
+        className="site-start-link"
         href="https://app.monarch.education"
         style={{
           position: "fixed",
@@ -63,7 +65,6 @@ export function PinnedWordmark() {
           zIndex: 50,
           transform: `scale(${scale})`,
           transformOrigin: "top right",
-          display: "inline-flex",
           alignItems: "center",
           justifyContent: "center",
           height: CTA_HEIGHT,

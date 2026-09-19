@@ -22,3 +22,29 @@ button {
   background: none;
   cursor: pointer;
 }
+
+.site-wordmark {
+  left: var(--wordmark-left);
+  top: var(--wordmark-top);
+  transform: scale(var(--wordmark-scale));
+}
+
+.site-start-link {
+  display: inline-flex;
+}
+
+@media (max-width: 767px) {
+  .site-hero {
+    --hero-position: 53% center;
+  }
+
+  .site-wordmark {
+    left: max(24px, env(safe-area-inset-left));
+    top: max(24px, env(safe-area-inset-top));
+    transform: none;
+  }
+
+  .site-start-link {
+    display: none;
+  }
+}

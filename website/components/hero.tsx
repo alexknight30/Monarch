@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, type CSSProperties } from "react";
+import { useEffect, useRef, useSyncExternalStore, type CSSProperties } from "react";
 
 /** Never seek earlier than this after the intro — butterflies are gone. */
 const CUTOFF = 12;
@@ -8,6 +8,17 @@ const CUTOFF = 12;
 const LOOP_FADE = 0.9;
 const FRAME = 1 / 24;
 const HERO_SRC = "/hero-meadow.mp4?v=6";
+const MOBILE_LOOP_SRC = "/hero-meadow-loop.mp4?v=1";
+const MOBILE_QUERY = "(max-width: 767px)";
+
+function subscribeMobile(onChange: () => void) {
+  const query = window.matchMedia(MOBILE_QUERY);
+  query.addEventListener("change", onChange);
+  return () => query.removeEventListener("change", onChange);
+}
+
+const getMobileSnapshot = () => window.matchMedia(MOBILE_QUERY).matches;
+const getServerMobileSnapshot = () => false;
 
 const VIDEO_FILL: CSSProperties = {
   position: "absolute",
@@ -15,7 +26,7 @@ const VIDEO_FILL: CSSProperties = {
   width: "100%",
   height: "100%",
   objectFit: "cover",
-  objectPosition: "center center",
+  objectPosition: "var(--hero-position, center center)",
 };
 
 function setLayer(
@@ -28,13 +39,26 @@ function setLayer(
 
 /** Hero — one take, then a same-file crossfade loop of the meadow. */
 export function Hero() {
+  const isMobile = useSyncExternalStore(
+    subscribeMobile,
+    getMobileSnapshot,
+    getServerMobileSnapshot,
+  );
   const aRef = useRef<HTMLVideoElement>(null);
   const bRef = useRef<HTMLVideoElement>(null);
 
   useEffect(() => {
     const a = aRef.current;
     const b = bRef.current;
-    if (!a || !b) return;
+    if (!a) return;
+
+    // Let Safari loop the dedicated meadow clip without seeking or swapping players.
+    if (isMobile) {
+      setLayer(a, { opacity: 1, z: 0 });
+      void a.play().catch(() => {});
+      return () => a.pause();
+    }
+    if (!b) return;
 
     let front = a;
     let back = b;
@@ -141,10 +165,11 @@ export function Hero() {
       a.removeEventListener("ended", onEnded);
       b.removeEventListener("ended", onEnded);
     };
-  }, []);
+  }, [isMobile]);
 
   return (
     <section
+      className="site-hero"
       style={{
         position: "relative",
         width: "100%",
@@ -155,24 +180,23 @@ export function Hero() {
     >
       <video
         ref={aRef}
+        src={isMobile ? MOBILE_LOOP_SRC : HERO_SRC}
+        loop={isMobile}
         autoPlay
         muted
         playsInline
         preload="auto"
         poster="/hero-meadow.png?v=4"
         style={VIDEO_FILL}
-      >
-        <source src={HERO_SRC} type="video/mp4" />
-      </video>
+      />
       <video
         ref={bRef}
+        src={isMobile ? undefined : `${HERO_SRC}&p=b`}
         muted
         playsInline
         preload="auto"
-        style={{ ...VIDEO_FILL, opacity: 0 }}
-      >
-        <source src={`${HERO_SRC}&p=b`} type="video/mp4" />
-      </video>
+        style={{ ...VIDEO_FILL, opacity: 0, display: isMobile ? "none" : undefined }}
+      />
 
       <h1
         style={{
