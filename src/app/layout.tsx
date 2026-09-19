@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Inter, Neuton, Newsreader, Work_Sans } from "next/font/google";
 import Rail from "@/components/rail";
+import LoginGate from "@/components/login-gate";
 import { ViewProvider } from "@/components/view-provider";
 import { getServerViewId } from "@/lib/views-server";
 import { readViewStore } from "@/lib/local-db";
@@ -52,12 +53,14 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
       <body className="flex h-full min-h-full bg-[#F5F3EE] text-[#0A0A0A]">
         <DesignRuntime>
           <ViewProvider viewId={viewId} profile={profile}>
-            <Rail />
-            <div data-design-id="m-3089d5f35b3a" className="flex min-h-0 min-w-0 flex-1 flex-col pt-2">
-              <main data-design-id="m-a5daf3330150" className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden rounded-tl-[24px] border-t border-l border-[#E3E0D9] bg-white">
-                {children}
-              </main>
-            </div>
+            <LoginGate>
+              <Rail />
+              <div data-design-id="m-3089d5f35b3a" className="flex min-h-0 min-w-0 flex-1 flex-col pt-2">
+                <main data-design-id="m-a5daf3330150" className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden rounded-tl-[24px] border-t border-l border-[#E3E0D9] bg-white">
+                  {children}
+                </main>
+              </div>
+            </LoginGate>
           </ViewProvider>
           {process.env.NODE_ENV === "development" && <DesignEditor />}
         </DesignRuntime>
