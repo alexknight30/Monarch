@@ -1,4 +1,6 @@
 "use client";
+import { DesignCopy } from "@/components/design/runtime";
+
 
 import {
   useCallback,
@@ -93,7 +95,7 @@ function Btn({
   children: ReactNode;
 }) {
   return (
-    <button
+    <button data-design-id="m-4cc15726cba2"
       type="button"
       aria-label={label}
       aria-pressed={active}
@@ -110,7 +112,7 @@ function Btn({
 }
 
 function Divider() {
-  return <div className="h-5 w-px shrink-0 bg-[#E8E8E8]" />;
+  return <div data-design-id="m-bab4c98e7b0f" className="h-5 w-px shrink-0 bg-[#E8E8E8]" />;
 }
 
 function Chevron() {
@@ -171,7 +173,7 @@ function Menu({
 
   if (!open || typeof document === "undefined") return null;
   return createPortal(
-    <div
+    <div data-design-id="m-d5883ef6c461"
       ref={ref}
       onMouseDown={(e) => e.preventDefault()}
       className={`z-[80] min-w-[140px] overflow-hidden rounded-lg border border-[#E6E6E6] bg-white py-1 shadow-[0_8px_24px_rgba(0,0,0,0.12)] ${className ?? ""}`}
@@ -354,8 +356,8 @@ export default function DocToolbar({
   };
 
   return (
-    <div className="flex h-12 shrink-0 items-center gap-2 overflow-x-auto px-[18px]">
-      <input
+    <div data-design-id="m-56afe97faa0a" className="flex h-12 shrink-0 items-center gap-2 overflow-x-auto px-[18px]">
+      <input data-design-id="m-e7c86d3400fb"
         ref={imageInputRef}
         type="file"
         accept="image/*"
@@ -373,7 +375,7 @@ export default function DocToolbar({
         }}
       />
 
-      <div className="flex shrink-0 items-center gap-0.5">
+      <div data-design-id="m-40532e507d0f" className="flex shrink-0 items-center gap-0.5">
         <Btn label="Search the document" onClick={onFindOpen}>
           <svg width="16" height="16" viewBox="0 0 24 24">
             <circle cx="11" cy="11" r="6.5" {...ICON} stroke="#3D3D3D" />
@@ -441,14 +443,14 @@ export default function DocToolbar({
 
       <Divider />
 
-      <div ref={zoomRef} className="relative shrink-0">
-        <button
+      <div data-design-id="m-9db04f56bfdc" ref={zoomRef} className="relative shrink-0">
+        <button data-design-id="m-689a544e7a5f"
           type="button"
           onMouseDown={(e) => e.preventDefault()}
           onClick={() => setOpenMenu(openMenu === "zoom" ? null : "zoom")}
           className="flex h-[30px] shrink-0 items-center justify-between gap-1.5 rounded-md pr-2 pl-2.5 transition-colors hover:bg-[#F5F5F5]"
         >
-          <span className="text-[13px] leading-4 text-[#3D3D3D]">{zoom}%</span>
+          <span data-design-id="m-1faf1afb3c77" className="text-[13px] leading-4 text-[#3D3D3D]">{zoom}%</span>
           <Chevron />
         </button>
         <Menu
@@ -457,7 +459,7 @@ export default function DocToolbar({
           anchorRef={zoomRef}
         >
           {ZOOM_OPTIONS.map((z) => (
-            <button
+            <button data-design-id="m-852ffb048410" data-design-key={z}
               key={z}
               type="button"
               className={`flex w-full px-3 py-1.5 text-left text-[13px] ${
@@ -476,15 +478,15 @@ export default function DocToolbar({
 
       <Divider />
 
-      <div ref={blockRef} className="relative shrink-0">
-        <button
+      <div data-design-id="m-916a3845fad5" ref={blockRef} className="relative shrink-0">
+        <button data-design-id="m-e47feffef7c5"
           type="button"
           disabled={disabled}
           onMouseDown={(e) => e.preventDefault()}
           onClick={() => setOpenMenu(openMenu === "block" ? null : "block")}
           className="flex h-[30px] w-[126px] shrink-0 items-center justify-between gap-1.5 rounded-md pr-2 pl-2.5 transition-colors hover:bg-[#F5F5F5] disabled:opacity-40"
         >
-          <span className="text-[13px] leading-4 text-[#3D3D3D]">{blockLabel}</span>
+          <span data-design-id="m-a9b3839adc40" className="text-[13px] leading-4 text-[#3D3D3D]">{blockLabel}</span>
           <Chevron />
         </button>
         <Menu
@@ -493,7 +495,7 @@ export default function DocToolbar({
           anchorRef={blockRef}
         >
           {BLOCK_OPTIONS.map((opt) => (
-            <button
+            <button data-design-id="m-db26a4737e3a" data-design-key={opt.value}
               key={opt.value}
               type="button"
               className={`flex w-full px-3 py-1.5 text-left text-[13px] ${
@@ -511,8 +513,8 @@ export default function DocToolbar({
 
       <Divider />
 
-      <div ref={fontRef} className="relative shrink-0">
-        <button
+      <div data-design-id="m-a7c34e68dd0f" ref={fontRef} className="relative shrink-0">
+        <button data-design-id="m-154a54d7b4ed"
           type="button"
           disabled={disabled}
           onMouseDown={(e) => e.preventDefault()}
@@ -520,7 +522,7 @@ export default function DocToolbar({
           className="flex h-[30px] w-[158px] shrink-0 items-center justify-between gap-1.5 rounded-md pr-2 pl-2.5 text-left transition-colors hover:bg-[#F5F5F5] disabled:opacity-40"
           title="Font family"
         >
-          <span className="truncate text-[13px] leading-4 text-[#3D3D3D]">
+          <span data-design-id="m-554c97c73a47" className="truncate text-[13px] leading-4 text-[#3D3D3D]">
             {fontLabel}
           </span>
           <Chevron />
@@ -531,7 +533,7 @@ export default function DocToolbar({
           anchorRef={fontRef}
         >
           {DOC_FONTS.map((font) => (
-            <button
+            <button data-design-id="m-1b9482f8a999" data-design-key={font.label}
               key={font.label}
               type="button"
               className={`flex w-full px-3 py-1.5 text-left text-[13px] ${
@@ -550,8 +552,8 @@ export default function DocToolbar({
 
       <Divider />
 
-      <div className="flex shrink-0 items-center gap-1">
-        <button
+      <div data-design-id="m-d99991c4664a" className="flex shrink-0 items-center gap-1">
+        <button data-design-id="m-f76b39a7bc0b"
           type="button"
           aria-label="Decrease font size"
           disabled={disabled}
@@ -563,7 +565,7 @@ export default function DocToolbar({
             <path d="M5 12h14" {...ICON} stroke="#3D3D3D" strokeWidth={2} />
           </svg>
         </button>
-        <input
+        <input data-design-id="m-e06c21be79db"
           type="number"
           min={8}
           max={96}
@@ -575,7 +577,7 @@ export default function DocToolbar({
           }}
           className="h-7 w-10 shrink-0 rounded-[5px] border border-[#E6E6E6] bg-white text-center text-[13px] leading-4 text-[#3D3D3D] outline-none disabled:opacity-40"
         />
-        <button
+        <button data-design-id="m-51ce1566af81"
           type="button"
           aria-label="Increase font size"
           disabled={disabled}
@@ -591,7 +593,7 @@ export default function DocToolbar({
 
       <Divider />
 
-      <div className="flex shrink-0 items-center gap-0.5">
+      <div data-design-id="m-dc1b834f1107" className="flex shrink-0 items-center gap-0.5">
         <Btn
           label="Bold"
           active={editor?.isActive("bold")}
@@ -647,13 +649,13 @@ export default function DocToolbar({
             editor.chain().focus().insertInlineMath({ latex: tex.trim() }).run();
           }}
         >
-          <span className="font-serif text-[15px] leading-none text-[#3D3D3D]">
+          <span data-design-id="m-4bac0f557445" className="font-serif text-[15px] leading-none text-[#3D3D3D]"><DesignCopy id="m-4bac0f557445">
             ∑
-          </span>
+          </DesignCopy></span>
         </Btn>
 
-        <div ref={colorRef} className="relative">
-          <button
+        <div data-design-id="m-90298563b1fd" ref={colorRef} className="relative">
+          <button data-design-id="m-679588d1ba11"
             type="button"
             aria-label="Text color"
             disabled={disabled}
@@ -664,7 +666,7 @@ export default function DocToolbar({
             <svg width="15" height="11" viewBox="0 0 24 17">
               <path d="M4 16L12 2l8 14M7.2 11h9.6" {...ICON} stroke="#3D3D3D" strokeWidth={1.9} />
             </svg>
-            <span
+            <span data-design-id="m-69ab236e8b0a"
               className="h-[3px] w-[15px] shrink-0 rounded-[1px]"
               style={{
                 background:
@@ -679,7 +681,7 @@ export default function DocToolbar({
             className="flex gap-1 !p-2"
           >
             {TEXT_COLORS.map((c) => (
-              <button
+              <button data-design-id="m-ce5a2113638b" data-design-key={c}
                 key={c}
                 type="button"
                 aria-label={`Text color ${c}`}
@@ -694,8 +696,8 @@ export default function DocToolbar({
           </Menu>
         </div>
 
-        <div ref={highlightRef} className="relative">
-          <button
+        <div data-design-id="m-c224b7e79a33" ref={highlightRef} className="relative">
+          <button data-design-id="m-60f0554b2de9"
             type="button"
             aria-label="Highlight color"
             disabled={disabled}
@@ -706,7 +708,7 @@ export default function DocToolbar({
             <svg width="15" height="11" viewBox="0 0 24 17">
               <path d="M14 1l8 8-7 7H7l-4-4z" {...ICON} stroke="#3D3D3D" strokeWidth={1.9} />
             </svg>
-            <span
+            <span data-design-id="m-20dd13508c4b"
               className="h-[3px] w-[15px] shrink-0 rounded-[1px]"
               style={{
                 background:
@@ -721,7 +723,7 @@ export default function DocToolbar({
             className="flex gap-1 !p-2"
           >
             {HIGHLIGHT_COLORS.map((c) => (
-              <button
+              <button data-design-id="m-627806ab2026" data-design-key={c}
                 key={c}
                 type="button"
                 aria-label={`Highlight ${c}`}
@@ -747,7 +749,7 @@ export default function DocToolbar({
 
       <Divider />
 
-      <div className="flex shrink-0 items-center gap-0.5">
+      <div data-design-id="m-c0e77f69b2da" className="flex shrink-0 items-center gap-0.5">
         <Btn label="Insert link" disabled={disabled} onClick={insertLink}>
           <svg width="16" height="16" viewBox="0 0 24 24">
             <path
@@ -786,8 +788,8 @@ export default function DocToolbar({
 
       <Divider />
 
-      <div className="flex shrink-0 items-center gap-0.5">
-        <div ref={alignRef} className="relative">
+      <div data-design-id="m-1ee71907cbb4" className="flex shrink-0 items-center gap-0.5">
+        <div data-design-id="m-8d5b4d6c1560" ref={alignRef} className="relative">
           <Btn
             label="Align"
             disabled={disabled}
@@ -815,7 +817,7 @@ export default function DocToolbar({
             anchorRef={alignRef}
           >
             {ALIGN_OPTIONS.map((a) => (
-              <button
+              <button data-design-id="m-e1c3c0645479" data-design-key={a}
                 key={a}
                 type="button"
                 className={`flex w-full px-3 py-1.5 text-left text-[13px] capitalize ${
@@ -832,7 +834,7 @@ export default function DocToolbar({
           </Menu>
         </div>
 
-        <div ref={spacingRef} className="relative">
+        <div data-design-id="m-8eb12a93bfc5" ref={spacingRef} className="relative">
           <Btn
             label="Line spacing"
             disabled={disabled}
@@ -853,7 +855,7 @@ export default function DocToolbar({
             anchorRef={spacingRef}
           >
             {LINE_SPACING_OPTIONS.map((opt) => (
-              <button
+              <button data-design-id="m-f38c8973be56" data-design-key={opt.value}
                 key={opt.value}
                 type="button"
                 className={`flex w-full px-3 py-1.5 text-left text-[13px] ${
@@ -939,10 +941,10 @@ export default function DocToolbar({
         </Btn>
       </div>
 
-      <div className="h-px flex-1" />
+      <div data-design-id="m-11eab0aa1bc5" className="h-px flex-1" />
 
-      <div ref={modeRef} className="relative shrink-0">
-        <button
+      <div data-design-id="m-7cdba5b6acaa" ref={modeRef} className="relative shrink-0">
+        <button data-design-id="m-93c48530c969"
           type="button"
           onMouseDown={(e) => e.preventDefault()}
           onClick={() => setOpenMenu(openMenu === "mode" ? null : "mode")}
@@ -955,7 +957,7 @@ export default function DocToolbar({
               stroke="#3D3D3D"
             />
           </svg>
-          <span className="text-xs leading-4 font-medium text-[#3D3D3D]">
+          <span data-design-id="m-70e3a15b63a2" className="text-xs leading-4 font-medium text-[#3D3D3D]">
             {editMode === "editing" ? "Editing" : "Viewing"}
           </span>
           <Chevron />
@@ -967,7 +969,7 @@ export default function DocToolbar({
           align="end"
         >
           {(["editing", "viewing"] as const).map((mode) => (
-            <button
+            <button data-design-id="m-148a3198d8de" data-design-key={mode}
               key={mode}
               type="button"
               className={`flex w-full px-3 py-1.5 text-left text-[13px] capitalize ${

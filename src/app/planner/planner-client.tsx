@@ -1,4 +1,6 @@
 "use client";
+import { DesignCopy } from "@/components/design/runtime";
+
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { BlankEmptyPlus } from "@/components/ui/blank-empty";
@@ -61,14 +63,14 @@ export default function PlannerClient({ issues }: { issues: PlannerIssue[] }) {
 
   if (issues.length === 0) {
     return (
-      <div className="flex min-h-0 flex-1 flex-col items-center overflow-y-auto pt-13 pb-16">
-        <div className="flex w-240 min-h-0 flex-1 flex-col">
-          <h1 className="font-display text-[34px] leading-[42px] tracking-[-0.015em] text-[#0A0A0A]">
+      <div data-design-id="m-93b36b70a983" className="flex min-h-0 flex-1 flex-col items-center overflow-y-auto pt-13 pb-16">
+        <div data-design-id="m-c9021dc37e8e" className="flex w-240 min-h-0 flex-1 flex-col">
+          <h1 data-design-id="m-23b7efe60ea1" className="font-display text-[34px] leading-[42px] tracking-[-0.015em] text-[#0A0A0A]"><DesignCopy id="m-23b7efe60ea1">
             Planner
-          </h1>
-          <p className="pt-2.5 text-[15px] leading-[22px] text-[#9A9A98] italic">
+          </DesignCopy></h1>
+          <p data-design-id="m-83624d54ec6a" className="pt-2.5 text-[15px] leading-[22px] text-[#9A9A98] italic"><DesignCopy id="m-83624d54ec6a">
             Nothing to see here yet
-          </p>
+          </DesignCopy></p>
           <BlankEmptyPlus addLabel="New task" createKind="issue" />
         </div>
       </div>
@@ -76,14 +78,14 @@ export default function PlannerClient({ issues }: { issues: PlannerIssue[] }) {
   }
 
   return (
-    <div className="flex min-h-0 flex-1 flex-col items-center overflow-y-auto pt-13 pb-16">
-      <div className="flex w-240 min-h-0 flex-1 flex-col">
-        <div className="flex items-center justify-between gap-4">
-          <h1 className="font-display text-[34px] leading-[42px] tracking-[-0.015em] text-[#0A0A0A]">
+    <div data-design-id="m-7ef044940738" className="flex min-h-0 flex-1 flex-col items-center overflow-y-auto pt-13 pb-16">
+      <div data-design-id="m-f3b1e64d3e87" className="flex w-240 min-h-0 flex-1 flex-col">
+        <div data-design-id="m-3085c208f298" className="flex items-center justify-between gap-4">
+          <h1 data-design-id="m-7ef03afee30e" className="font-display text-[34px] leading-[42px] tracking-[-0.015em] text-[#0A0A0A]"><DesignCopy id="m-7ef03afee30e">
             Planner
-          </h1>
+          </DesignCopy></h1>
 
-          <div className="flex items-center gap-3">
+          <div data-design-id="m-9f239254f56c" className="flex items-center gap-3">
             <ToolbarSearch
               open={searchOpen}
               query={query}
@@ -97,27 +99,27 @@ export default function PlannerClient({ issues }: { issues: PlannerIssue[] }) {
               onQueryChange={setQuery}
             />
 
-            <div ref={groupRef} className="relative">
-              <Button
+            <div data-design-id="m-aaa2b41ed4c5" ref={groupRef} className="relative">
+              <Button data-design-id="m-201123fc1bb9" data-design-key="m-201123fc1bb9"
                 variant="secondary"
                 aria-haspopup="listbox"
                 aria-expanded={groupOpen}
                 onClick={() => setGroupOpen((v) => !v)}
               >
-                <span className="text-[#6B6B6B]">Group by</span>
+                <span data-design-id="m-94f3e60e6060" className="text-[#6B6B6B]"><DesignCopy id="m-94f3e60e6060">Group by</DesignCopy></span>
                 {groupLabel}
                 <ChevronDownIcon size={13} />
               </Button>
 
               {groupOpen ? (
-                <div
+                <div data-design-id="m-d1b5188eea21"
                   role="listbox"
                   className="absolute top-[calc(100%+6px)] right-0 z-40 w-[180px] overflow-hidden rounded-lg border border-[#E6E6E6] bg-white p-1.5"
                 >
                   {GROUP_BY_OPTIONS.map((option) => {
                     const active = option.id === groupBy;
                     return (
-                      <button
+                      <button data-design-id="m-36fb1501c962" data-design-key={option.id}
                         key={option.id}
                         type="button"
                         role="option"
@@ -140,15 +142,15 @@ export default function PlannerClient({ issues }: { issues: PlannerIssue[] }) {
               ) : null}
             </div>
 
-            <Button onClick={() => setNewOpen(true)}>New task</Button>
+            <Button data-design-id="m-5486aeb452cd" data-design-key="m-5486aeb452cd" onClick={() => setNewOpen(true)}><DesignCopy id="m-5486aeb452cd">New task</DesignCopy></Button>
           </div>
         </div>
 
-        <div className="pt-[30px]">
+        <div data-design-id="m-9c79a5b6fab2" className="pt-[30px]">
           <TextTabs items={PLANNER_TABS} value={tab} onChange={setTab} />
         </div>
 
-        <div className="mt-6">
+        <div data-design-id="m-a3d45c654158" className="mt-6">
           <IssueTree
             issues={issues}
             groups={groups}

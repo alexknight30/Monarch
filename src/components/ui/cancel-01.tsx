@@ -164,13 +164,13 @@ const Cancel01Icon = forwardRef<Cancel01IconHandle, Cancel01IconProps>(
     });
 
     return (
-      <div
+      <div data-design-id="m-838009204c3f"
         className={cn(className)}
         onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}
         {...props}
       >
-        <motion.svg
+        <motion.svg data-design-id="m-6f80e6de5669"
           xmlns="http://www.w3.org/2000/svg"
           width={size}
           height={size}
@@ -182,7 +182,7 @@ const Cancel01Icon = forwardRef<Cancel01IconHandle, Cancel01IconProps>(
           initial="normal"
           style={{ transformOrigin: '12px 12px' }}
         >
-          <motion.path
+          <motion.path data-design-id="m-5bfdb5b73d6f"
             d={FIRST_PATH}
             stroke="currentColor"
             strokeLinecap="round"
@@ -192,7 +192,7 @@ const Cancel01Icon = forwardRef<Cancel01IconHandle, Cancel01IconProps>(
             animate={controls}
             initial="normal"
           />
-          <motion.path
+          <motion.path data-design-id="m-e174108e2c76"
             d={SECOND_PATH}
             stroke="currentColor"
             strokeLinecap="round"
@@ -202,12 +202,12 @@ const Cancel01Icon = forwardRef<Cancel01IconHandle, Cancel01IconProps>(
             animate={controls}
             initial="normal"
           />
-          <motion.g
+          <motion.g data-design-id="m-3e74ebe07658"
             variants={generatedGeometryVariants}
             animate={controls}
             initial="normal"
           >
-            <motion.path
+            <motion.path data-design-id="m-1db16d2845d5"
               d="M6.00081 17.9992L5.1 18.9"
               stroke="currentColor"
               strokeLinecap="round"
@@ -217,7 +217,7 @@ const Cancel01Icon = forwardRef<Cancel01IconHandle, Cancel01IconProps>(
               animate={controls}
               initial="normal"
             />
-            <motion.path
+            <motion.path data-design-id="m-d5bdf4216f30"
               d="M17.9992 18L18.9 18.9008"
               stroke="currentColor"
               strokeLinecap="round"

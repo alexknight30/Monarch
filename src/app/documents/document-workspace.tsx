@@ -1,4 +1,6 @@
 "use client";
+import { DesignCopy } from "@/components/design/runtime";
+
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { EditorContent, useEditor } from "@tiptap/react";
@@ -293,9 +295,9 @@ export default function DocumentWorkspace({
   };
 
   return (
-    <div className="relative flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden bg-white">
-      <div className="flex h-14 shrink-0 items-center justify-between border-b border-[#F0F0F0] px-[22px]">
-        <div className="flex min-w-0 items-center gap-2">
+    <div data-design-id="m-3f8d44e494ca" className="relative flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden bg-white">
+      <div data-design-id="m-2b3722127a18" className="flex h-14 shrink-0 items-center justify-between border-b border-[#F0F0F0] px-[22px]">
+        <div data-design-id="m-424b946933c1" className="flex min-w-0 items-center gap-2">
           {onClose ? (
             <BreadcrumbBack
               onClick={onClose}
@@ -304,24 +306,24 @@ export default function DocumentWorkspace({
               {breadcrumbRoot}
             </BreadcrumbBack>
           ) : (
-            <span className="text-[13px] leading-4 text-[#A0A0A0]">
+            <span data-design-id="m-af1b865ab651" className="text-[13px] leading-4 text-[#A0A0A0]">
               {breadcrumbRoot}
             </span>
           )}
-          <span className="text-[13px] leading-4 text-[#D4D4D4]">/</span>
-          <span className="truncate text-[13px] leading-4 font-medium text-[#1A1A1A]">
+          <span data-design-id="m-ef713b77da73" className="text-[13px] leading-4 text-[#D4D4D4]"><DesignCopy id="m-ef713b77da73">/</DesignCopy></span>
+          <span data-design-id="m-717484cd54b4" className="truncate text-[13px] leading-4 font-medium text-[#1A1A1A]">
             {title.length > 28 ? `${title.slice(0, 26)}…` : title || doc.shortTitle}
           </span>
         </div>
 
-        <div className="flex shrink-0 items-center gap-3.5">
-          <span className="text-xs leading-4 text-[#A0A0A0]">
+        <div data-design-id="m-241bf112ac3a" className="flex shrink-0 items-center gap-3.5">
+          <span data-design-id="m-77c9e0141f63" className="text-xs leading-4 text-[#A0A0A0]">
             {savedAt} · {words} words
           </span>
-          {saveError && <button title={saveError} className="text-xs text-red-700" onClick={() => void retry()}>Retry save</button>}
-          <button className="text-xs text-stone-500" onClick={() => setCommentsOpen(v => !v)}>Comments ({comments.filter(c => !c.resolved).length})</button>
+          {saveError && <button data-design-id="m-0c4d230cdc38" title={saveError} className="text-xs text-red-700" onClick={() => void retry()}><DesignCopy id="m-0c4d230cdc38">Retry save</DesignCopy></button>}
+          <button data-design-id="m-e945c4339c42" className="text-xs text-stone-500" onClick={() => setCommentsOpen(v => !v)}>Comments ({comments.filter(c => !c.resolved).length})</button>
 
-          <button
+          <button data-design-id="m-e9d656d0d3b7"
             type="button"
             onClick={() => setToolbarOpen((open) => !open)}
             aria-label={
@@ -353,15 +355,15 @@ export default function DocumentWorkspace({
           </button>
 
           {variant === "document" ? (
-            <button
+            <button data-design-id="m-2698c8ed7b2e"
               type="button"
               className="flex h-[30px] shrink-0 items-center rounded-md border border-[#E6E6E6] px-3 text-xs leading-4 font-medium text-[#3D3D3D] transition-colors hover:bg-[#F5F5F5]"
-            >
+            ><DesignCopy id="m-2698c8ed7b2e">
               Share
-            </button>
+            </DesignCopy></button>
           ) : null}
 
-          <button
+          <button data-design-id="m-329a8872cd52"
             type="button"
             onClick={() => setChatOpen((open) => !open)}
             aria-label={chatOpen ? "Close chat" : "Open chat"}
@@ -394,7 +396,7 @@ export default function DocumentWorkspace({
           </button>
 
           {onClose ? (
-            <button
+            <button data-design-id="m-f4a2cf56097b"
               type="button"
               onClick={onClose}
               aria-label="Close document"
@@ -439,8 +441,8 @@ export default function DocumentWorkspace({
       ) : null}
 
       {findOpen ? (
-        <div className="flex h-11 shrink-0 items-center gap-2 border-b border-[#F0F0F0] px-[18px]">
-          <input
+        <div data-design-id="m-6f80e74fc879" className="flex h-11 shrink-0 items-center gap-2 border-b border-[#F0F0F0] px-[18px]">
+          <input data-design-id="m-7a057aa3f771"
             autoFocus
             value={findQuery}
             onChange={(e) => setFindQuery(e.target.value)}
@@ -454,29 +456,29 @@ export default function DocumentWorkspace({
             placeholder="Find in document"
             className="h-8 min-w-0 flex-1 rounded-md border border-[#E6E6E6] px-3 text-[13px] outline-none"
           />
-          <button
+          <button data-design-id="m-4bb0d956170d"
             type="button"
             onClick={runFind}
             className="h-8 rounded-md bg-[#141414] px-3 text-[13px] font-medium text-white"
-          >
+          ><DesignCopy id="m-4bb0d956170d">
             Find
-          </button>
-          <button
+          </DesignCopy></button>
+          <button data-design-id="m-4fb31f30c319"
             type="button"
             onClick={() => setFindOpen(false)}
             className="h-8 rounded-md px-2 text-[13px] text-[#6B6B6B] hover:bg-[#F5F5F5]"
-          >
+          ><DesignCopy id="m-4fb31f30c319">
             Close
-          </button>
+          </DesignCopy></button>
         </div>
       ) : null}
 
-      <div
+      <div data-design-id="m-40d68264772f"
         className={`min-h-0 flex-1 overflow-y-auto ${toolbarOpen ? "pt-6" : "pt-16"} ${
           chatOpen ? "pr-[388px]" : ""
         }`}
       >
-        <div
+        <div data-design-id="m-d11a618b9ee1"
           className="mx-auto flex w-[700px] origin-top flex-col pb-24"
           style={{
             transform: `scale(${zoom / 100})`,
@@ -484,25 +486,25 @@ export default function DocumentWorkspace({
             maxWidth: "100%",
           }}
         >
-          <div className="flex shrink-0 items-center gap-2.5">
+          <div data-design-id="m-a732f8d6c08f" className="flex shrink-0 items-center gap-2.5">
             {variant === "document" ? (
-              <div className="flex h-[22px] shrink-0 items-center gap-1.5 rounded-full bg-[#F4F4F4] px-2.5">
-                <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-[#A0A0A0]" />
-                <span className="text-[11px] leading-4 font-medium tracking-[0.04em] text-[#6B6B6B]">
+              <div data-design-id="m-7086d58887b1" className="flex h-[22px] shrink-0 items-center gap-1.5 rounded-full bg-[#F4F4F4] px-2.5">
+                <span data-design-id="m-8d2acf14ae73" className="h-1.5 w-1.5 shrink-0 rounded-full bg-[#A0A0A0]" />
+                <span data-design-id="m-37b045ad22bf" className="text-[11px] leading-4 font-medium tracking-[0.04em] text-[#6B6B6B]">
                   {doc.status.toUpperCase()}
                 </span>
               </div>
             ) : (
-              <span className="text-[11px] leading-4 font-medium tracking-[0.04em] text-[#9A9A98]">
+              <span data-design-id="m-346337e67f8d" className="text-[11px] leading-4 font-medium tracking-[0.04em] text-[#9A9A98]"><DesignCopy id="m-346337e67f8d">
                 Notes
-              </span>
+              </DesignCopy></span>
             )}
             {metaLine ? (
-              <span className="text-xs leading-4 text-[#8A8A8A]">{metaLine}</span>
+              <span data-design-id="m-1a7412e4bf44" className="text-xs leading-4 text-[#8A8A8A]">{metaLine}</span>
             ) : null}
           </div>
 
-          <input
+          <input data-design-id="m-c777839ac21e"
             value={title}
             readOnly={editMode === "viewing"}
             onFocus={() => setFocusTarget("title")}
@@ -528,7 +530,7 @@ export default function DocumentWorkspace({
             }}
           />
 
-          <div
+          <div data-design-id="m-84d486846ebd"
             className="pt-[34px]"
             style={{
               fontSize: `${displayFontSize(DEFAULT_BODY_FONT_SIZE)}px`,
@@ -552,13 +554,13 @@ export default function DocumentWorkspace({
           onDocumentUpdate={applyRemoteHtml}
         />
       ) : null}
-      {commentsOpen && <aside className="absolute top-20 right-6 bottom-6 z-40 w-80 overflow-y-auto rounded-xl border border-stone-200 bg-white p-5 shadow-xl">
-        <div className="mb-5 flex justify-between text-sm font-medium"><span>Comments</span><button onClick={() => setCommentsOpen(false)}>Close</button></div>
-        {!comments.length && <p className="text-sm text-stone-400">Select a passage, then use Add comment in the formatting toolbar.</p>}
-        {comments.map(comment => <div key={comment.id} className={"mb-4 space-y-2 rounded-lg border border-stone-100 p-3 " + (comment.resolved ? "opacity-50" : "")}>
-          {comment.quote && <blockquote className="border-l-2 border-amber-300 pl-2 text-xs text-stone-500">{comment.quote}</blockquote>}
-          <textarea aria-label="Comment text" className="w-full text-sm outline-none" value={comment.text} onChange={e => { const next = comments.map(c => c.id === comment.id ? { ...c, text: e.target.value } : c); setComments(next); save({ comments: next }); }} />
-          <div className="flex gap-3 text-xs"><button onClick={() => { const next = comments.map(c => c.id === comment.id ? { ...c, resolved: !c.resolved } : c); setComments(next); save({ comments: next }); }}>{comment.resolved ? "Reopen" : "Resolve"}</button><button className="text-red-700" onClick={() => { const next = comments.filter(c => c.id !== comment.id); setComments(next); save({ comments: next }); }}>Delete</button></div>
+      {commentsOpen && <aside data-design-id="m-efc98ff9910b" className="absolute top-20 right-6 bottom-6 z-40 w-80 overflow-y-auto rounded-xl border border-stone-200 bg-white p-5 shadow-xl">
+        <div data-design-id="m-a7976de86e20" className="mb-5 flex justify-between text-sm font-medium"><span data-design-id="m-8b3a5c83f4d0"><DesignCopy id="m-8b3a5c83f4d0">Comments</DesignCopy></span><button data-design-id="m-6162b312a6f6" onClick={() => setCommentsOpen(false)}><DesignCopy id="m-6162b312a6f6">Close</DesignCopy></button></div>
+        {!comments.length && <p data-design-id="m-413108ba7567" className="text-sm text-stone-400"><DesignCopy id="m-413108ba7567">Select a passage, then use Add comment in the formatting toolbar.</DesignCopy></p>}
+        {comments.map(comment => <div data-design-id="m-39652ba23238" data-design-key={comment.id} key={comment.id} className={"mb-4 space-y-2 rounded-lg border border-stone-100 p-3 " + (comment.resolved ? "opacity-50" : "")}>
+          {comment.quote && <blockquote data-design-id="m-736a6f32d06c" className="border-l-2 border-amber-300 pl-2 text-xs text-stone-500">{comment.quote}</blockquote>}
+          <textarea data-design-id="m-7c99d601495a" aria-label="Comment text" className="w-full text-sm outline-none" value={comment.text} onChange={e => { const next = comments.map(c => c.id === comment.id ? { ...c, text: e.target.value } : c); setComments(next); save({ comments: next }); }} />
+          <div data-design-id="m-ed86d94f89d7" className="flex gap-3 text-xs"><button data-design-id="m-74ae08d288bc" onClick={() => { const next = comments.map(c => c.id === comment.id ? { ...c, resolved: !c.resolved } : c); setComments(next); save({ comments: next }); }}>{comment.resolved ? "Reopen" : "Resolve"}</button><button data-design-id="m-ca1412148259" className="text-red-700" onClick={() => { const next = comments.filter(c => c.id !== comment.id); setComments(next); save({ comments: next }); }}><DesignCopy id="m-ca1412148259">Delete</DesignCopy></button></div>
         </div>)}
       </aside>}
     </div>

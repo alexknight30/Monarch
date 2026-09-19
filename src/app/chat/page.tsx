@@ -1,4 +1,6 @@
 "use client";
+import { DesignCopy } from "@/components/design/runtime";
+
 
 import {
   Suspense,
@@ -67,10 +69,10 @@ function renderUserMessage(text: string) {
   if (!match) return text;
   return (
     <>
-      <span className="rounded-full bg-blue-600/10 px-2 py-0.5 font-mono text-[13px] text-blue-700 outline outline-blue-600/40">
+      <span data-design-id="m-92d8d94121d9" className="rounded-full bg-blue-600/10 px-2 py-0.5 font-mono text-[13px] text-blue-700 outline outline-blue-600/40">
         {match[1]}
       </span>
-      {match[2] ? <span>{match[2]}</span> : null}
+      {match[2] ? <span data-design-id="m-222979441242">{match[2]}</span> : null}
     </>
   );
 }
@@ -152,7 +154,7 @@ function renderMessageContent(text: string, handlers?: DiagramHandlers) {
         );
       } else {
         elements.push(
-          <pre
+          <pre data-design-id="m-afd695dad39d"
             key={`code-${elements.length}`}
             className={`my-2 overflow-x-auto rounded-lg bg-[#F7F7F5] px-3 py-2 text-[13px] leading-5 text-[#0A0A0A] ${PROSE}`}
           >
@@ -172,12 +174,12 @@ function renderMessageContent(text: string, handlers?: DiagramHandlers) {
         i += 1;
       }
       elements.push(
-        <ul
+        <ul data-design-id="m-d79ee5b21bb6"
           key={`ul-${elements.length}`}
           className={`my-1 list-disc space-y-1 pl-5 marker:text-[#0A0A0A] ${PROSE}`}
         >
           {items.map((item, j) => (
-            <li key={j} className="pl-0.5 leading-[25px]">
+            <li data-design-id="m-278ac5b88dca" data-design-key={j} key={j} className="pl-0.5 leading-[25px]">
               {renderInlineMarkdown(item)}
             </li>
           ))}
@@ -198,7 +200,7 @@ function renderMessageContent(text: string, handlers?: DiagramHandlers) {
     const chunkText = chunk.join("\n");
     if (chunkText.length > 0) {
       elements.push(
-        <span
+        <span data-design-id="m-53645d554a37"
           key={`text-${elements.length}`}
           className={`whitespace-pre-wrap ${PROSE}`}
         >
@@ -208,7 +210,7 @@ function renderMessageContent(text: string, handlers?: DiagramHandlers) {
     }
   }
 
-  return <div className="flex w-full flex-col">{elements}</div>;
+  return <div data-design-id="m-4d499b6a130a" className="flex w-full flex-col">{elements}</div>;
 }
 
 function handlersForBlock(
@@ -791,12 +793,12 @@ function ChatScreen() {
   );
 
   return (
-    <div className="flex h-full min-h-0 flex-1 overflow-hidden bg-white">
-      <div className="flex min-h-0 min-w-0 flex-1 flex-col">
+    <div data-design-id="m-0e844532f714" className="flex h-full min-h-0 flex-1 overflow-hidden bg-white">
+      <div data-design-id="m-348616a52634" className="flex min-h-0 min-w-0 flex-1 flex-col">
         {/* Top bar */}
-        <div className="flex h-14 shrink-0 items-center justify-between border-b border-[#F0F0F0] px-[22px]">
-          <div className="flex min-w-0 items-center gap-[7px]">
-            <span className="truncate text-[13px] leading-4 font-medium text-[#1A1A1A]">
+        <div data-design-id="m-9c4f334c87da" className="flex h-14 shrink-0 items-center justify-between border-b border-[#F0F0F0] px-[22px]">
+          <div data-design-id="m-38b5ad348a77" className="flex min-w-0 items-center gap-[7px]">
+            <span data-design-id="m-8f96461a4ee6" className="truncate text-[13px] leading-4 font-medium text-[#1A1A1A]">
               {threadTitle}
             </span>
             <svg width="12" height="12" viewBox="0 0 24 24" className="shrink-0">
@@ -811,8 +813,8 @@ function ChatScreen() {
             </svg>
           </div>
           {!historyOpen && (
-            <div className="flex shrink-0 items-center gap-2">
-              <Button variant="secondary" size="s" onClick={startNewChat}>
+            <div data-design-id="m-2fc080e11899" className="flex shrink-0 items-center gap-2">
+              <Button data-design-id="m-0b2a31a0c14f" data-design-key="m-0b2a31a0c14f" variant="secondary" size="s" onClick={startNewChat}>
                 <PlusSignIcon size={13} />
                 New chat
               </Button>
@@ -826,45 +828,45 @@ function ChatScreen() {
         </div>
 
         {/* Thread — only this region scrolls; composer stays pinned. */}
-        <div
+        <div data-design-id="m-571f2a3c7149"
           ref={threadScrollRef}
           className="min-h-0 flex-1 overflow-y-auto"
         >
           {messages.length === 0 && !isLoading && !error ? (
-            <div className="flex h-full items-center justify-center px-6">
+            <div data-design-id="m-0b9ea40a7edc" className="flex h-full items-center justify-center px-6">
               {course ? (
-                <div className="flex flex-col items-center text-center">
-                  <p className="text-[13px] leading-4 font-medium tracking-[0.02em] text-[#9A9A98]">
+                <div data-design-id="m-0b76b88fd694" className="flex flex-col items-center text-center">
+                  <p data-design-id="m-3497fc52a317" className="text-[13px] leading-4 font-medium tracking-[0.02em] text-[#9A9A98]">
                     {course.code}
                   </p>
-                  <h1 className="font-display pt-2 text-[40px] leading-[48px] tracking-[-0.015em] text-[#0A0A0A]">
+                  <h1 data-design-id="m-d82d8096e58f" className="font-display pt-2 text-[40px] leading-[48px] tracking-[-0.015em] text-[#0A0A0A]">
                     {course.title || "New chat"}
                   </h1>
                 </div>
               ) : (
-                <div className="flex items-baseline gap-3">
-                  <h1 className="font-display text-[40px] leading-[48px] tracking-[-0.015em] text-[#0A0A0A]">
+                <div data-design-id="m-d3cf0899546f" className="flex items-baseline gap-3">
+                  <h1 data-design-id="m-99d46ff5cfb1" className="font-display text-[40px] leading-[48px] tracking-[-0.015em] text-[#0A0A0A]"><DesignCopy id="m-99d46ff5cfb1">
                     Good afternoon,
-                  </h1>
-                  <span className="font-display text-[40px] leading-[48px] tracking-[-0.015em] text-[#A0A0A0]">
+                  </DesignCopy></h1>
+                  <span data-design-id="m-bdd5e07e0e23" className="font-display text-[40px] leading-[48px] tracking-[-0.015em] text-[#A0A0A0]">
                     {user.firstName}
                   </span>
                 </div>
               )}
             </div>
           ) : (
-            <div className="flex flex-col items-center px-6 pt-10 pb-8">
-              <div className="flex w-full max-w-[732px] flex-col gap-[34px]">
+            <div data-design-id="m-44be37bbb214" className="flex flex-col items-center px-6 pt-10 pb-8">
+              <div data-design-id="m-572ae498bf36" className="flex w-full max-w-[732px] flex-col gap-[34px]">
                 {messages.map((msg, i) =>
                   msg.role === "user" ? (
-                    <div key={i} className="flex justify-end">
-                      <div className="flex max-w-[520px] flex-col items-end gap-2">
+                    <div data-design-id="m-c5bac1fed009" key={i} className="flex justify-end">
+                      <div data-design-id="m-015a15961cdf" className="flex max-w-[520px] flex-col items-end gap-2">
                         {msg.attachments?.length ? (
                           <ChatAttachmentChips attachments={msg.attachments} />
                         ) : null}
                         {msg.content.trim() ? (
-                          <div className="rounded-2xl bg-[#F5F5F5] px-4 py-[11px]">
-                            <p className="text-[15px] leading-[23px] whitespace-pre-wrap text-[#0A0A0A]">
+                          <div data-design-id="m-93917f79c5eb" className="rounded-2xl bg-[#F5F5F5] px-4 py-[11px]">
+                            <p data-design-id="m-7f7210c55dc0" className="text-[15px] leading-[23px] whitespace-pre-wrap text-[#0A0A0A]">
                               {renderUserMessage(msg.content)}
                             </p>
                           </div>
@@ -872,15 +874,15 @@ function ChatScreen() {
                       </div>
                     </div>
                   ) : (
-                    <div
+                    <div data-design-id="m-122a27c57a1a"
                       key={i}
                       data-assistant-turn={String(i)}
                       className="flex flex-col items-start gap-3.5"
                     >
                       {msg.actions?.length ? (
-                        <div className="flex flex-wrap gap-1.5">
+                        <div data-design-id="m-2c7d82f107e3" className="flex flex-wrap gap-1.5">
                           {msg.actions.map((action, j) => (
-                            <span
+                            <span data-design-id="m-c836272e0693"
                               key={`${action.tool}-${action.key ?? j}`}
                               className="rounded-full bg-[#F1F1EF] px-2.5 py-1 text-[12px] leading-4 text-[#5E5E5E]"
                             >
@@ -889,7 +891,7 @@ function ChatScreen() {
                           ))}
                         </div>
                       ) : null}
-                      <div className="w-full text-[15px] leading-[25px] text-[#0A0A0A]">
+                      <div data-design-id="m-0fe61f82e6cd" className="w-full text-[15px] leading-[25px] text-[#0A0A0A]">
                         <StreamingBlocks
                           text={msg.content}
                           streaming={isLoading && i === lastAssistantIndex}
@@ -924,47 +926,47 @@ function ChatScreen() {
                   (messages.at(-1)?.role !== "assistant" ||
                     completeBlockCount(messages.at(-1)?.content ?? "", true) ===
                       0) && (
-                  <div className="flex items-center gap-2.5">
+                  <div data-design-id="m-2bdf721b2843" className="flex items-center gap-2.5">
                     <ThinkingMark />
                     <ShiningText text="Thinking…" />
                   </div>
                 )}
 
                 {error && (
-                  <p className="text-[15px] leading-[25px] text-[#B42318]">
+                  <p data-design-id="m-b326578491e2" className="text-[15px] leading-[25px] text-[#B42318]">
                     {error}
                   </p>
                 )}
 
-                <div ref={endRef} />
+                <div data-design-id="m-9f7daf3af126" ref={endRef} />
               </div>
             </div>
           )}
         </div>
 
         {/* Composer dock */}
-        <div className="shrink-0 px-6 pt-2 pb-[26px]">
-          <div className="mx-auto w-full max-w-[732px]">
-            <div className="mb-2 flex items-center justify-between gap-3 text-xs text-stone-400">
-              {messages.length > 0 && <button title="Retry saving conversation to disk" onClick={()=>void flushChatHistory()}>{syncStatus}</button>}
-              {isLoading ? <button className="rounded-lg border border-stone-200 px-3 py-1.5 text-stone-700" onClick={()=>requestRef.current?.abort()}>Stop response</button> : error && messages.length>0 ? <button className="rounded-lg border border-stone-200 px-3 py-1.5 text-stone-700" onClick={()=>{
+        <div data-design-id="m-bc1558997de9" className="shrink-0 px-6 pt-2 pb-[26px]">
+          <div data-design-id="m-77bdcc523394" className="mx-auto w-full max-w-[732px]">
+            <div data-design-id="m-817e946dd87b" className="mb-2 flex items-center justify-between gap-3 text-xs text-stone-400">
+              {messages.length > 0 && <button data-design-id="m-02c10148bc2f" title="Retry saving conversation to disk" onClick={()=>void flushChatHistory()}>{syncStatus}</button>}
+              {isLoading ? <button data-design-id="m-e77ee4ce1190" className="rounded-lg border border-stone-200 px-3 py-1.5 text-stone-700" onClick={()=>requestRef.current?.abort()}><DesignCopy id="m-e77ee4ce1190">Stop response</DesignCopy></button> : error && messages.length>0 ? <button data-design-id="m-8f60040920a5" className="rounded-lg border border-stone-200 px-3 py-1.5 text-stone-700" onClick={()=>{
                 const failed=lastRequest.current;
                 if(failed?.files?.length && !messages.some(m=>m.attachments?.some(a=>a.id)))void send(failed.text,failed.history,failed.id,failed.skill,failed.files,failed.modes);
                 else void send("Continue the interrupted response. Check the current workspace before repeating any changes.",messages,threadId,null,undefined,failed?.modes);
-              }}>Continue response</button> : null}
+              }}><DesignCopy id="m-8f60040920a5">Continue response</DesignCopy></button> : null}
             </div>
             {course ? (
-              <div className="mb-2.5 flex">
-                <span className="inline-flex items-center gap-1.5 rounded-full bg-[#F1F1EF] py-1 pr-1.5 pl-2.5 text-[12px] leading-4 text-[#3D3D3D]">
+              <div data-design-id="m-b17970001ea1" className="mb-2.5 flex">
+                <span data-design-id="m-9fef3a178f0d" className="inline-flex items-center gap-1.5 rounded-full bg-[#F1F1EF] py-1 pr-1.5 pl-2.5 text-[12px] leading-4 text-[#3D3D3D]">
                   {course.code}
-                  <button
+                  <button data-design-id="m-b643b640eaf7"
                     type="button"
                     aria-label={`Remove ${course.code} context`}
                     onClick={() => setCourse(null)}
                     className="flex size-4 items-center justify-center rounded-full text-[#8A8A8A] hover:bg-[#E6E6E4] hover:text-[#1A1A1A]"
-                  >
+                  ><DesignCopy id="m-b643b640eaf7">
                     ×
-                  </button>
+                  </DesignCopy></button>
                 </span>
               </div>
             ) : null}
@@ -1009,7 +1011,7 @@ function ChatScreen() {
 export default function ChatPage() {
   return (
     <Suspense
-      fallback={<div className="h-full min-h-0 flex-1 bg-white" />}
+      fallback={<div data-design-id="m-27d995df8bf2" className="h-full min-h-0 flex-1 bg-white" />}
     >
       <ChatScreen />
     </Suspense>

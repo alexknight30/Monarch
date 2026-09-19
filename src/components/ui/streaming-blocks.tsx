@@ -124,9 +124,9 @@ export function StreamingBlocks({
   if (shown === 0) return null;
 
   return (
-    <div className="flex w-full flex-col gap-3.5">
+    <div data-design-id="m-c2e9ccec281b" className="flex w-full flex-col gap-3.5">
       {blocks.slice(0, shown).map((block, index) => (
-        <div
+        <div data-design-id="m-4a1b215ba0d6"
           key={index}
           className={index >= animateFrom ? "chat-block-in" : undefined}
         >

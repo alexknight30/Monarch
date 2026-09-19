@@ -28,7 +28,7 @@ export default function DocumentArtifactDialog({
   }, []);
 
   return (
-    <div
+    <div data-design-id="m-925dc75a2af2"
       className="fixed inset-y-0 right-0 left-[66px] z-30 flex bg-white"
       role="dialog"
       aria-modal="true"

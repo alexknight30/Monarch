@@ -1,4 +1,6 @@
 "use client";
+import { DesignCopy } from "@/components/design/runtime";
+
 
 import { Suspense, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -102,14 +104,14 @@ function HomeScreen() {
   }, [forceLanding, router]);
 
   if (!ready) {
-    return <div className="flex-1 bg-white" />;
+    return <div data-design-id="m-66355d49a9f8" className="flex-1 bg-white" />;
   }
 
   return (
-    <div className="flex h-full min-h-0 flex-1 bg-white">
-      <div className="relative min-w-0 flex-1 overflow-y-auto">
+    <div data-design-id="m-988ac891a10c" className="flex h-full min-h-0 flex-1 bg-white">
+      <div data-design-id="m-f48c182f4e06" className="relative min-w-0 flex-1 overflow-y-auto">
         {!historyOpen ? (
-          <button
+          <button data-design-id="m-837d8128d13a"
             type="button"
             aria-label="Chat history"
             onClick={() => {
@@ -121,22 +123,22 @@ function HomeScreen() {
           </button>
         ) : null}
 
-        <div className="flex min-h-full flex-col items-center pt-[156px] pb-14">
-          <div className="flex flex-col items-center gap-3.5">
-            <div className="flex items-baseline gap-3">
-              <h1 className="[font-family:var(--font-neuton),Georgia,serif] text-[55px] leading-[64px] tracking-[-0.015em] text-[#1A1A1A]">
+        <div data-design-id="m-2d3de0f9097f" className="flex min-h-full flex-col items-center pt-[156px] pb-14">
+          <div data-design-id="m-aa0ac7f179a4" className="flex flex-col items-center gap-3.5">
+            <div data-design-id="m-8aae3e6e0b84" className="flex items-baseline gap-3">
+              <h1 data-design-id="m-faab3d50eb6d" className="[font-family:var(--font-neuton),Georgia,serif] text-[55px] leading-[64px] tracking-[-0.015em] text-[#1A1A1A]"><DesignCopy id="m-faab3d50eb6d">
                 Good afternoon,
-              </h1>
-              <span className="[font-family:var(--font-neuton),Georgia,serif] text-[55px] leading-[64px] tracking-[-0.015em] text-[#B3AFA5]">
+              </DesignCopy></h1>
+              <span data-design-id="m-9f218fc5ba55" className="[font-family:var(--font-neuton),Georgia,serif] text-[55px] leading-[64px] tracking-[-0.015em] text-[#B3AFA5]">
                 {user.firstName}
               </span>
             </div>
-            <p className="text-xl leading-5 text-[#6B675F]">
+            <p data-design-id="m-13284c7e657b" className="text-xl leading-5 text-[#6B675F]"><DesignCopy id="m-13284c7e657b">
               What are we working on today?
-            </p>
+            </DesignCopy></p>
           </div>
 
-          <div className="mt-auto flex w-[732px] flex-col items-center">
+          <div data-design-id="m-55bca46b6918" className="mt-auto flex w-[732px] flex-col items-center">
             <AIChatInput
               onSubmit={(value, meta) => {
                 if (meta?.files?.length||meta?.study||meta?.research) {
@@ -156,9 +158,9 @@ function HomeScreen() {
                 router.push(`/chat?${params.toString()}`);
               }}
               expandedRow={
-                <div className="flex items-center gap-2">
+                <div data-design-id="m-092210bc15c0" className="flex items-center gap-2">
                   {HOME_PILLS.map((action) => (
-                    <button
+                    <button data-design-id="m-773e7e17f2be" data-design-key={action.label}
                       key={action.label}
                       type="button"
                       onClick={(event) => {
@@ -172,7 +174,7 @@ function HomeScreen() {
                       className="flex h-[34px] cursor-pointer items-center gap-[7px] rounded-full border border-[#E6E6E6] bg-white px-3.5 transition-colors hover:bg-[#FAFAFA]"
                     >
                       <ActionIcon name={action.icon} />
-                      <span className="text-[13px] leading-4 text-[#1A1A1A]">
+                      <span data-design-id="m-0fe0ad2329ff" className="text-[13px] leading-4 text-[#1A1A1A]">
                         {action.label}
                       </span>
                     </button>
@@ -207,7 +209,7 @@ function HomeScreen() {
 
 export default function HomePage() {
   return (
-    <Suspense fallback={<div className="flex-1 bg-white" />}>
+    <Suspense fallback={<div data-design-id="m-e478d55f5f6d" className="flex-1 bg-white" />}>
       <HomeScreen />
     </Suspense>
   );

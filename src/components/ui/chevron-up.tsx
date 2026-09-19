@@ -35,7 +35,7 @@ const ChevronUpIcon = forwardRef<ChevronUpIconHandle, ChevronUpIconProps>(
     });
 
     return (
-      <div
+      <div data-design-id="m-b243a67a81b6"
         className={cn(className)}
         onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}
@@ -49,7 +49,7 @@ const ChevronUpIcon = forwardRef<ChevronUpIconHandle, ChevronUpIconProps>(
           fill="none"
           overflow="visible"
         >
-        <motion.path
+        <motion.path data-design-id="m-b49c849e03e2"
           d="M18 15C18 15 13.5811 9.00001 12 9C10.4188 8.99999 6 15 6 15" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5"
           variants={chevronVariants}
           animate={controls}

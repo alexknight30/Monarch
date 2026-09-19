@@ -73,11 +73,11 @@ function ViewToggle({
   onChange: (value: CalendarMode) => void;
 }) {
   return (
-    <div className="flex h-8 items-center rounded-full border border-[#E6E6E6] bg-[#FAFAFA] p-0.5">
+    <div data-design-id="m-fb4a3a93cb74" className="flex h-8 items-center rounded-full border border-[#E6E6E6] bg-[#FAFAFA] p-0.5">
       {(["week", "month"] as const).map((option) => {
         const active = value === option;
         return (
-          <button
+          <button data-design-id="m-7b6d65818496" data-design-key={option}
             key={option}
             type="button"
             onClick={() => onChange(option)}
@@ -109,20 +109,20 @@ function MonthView({
   const weeks = useMemo(() => buildMonthGrid(year, month), [year, month]);
 
   return (
-    <div className="flex min-h-0 flex-1 flex-col overflow-hidden border-t border-[#EAEAEA]">
-      <div className="grid shrink-0 grid-cols-7 border-b border-[#EAEAEA]">
+    <div data-design-id="m-9796afb207d7" className="flex min-h-0 flex-1 flex-col overflow-hidden border-t border-[#EAEAEA]">
+      <div data-design-id="m-f0e84dda5198" className="grid shrink-0 grid-cols-7 border-b border-[#EAEAEA]">
         {WEEKDAYS.map((day) => (
-          <div key={day} className="flex h-9 items-center justify-center">
-            <span className="text-[11px] leading-[14px] font-medium tracking-[0.06em] text-[#8A8A8A]">
+          <div data-design-id="m-1cc4079d37c9" data-design-key={day} key={day} className="flex h-9 items-center justify-center">
+            <span data-design-id="m-fd8fa36e329a" className="text-[11px] leading-[14px] font-medium tracking-[0.06em] text-[#8A8A8A]">
               {day}
             </span>
           </div>
         ))}
       </div>
 
-      <div className="grid min-h-0 flex-1 grid-rows-6">
+      <div data-design-id="m-013c9d59a327" className="grid min-h-0 flex-1 grid-rows-6">
         {weeks.map((week, wi) => (
-          <div key={wi} className="grid min-h-0 grid-cols-7">
+          <div data-design-id="m-cc89b652d550" key={wi} className="grid min-h-0 grid-cols-7">
             {week.map(({ date, inMonth }) => {
               const events = eventsForDate(date, source);
               const isToday = isSameDay(date, today);
@@ -130,12 +130,12 @@ function MonthView({
               const extra = events.length - visible.length;
 
               return (
-                <div
+                <div data-design-id="m-148e92a81d39"
                   key={date.toISOString()}
                   className="flex min-h-0 min-w-0 flex-col overflow-hidden border-r border-b border-[#EAEAEA] px-1.5 pt-1.5 pb-1 last:border-r-0"
                 >
-                  <div className="mb-1 flex justify-center">
-                    <span
+                  <div data-design-id="m-07d031d16177" className="mb-1 flex justify-center">
+                    <span data-design-id="m-f700b8ff479c"
                       className={`flex h-7 w-7 items-center justify-center rounded-full text-[13px] leading-4 ${
                         isToday
                           ? "bg-[#1A1A1A] font-medium text-white"
@@ -148,32 +148,32 @@ function MonthView({
                     </span>
                   </div>
 
-                  <div className="flex min-h-0 flex-col gap-0.5">
+                  <div data-design-id="m-b0756f4939bf" className="flex min-h-0 flex-col gap-0.5">
                     {visible.map((event) =>
                       event.kind === "deadline" ? (
-                        <span
+                        <span data-design-id="m-1bc53597550a" data-design-key={event.id}
                           key={event.id}
                           className="truncate rounded-[4px] bg-[#1A1A1A] px-1.5 py-[2px] text-[11px] leading-[15px] text-white"
                         >
                           {event.title}
                         </span>
                       ) : (
-                        <span
+                        <span data-design-id="m-a7b4b6b02404" data-design-key={event.id}
                           key={event.id}
                           className="flex min-w-0 items-center gap-1 px-0.5 text-[11px] leading-[15px] text-[#3D3D3D]"
                         >
-                          <span
+                          <span data-design-id="m-74c8ee3e5a92"
                             className={`size-1.5 shrink-0 rounded-full ${EVENT_PIP[event.kind]}`}
                           />
-                          <span className="shrink-0 text-[#8A8A8A]">
+                          <span data-design-id="m-dca220ea4615" className="shrink-0 text-[#8A8A8A]">
                             {formatTimeCompact(event.startMin)}
                           </span>
-                          <span className="min-w-0 truncate">{eventLabel(event)}</span>
+                          <span data-design-id="m-12a58e02222d" className="min-w-0 truncate">{eventLabel(event)}</span>
                         </span>
                       ),
                     )}
                     {extra > 0 ? (
-                      <span className="px-0.5 text-[11px] leading-[15px] text-[#8A8A8A]">
+                      <span data-design-id="m-bd67391a2d4c" className="px-0.5 text-[11px] leading-[15px] text-[#8A8A8A]">
                         {extra} more
                       </span>
                     ) : null}
@@ -230,27 +230,27 @@ function WeekView({
   }, [anchor]);
 
   return (
-    <div className="flex min-h-0 flex-1 flex-col overflow-hidden border-t border-[#EAEAEA]">
-      <div
+    <div data-design-id="m-d76dbfae453c" className="flex min-h-0 flex-1 flex-col overflow-hidden border-t border-[#EAEAEA]">
+      <div data-design-id="m-635639f06753"
         className="grid shrink-0 border-b border-[#EAEAEA]"
         style={{ gridTemplateColumns: `${GUTTER}px repeat(7, minmax(0, 1fr))` }}
       >
-        <div />
+        <div data-design-id="m-b1f79cb0e44d" />
         {days.map((date) => {
           const isToday = isSameDay(date, today);
           return (
-            <div
+            <div data-design-id="m-4eb5bed6e53c"
               key={date.toISOString()}
               className="flex flex-col items-center gap-1 py-2"
             >
-              <span
+              <span data-design-id="m-34a9ea9b223d"
                 className={`text-[11px] leading-[14px] font-medium tracking-[0.06em] ${
                   isToday ? "text-[#1A1A1A]" : "text-[#8A8A8A]"
                 }`}
               >
                 {WEEKDAYS[date.getDay()]}
               </span>
-              <span
+              <span data-design-id="m-2272aaee8296"
                 className={`flex h-8 w-8 items-center justify-center rounded-full text-[15px] leading-5 ${
                   isToday
                     ? "bg-[#1A1A1A] font-medium text-white"
@@ -264,17 +264,17 @@ function WeekView({
         })}
       </div>
 
-      <div ref={scrollRef} className="min-h-0 flex-1 overflow-y-auto">
-        <div
+      <div data-design-id="m-e3c914ee9cc5" ref={scrollRef} className="min-h-0 flex-1 overflow-y-auto">
+        <div data-design-id="m-db923453e5b8"
           className="grid"
           style={{
             gridTemplateColumns: `${GUTTER}px repeat(7, minmax(0, 1fr))`,
             height: gridHeight,
           }}
         >
-          <div className="relative">
+          <div data-design-id="m-07f9454dfc04" className="relative">
             {hours.map((hour) => (
-              <div
+              <div data-design-id="m-f5f522101bd7" data-design-key={hour}
                 key={hour}
                 className="absolute right-2 -translate-y-1/2"
                 style={{
@@ -284,7 +284,7 @@ function WeekView({
                 }}
               >
                 {hour < TIMELINE_END_HOUR ? (
-                  <span className="text-[11px] leading-[14px] text-[#8A8A8A]">
+                  <span data-design-id="m-dbf69d8aa73d" className="text-[11px] leading-[14px] text-[#8A8A8A]">
                     {formatHourLabel(hour)}
                   </span>
                 ) : null}
@@ -307,13 +307,13 @@ function WeekView({
                 : 0;
 
             return (
-              <div
+              <div data-design-id="m-3f4deb9d65c9"
                 key={date.toISOString()}
                 className="relative overflow-hidden border-l border-[#EAEAEA]"
               >
                 {hours.map((hour) =>
                   hour < TIMELINE_END_HOUR ? (
-                    <div
+                    <div data-design-id="m-e319ff60ec9b" data-design-key={hour}
                       key={hour}
                       className="absolute right-0 left-0 border-t border-[#EFEFEF]"
                       style={{
@@ -340,7 +340,7 @@ function WeekView({
                   const showTime = height >= 36;
 
                   return (
-                    <div
+                    <div data-design-id="m-47858233b8ee" data-design-key={event.id}
                       key={event.id}
                       className={`absolute overflow-hidden rounded-md border px-1.5 py-1 ${WEEK_BLOCK[event.kind]}`}
                       style={{
@@ -350,11 +350,11 @@ function WeekView({
                         width: `calc(${width}% - 4px)`,
                       }}
                     >
-                      <p className="truncate text-[11px] leading-[14px] font-medium">
+                      <p data-design-id="m-787b1e5bdb1b" className="truncate text-[11px] leading-[14px] font-medium">
                         {eventLabel(event)}
                       </p>
                       {showTime ? (
-                        <p className="truncate text-[10px] leading-[13px] opacity-70">
+                        <p data-design-id="m-91b5b453a264" className="truncate text-[10px] leading-[13px] opacity-70">
                           {event.kind === "deadline"
                             ? eventDetail(event)
                             : `${formatTimeCompact(event.startMin)} – ${formatTimeCompact(event.displayEndMin)}`}
@@ -365,12 +365,12 @@ function WeekView({
                 })}
 
                 {showNow ? (
-                  <div
+                  <div data-design-id="m-d659e9f99795"
                     className="pointer-events-none absolute right-0 left-0 z-10"
                     style={{ top: nowTop }}
                   >
-                    <div className="absolute top-1/2 -left-1 size-2 -translate-y-1/2 rounded-full bg-[#D93025]" />
-                    <div className="h-px bg-[#D93025]" />
+                    <div data-design-id="m-467278d98113" className="absolute top-1/2 -left-1 size-2 -translate-y-1/2 rounded-full bg-[#D93025]" />
+                    <div data-design-id="m-3a6f3b73f773" className="h-px bg-[#D93025]" />
                   </div>
                 ) : null}
               </div>
@@ -419,10 +419,10 @@ export function CalendarClient({ source }: { source: CalendarSource }) {
   };
 
   return (
-    <div className="flex h-full min-h-0 flex-1 flex-col overflow-hidden bg-white">
-      <div className="flex h-14 shrink-0 items-center justify-between px-6">
-        <div className="flex items-center gap-1">
-          <button
+    <div data-design-id="m-486750fd3f75" className="flex h-full min-h-0 flex-1 flex-col overflow-hidden bg-white">
+      <div data-design-id="m-85369b1c510d" className="flex h-14 shrink-0 items-center justify-between px-6">
+        <div data-design-id="m-f4d6a6ef64b1" className="flex items-center gap-1">
+          <button data-design-id="m-4b68c7a97422"
             type="button"
             onClick={() => step(-1)}
             aria-label={mode === "month" ? "Previous month" : "Previous week"}
@@ -439,10 +439,10 @@ export function CalendarClient({ source }: { source: CalendarSource }) {
               />
             </svg>
           </button>
-          <span className="px-0.5 text-center text-sm leading-5 font-medium text-[#1A1A1A]">
+          <span data-design-id="m-969ee866521d" className="px-0.5 text-center text-sm leading-5 font-medium text-[#1A1A1A]">
             {headerLabel}
           </span>
-          <button
+          <button data-design-id="m-e70b5cf5779a"
             type="button"
             onClick={() => step(1)}
             aria-label={mode === "month" ? "Next month" : "Next week"}
@@ -461,12 +461,12 @@ export function CalendarClient({ source }: { source: CalendarSource }) {
           </button>
         </div>
 
-        <div className="flex items-center gap-3"><AcademicManager mode="calendar" /><AcademicManager mode="assignments" /><ViewToggle value={mode} onChange={setMode} /></div>
+        <div data-design-id="m-622e2d729be7" className="flex items-center gap-3"><AcademicManager mode="calendar" /><AcademicManager mode="assignments" /><ViewToggle value={mode} onChange={setMode} /></div>
       </div>
 
-      <div className="relative min-h-0 flex-1">
+      <div data-design-id="m-0fef46cf7060" className="relative min-h-0 flex-1">
         <AnimatePresence initial={false}>
-          <motion.div
+          <motion.div data-design-id="m-7562f00cd777" data-design-key={mode}
             key={mode}
             className="absolute inset-0 flex flex-col"
             initial={{ opacity: 0 }}

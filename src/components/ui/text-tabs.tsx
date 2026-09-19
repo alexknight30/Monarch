@@ -10,13 +10,13 @@ export function TextTabs<T extends string>({
   onChange: (id: T) => void;
 }) {
   return (
-    <div className="flex items-center gap-1.5">
+    <div data-design-id="m-556090db82f3" className="flex items-center gap-1.5">
       {items.map((item) => {
         const id = (typeof item === "string" ? item : item.id) as T;
         const label = typeof item === "string" ? item : item.label;
         const active = id === value;
         return (
-          <button
+          <button data-design-id="m-8bdafac99a5d" data-design-key={id}
             key={id}
             type="button"
             onClick={() => onChange(id)}

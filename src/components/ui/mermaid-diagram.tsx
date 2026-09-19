@@ -1,4 +1,6 @@
 "use client";
+import { DesignCopy } from "@/components/design/runtime";
+
 
 import { useEffect, useId, useRef, useState } from "react";
 
@@ -59,19 +61,19 @@ export function MermaidDiagram({ chart }: { chart: string }) {
 
   if (error) {
     return (
-      <pre className="my-2 max-w-[640px] overflow-x-auto rounded-lg bg-[#F7F7F5] px-3 py-2 text-[13px] leading-5 text-[#5E5E5E]">
+      <pre data-design-id="m-f6dbab71eea3" className="my-2 max-w-[640px] overflow-x-auto rounded-lg bg-[#F7F7F5] px-3 py-2 text-[13px] leading-5 text-[#5E5E5E]">
         {chart}
       </pre>
     );
   }
 
   return (
-    <div className="my-1 flex w-full flex-col gap-3 rounded-[14px] border border-[#E4E2EC] bg-white px-7 pt-[22px] pb-[18px]">
-      <div className="flex items-center justify-between gap-4">
-        <span className="text-[10px] leading-3 font-semibold tracking-[0.14em] text-[#6A618C]">
+    <div data-design-id="m-07c274f71b95" className="my-1 flex w-full flex-col gap-3 rounded-[14px] border border-[#E4E2EC] bg-white px-7 pt-[22px] pb-[18px]">
+      <div data-design-id="m-005cf91d48c8" className="flex items-center justify-between gap-4">
+        <span data-design-id="m-b6a758000540" className="text-[10px] leading-3 font-semibold tracking-[0.14em] text-[#6A618C]"><DesignCopy id="m-b6a758000540">
           DIAGRAM
-        </span>
-        <button
+        </DesignCopy></span>
+        <button data-design-id="m-ece93b24aee5"
           type="button"
           onClick={() => setExpanded((v) => !v)}
           className="shrink-0 text-[12px] leading-4 font-medium text-[#6A618C]"
@@ -80,7 +82,7 @@ export function MermaidDiagram({ chart }: { chart: string }) {
         </button>
       </div>
 
-      <div
+      <div data-design-id="m-866fc5d06b34"
         ref={ref}
         className="w-full overflow-auto rounded-[11px] border border-[#F0EFF4] bg-[#FAFAF8] px-6 py-7 [&_svg]:mx-auto [&_svg]:max-w-none"
         style={{ maxHeight: expanded ? "none" : 420 }}

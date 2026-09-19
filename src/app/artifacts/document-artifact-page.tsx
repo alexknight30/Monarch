@@ -17,7 +17,7 @@ export default function DocumentArtifactPage({
 }) {
   const router = useRouter();
   return (
-    <div className="flex min-h-0 flex-1">
+    <div data-design-id="m-99cb416a33c4" className="flex min-h-0 flex-1">
       <DocumentWorkspace
         key={artifact.id}
         doc={documentRecordFromArtifact(artifact)}

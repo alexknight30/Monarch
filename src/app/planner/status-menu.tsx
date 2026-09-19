@@ -1,4 +1,6 @@
 "use client";
+import { DesignCopy } from "@/components/design/runtime";
+
 
 import { useEffect, useId, useRef, useState } from "react";
 import { useHydrated } from "@/lib/use-hydrated";
@@ -159,20 +161,20 @@ export default function StatusMenu({
 
   return createPortal(
     <>
-      <button
+      <button data-design-id="m-5adcf1a64da0"
         type="button"
         aria-label="Dismiss status menu"
         className="fixed inset-0 z-50 cursor-default"
         onClick={onClose}
       />
-      <div
+      <div data-design-id="m-0693590dce64"
         role="listbox"
         aria-labelledby={labelId}
         style={{ top: pos.top, left: pos.left }}
         className="fixed z-[60] w-[240px] overflow-hidden rounded-xl border border-[#E8E8E6] bg-white shadow-[0_12px_40px_rgba(0,0,0,0.12)]"
       >
-        <div className="flex h-10 items-center gap-2 border-b border-[#F0F0F0] px-3">
-          <input
+        <div data-design-id="m-514386e67f74" className="flex h-10 items-center gap-2 border-b border-[#F0F0F0] px-3">
+          <input data-design-id="m-0118b6a45c28"
             ref={inputRef}
             id={labelId}
             value={query}
@@ -183,21 +185,21 @@ export default function StatusMenu({
             placeholder="Change status..."
             className="min-w-0 flex-1 bg-transparent text-[13px] leading-4 text-[#0A0A0A] outline-none placeholder:text-[#9A9A98]"
           />
-          <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-[5px] border border-[#E6E6E6] text-[11px] leading-none text-[#9A9A98]">
+          <span data-design-id="m-4d609fd12a94" className="flex h-5 w-5 shrink-0 items-center justify-center rounded-[5px] border border-[#E6E6E6] text-[11px] leading-none text-[#9A9A98]"><DesignCopy id="m-4d609fd12a94">
             S
-          </span>
+          </DesignCopy></span>
         </div>
 
-        <div className="flex flex-col p-1.5">
+        <div data-design-id="m-31f1098ed72e" className="flex flex-col p-1.5">
           {filtered.length === 0 ? (
-            <p className="px-2 py-2 text-[13px] leading-4 text-[#9A9A98]">No status found</p>
+            <p data-design-id="m-e0259480fe3f" className="px-2 py-2 text-[13px] leading-4 text-[#9A9A98]"><DesignCopy id="m-e0259480fe3f">No status found</DesignCopy></p>
           ) : (
             filtered.map((status, index) => {
               const selected = status === current;
               const active = index === selectedIndex;
               const shortcut = MENU_STATUSES.indexOf(status) + 1;
               return (
-                <button
+                <button data-design-id="m-a529938b58a2" data-design-key={status}
                   key={status}
                   type="button"
                   role="option"
@@ -208,11 +210,11 @@ export default function StatusMenu({
                     active ? "bg-[#F1F1EF] text-[#0A0A0A]" : "text-[#0A0A0A]"
                   }`}
                 >
-                  <span className="flex h-4 w-4 shrink-0 items-center justify-center">
+                  <span data-design-id="m-3caee5ee9404" className="flex h-4 w-4 shrink-0 items-center justify-center">
                     <StatusIcon status={status} size={14} />
                   </span>
-                  <span className="min-w-0 flex-1 truncate">{STATUS_LABEL[status]}</span>
-                  <span className="flex h-4 w-4 shrink-0 items-center justify-center">
+                  <span data-design-id="m-27a24b45b6b3" className="min-w-0 flex-1 truncate">{STATUS_LABEL[status]}</span>
+                  <span data-design-id="m-f0d14aa9598b" className="flex h-4 w-4 shrink-0 items-center justify-center">
                     {selected ? (
                       <svg width="14" height="14" viewBox="0 0 16 16" className="block">
                         <path
@@ -226,7 +228,7 @@ export default function StatusMenu({
                       </svg>
                     ) : null}
                   </span>
-                  <span className="flex w-3 shrink-0 items-center justify-end text-[12px] leading-none text-[#9A9A98] tabular-nums">
+                  <span data-design-id="m-f094e5881418" className="flex w-3 shrink-0 items-center justify-end text-[12px] leading-none text-[#9A9A98] tabular-nums">
                     {shortcut}
                   </span>
                 </button>

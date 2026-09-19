@@ -1,4 +1,6 @@
 "use client";
+import { DesignCopy } from "@/components/design/runtime";
+
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
@@ -155,14 +157,14 @@ export default function ArtifactsClient({
 
   if (artifacts.length === 0 && trashed.length === 0) {
     return (
-      <div className="flex min-h-0 flex-1 flex-col items-center overflow-y-auto pt-13 pb-16">
-        <div className="flex w-full max-w-[960px] min-h-0 flex-1 flex-col px-5">
-          <h1 className="font-display text-[34px] leading-[42px] tracking-[-0.015em] text-[#0A0A0A]">
+      <div data-design-id="m-492e7bf324ab" className="flex min-h-0 flex-1 flex-col items-center overflow-y-auto pt-13 pb-16">
+        <div data-design-id="m-4958d490bfd4" className="flex w-full max-w-[960px] min-h-0 flex-1 flex-col px-5">
+          <h1 data-design-id="m-b8b8e2d0e827" className="font-display text-[34px] leading-[42px] tracking-[-0.015em] text-[#0A0A0A]"><DesignCopy id="m-b8b8e2d0e827">
             Artifacts
-          </h1>
-          <p className="pt-2.5 text-[15px] leading-[22px] text-[#9A9A98] italic">
+          </DesignCopy></h1>
+          <p data-design-id="m-21e78a7ab979" className="pt-2.5 text-[15px] leading-[22px] text-[#9A9A98] italic"><DesignCopy id="m-21e78a7ab979">
             Nothing to see here yet
-          </p>
+          </DesignCopy></p>
           <BlankEmptyPlus addLabel="New artifact" createKind="artifact" />
         </div>
       </div>
@@ -171,14 +173,14 @@ export default function ArtifactsClient({
 
   return (
     <>
-      <div className="flex min-h-0 flex-1 flex-col items-center overflow-y-auto pt-13 pb-16">
-        <div className="flex w-full max-w-[1000px] min-h-0 flex-1 flex-col px-5">
-          <div className="flex flex-wrap items-center justify-between gap-4">
-            <h1 className="font-display text-[34px] leading-[42px] tracking-[-0.015em] text-[#0A0A0A]">
+      <div data-design-id="m-8c0b173a11f1" className="flex min-h-0 flex-1 flex-col items-center overflow-y-auto pt-13 pb-16">
+        <div data-design-id="m-88690dfb3050" className="flex w-full max-w-[1000px] min-h-0 flex-1 flex-col px-5">
+          <div data-design-id="m-9e6cea73814b" className="flex flex-wrap items-center justify-between gap-4">
+            <h1 data-design-id="m-afdbb0547c15" className="font-display text-[34px] leading-[42px] tracking-[-0.015em] text-[#0A0A0A]"><DesignCopy id="m-afdbb0547c15">
               Artifacts
-            </h1>
+            </DesignCopy></h1>
 
-            <div className="flex items-center gap-3">
+            <div data-design-id="m-58b9a45dad7f" className="flex items-center gap-3">
               <ToolbarSearch
                 open={searchOpen}
                 query={query}
@@ -192,27 +194,27 @@ export default function ArtifactsClient({
                 onQueryChange={setQuery}
               />
 
-              <div ref={sortRef} className="relative">
-                <Button
+              <div data-design-id="m-0de9201d788a" ref={sortRef} className="relative">
+                <Button data-design-id="m-ba5e06f6499f" data-design-key="m-ba5e06f6499f"
                   variant="secondary"
                   aria-haspopup="listbox"
                   aria-expanded={sortOpen}
                   onClick={() => setSortOpen((v) => !v)}
                 >
-                  <span className="text-[#6B6B6B]">Sort by</span>
+                  <span data-design-id="m-3c0358cf1b13" className="text-[#6B6B6B]"><DesignCopy id="m-3c0358cf1b13">Sort by</DesignCopy></span>
                   {sortLabel}
                   <ChevronDownIcon size={13} />
                 </Button>
 
                 {sortOpen ? (
-                  <div
+                  <div data-design-id="m-c82ce3128c73"
                     role="listbox"
                     className="absolute top-[calc(100%+6px)] right-0 z-40 w-[180px] overflow-hidden rounded-lg border border-[#E6E6E6] bg-white p-1.5"
                   >
                     {SORT_OPTIONS.map((option) => {
                       const active = option.id === sort;
                       return (
-                        <button
+                        <button data-design-id="m-20e436f75184" data-design-key={option.id}
                           key={option.id}
                           type="button"
                           role="option"
@@ -235,19 +237,19 @@ export default function ArtifactsClient({
                 ) : null}
               </div>
 
-              <Button onClick={onNew}>New artifact</Button>
+              <Button data-design-id="m-d8bcb4085c66" data-design-key="m-d8bcb4085c66" onClick={onNew}><DesignCopy id="m-d8bcb4085c66">New artifact</DesignCopy></Button>
             </div>
           </div>
 
-          <div className="pt-[30px]">
+          <div data-design-id="m-4e3009e5914a" className="pt-[30px]">
             <TextTabs items={TABS} value={tab} onChange={setTab} />
           </div>
-          {tab!=="trash"&&<label className="mt-4 flex items-center gap-2 text-xs text-stone-500">Course<select aria-label="Filter artifacts by course" value={courseFilter} onChange={event=>setCourseFilter(event.target.value)} className="rounded-lg border border-stone-200 bg-white px-3 py-2 text-sm"><option value="all">All courses</option>{courses.map(course=><option key={course.id} value={course.id}>{course.code} · {course.title}</option>)}</select></label>}
-          {restoreError&&<p role="alert" className="mt-4 text-sm text-red-700">{restoreError}</p>}
+          {tab!=="trash"&&<label data-design-id="m-30555c8cb16f" className="mt-4 flex items-center gap-2 text-xs text-stone-500">Course<select data-design-id="m-0fafc509ae05" aria-label="Filter artifacts by course" value={courseFilter} onChange={event=>setCourseFilter(event.target.value)} className="rounded-lg border border-stone-200 bg-white px-3 py-2 text-sm"><option value="all">All courses</option>{courses.map(course=><option key={course.id} value={course.id}>{course.code} · {course.title}</option>)}</select></label>}
+          {restoreError&&<p data-design-id="m-daf39c0f27c0" role="alert" className="mt-4 text-sm text-red-700">{restoreError}</p>}
 
-          {tab==="trash" ? <div className="mt-6 space-y-3"><p className="text-sm text-stone-500">Trashed artifacts stay here until restored. Their original files are kept.</p>{trashed.filter(item=>item.title.toLowerCase().includes(query.toLowerCase())).map(item=><div key={item.id} className="flex items-center justify-between gap-4 rounded-xl border border-stone-200 p-4"><div><p className="text-sm font-medium">{item.title}</p><p className="mt-1 text-xs text-stone-500">{kindBadge(item.kind)} · Removed {new Date(item.deletedAt).toLocaleDateString()}</p></div><button disabled={!!restoring} className="rounded-lg border border-stone-200 px-3 py-2 text-xs disabled:opacity-50" onClick={()=>void restore(item.id)}>{restoring===item.id?"Restoring…":"Restore"}</button></div>)}{!trashed.length&&<p className="py-10 text-center text-sm text-stone-400">Trash is empty.</p>}</div> : visible.length === 0 ? (
-            <div className="flex flex-col items-center gap-2 pt-16 text-center">
-              <p className="text-sm leading-5 text-[#6B6B6B]">
+          {tab==="trash" ? <div data-design-id="m-d35518fded38" className="mt-6 space-y-3"><p data-design-id="m-090fa1161749" className="text-sm text-stone-500"><DesignCopy id="m-090fa1161749">Trashed artifacts stay here until restored. Their original files are kept.</DesignCopy></p>{trashed.filter(item=>item.title.toLowerCase().includes(query.toLowerCase())).map(item=><div data-design-id="m-ce395306a167" data-design-key={item.id} key={item.id} className="flex items-center justify-between gap-4 rounded-xl border border-stone-200 p-4"><div data-design-id="m-33e3b143b02d"><p data-design-id="m-7fded8adc571" className="text-sm font-medium">{item.title}</p><p data-design-id="m-6c0a3787ca70" className="mt-1 text-xs text-stone-500">{kindBadge(item.kind)} · Removed {new Date(item.deletedAt).toLocaleDateString()}</p></div><button data-design-id="m-e0ed62d71a48" disabled={!!restoring} className="rounded-lg border border-stone-200 px-3 py-2 text-xs disabled:opacity-50" onClick={()=>void restore(item.id)}>{restoring===item.id?"Restoring…":"Restore"}</button></div>)}{!trashed.length&&<p data-design-id="m-8946a61cda2f" className="py-10 text-center text-sm text-stone-400"><DesignCopy id="m-8946a61cda2f">Trash is empty.</DesignCopy></p>}</div> : visible.length === 0 ? (
+            <div data-design-id="m-a1d703db3f28" className="flex flex-col items-center gap-2 pt-16 text-center">
+              <p data-design-id="m-4258997443e2" className="text-sm leading-5 text-[#6B6B6B]">
                 {query.trim()
                   ? "No artifacts match your search."
                   : tab === "shared"
@@ -258,31 +260,31 @@ export default function ArtifactsClient({
               </p>
             </div>
           ) : (
-            <div className="grid grid-cols-1 gap-5 pt-6.5 sm:grid-cols-2">
+            <div data-design-id="m-804e63cd72a6" className="grid grid-cols-1 gap-5 pt-6.5 sm:grid-cols-2">
               {visible.map((artifact) => {
                 const cardClass =
                   "flex min-h-41 flex-col justify-between gap-4 rounded-xl border border-[#E8E8E6] bg-white p-[22px] pr-10 text-left transition-colors hover:border-[#D6D6D2] hover:bg-[#FCFCFB]";
                 const body = (
                   <>
-                    <div className="flex flex-col gap-[9px]">
-                      <div className="flex items-center gap-2">
-                        <h2 className="text-base font-semibold leading-5 tracking-[-0.005em] text-[#0A0A0A]">
+                    <div data-design-id="m-115746f58af6" className="flex flex-col gap-[9px]">
+                      <div data-design-id="m-fdcf7ca60668" className="flex items-center gap-2">
+                        <h2 data-design-id="m-c91e9821312d" className="text-base font-semibold leading-5 tracking-[-0.005em] text-[#0A0A0A]">
                           {artifact.title}
                         </h2>
-                        <span className="rounded-md bg-[#F1F1EF] px-1.5 py-0.5 text-[11px] leading-3 text-[#5E5E5E]">
+                        <span data-design-id="m-983352806980" className="rounded-md bg-[#F1F1EF] px-1.5 py-0.5 text-[11px] leading-3 text-[#5E5E5E]">
                           {kindBadge(artifact.kind)}
                         </span>
                         <TagChips tagIds={artifact.tagIds} />
                       </div>
-                      <p className="line-clamp-3 text-sm leading-[21px] text-[#4E4E4C]">
+                      <p data-design-id="m-1602b5613bee" className="line-clamp-3 text-sm leading-[21px] text-[#4E4E4C]">
                         {artifact.description}
                       </p>
                     </div>
-                    <div className="flex w-full items-center justify-between">
-                      <span className="text-[13px] leading-4 text-[#9A9A98]">
+                    <div data-design-id="m-c8300df99696" className="flex w-full items-center justify-between">
+                      <span data-design-id="m-94b297b7ac8d" className="text-[13px] leading-4 text-[#9A9A98]">
                         Created by {artifact.createdBy}
                       </span>
-                      <span className="text-[13px] leading-4 text-[#9A9A98]">
+                      <span data-design-id="m-7ec906d46ec1" className="text-[13px] leading-4 text-[#9A9A98]">
                         {artifact.updated}
                       </span>
                     </div>
@@ -290,12 +292,12 @@ export default function ArtifactsClient({
                 );
 
                 return (
-                  <div key={artifact.slug} className="relative"><Link
+                  <div data-design-id="m-140bb343d44e" data-design-key={artifact.slug} key={artifact.slug} className="relative"><Link data-design-id="m-a6ca7e709b62"
                     href={`/artifacts/${artifact.slug}`}
                     className={cardClass}
                   >
                     {body}
-                  </Link><button aria-label={`Manage ${artifact.title}`} title="Artifact details, copy or trash" className="absolute top-3 right-3 rounded-md px-2 py-1 text-stone-500 hover:bg-stone-100" onClick={()=>setManaging(artifact)}>⋯</button></div>
+                  </Link><button data-design-id="m-e80b9ba12837" aria-label={`Manage ${artifact.title}`} title="Artifact details, copy or trash" className="absolute top-3 right-3 rounded-md px-2 py-1 text-stone-500 hover:bg-stone-100" onClick={()=>setManaging(artifact)}><DesignCopy id="m-e80b9ba12837">⋯</DesignCopy></button></div>
                 );
               })}
             </div>

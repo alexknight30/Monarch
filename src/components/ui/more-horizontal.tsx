@@ -38,7 +38,7 @@ const MoreHorizontalIcon = forwardRef<MoreHorizontalIconHandle, MoreHorizontalIc
     });
 
     return (
-      <div
+      <div data-design-id="m-2317cc6e36a4"
         className={cn(className)}
         onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}
@@ -53,7 +53,7 @@ const MoreHorizontalIcon = forwardRef<MoreHorizontalIconHandle, MoreHorizontalIc
           overflow="visible"
         >
           {DOT_CENTERS.map((cx, index) => (
-            <motion.circle
+            <motion.circle data-design-id="m-27304cbf37e7" data-design-key={cx}
               key={cx}
               cx={cx}
               cy="12"

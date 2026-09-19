@@ -46,17 +46,17 @@ function RailLink({
 }) {
   const active = item.match(pathname);
   return (
-    <Link
+    <Link data-design-id="m-01bed00a2612"
       href={item.href}
       aria-label={item.label}
       aria-current={active ? "page" : undefined}
       onClick={item.onClick}
       className="flex h-11 w-full items-center"
     >
-      <span className="flex h-11 w-[66px] shrink-0 items-center justify-center">
+      <span data-design-id="m-b5697c7e80ac" className="flex h-11 w-[66px] shrink-0 items-center justify-center">
         <NavIcon name={item.label} active={active} />
       </span>
-      <span
+      <span data-design-id="m-116fb49816e4"
         className={`truncate pr-3 text-sm leading-[18px] whitespace-nowrap transition-opacity duration-200 ease-out ${
           active ? "font-semibold text-[#1A1A1A]" : "font-normal text-[#6B675F]"
         } opacity-0 delay-0 group-hover/rail:opacity-100 group-hover/rail:delay-75`}
@@ -82,9 +82,9 @@ export default function Rail() {
   // Spacer keeps page layout fixed at the collapsed width; the real nav overlays
   // and grows to the right so icons never shift.
   return (
-    <div className="relative h-full w-[66px] shrink-0">
-      <nav className="group/rail absolute inset-y-0 left-0 z-40 flex h-full w-[66px] flex-col overflow-hidden bg-[#F5F3EE] transition-[width,box-shadow] duration-200 ease-out hover:w-[196px] hover:shadow-[4px_0_24px_rgba(0,0,0,0.06)]">
-        <Link
+    <div data-design-id="m-9689c37329ec" className="relative h-full w-[66px] shrink-0">
+      <nav data-design-id="m-97c8a8ea93a4" className="group/rail absolute inset-y-0 left-0 z-40 flex h-full w-[66px] flex-col overflow-hidden bg-[#F5F3EE] transition-[width,box-shadow] duration-200 ease-out hover:w-[196px] hover:shadow-[4px_0_24px_rgba(0,0,0,0.06)]">
+        <Link data-design-id="m-6a7bf7849e01"
           href="/?home=1"
           aria-label="Home"
           onClick={() => setActiveChatId(null)}
@@ -100,15 +100,15 @@ export default function Rail() {
           </svg>
         </Link>
 
-        <div className="flex flex-col gap-1 pt-3">
+        <div data-design-id="m-3745cd7d201b" className="flex flex-col gap-1 pt-3">
           {items.map((item) => (
             <RailLink key={item.href} item={item} pathname={pathname} />
           ))}
         </div>
 
-        <div className="w-full flex-1" />
+        <div data-design-id="m-05ea4ba81f79" className="w-full flex-1" />
 
-        <div className="pb-3">
+        <div data-design-id="m-6205457515f6" className="pb-3">
           <RailLink item={SETTINGS} pathname={pathname} />
         </div>
       </nav>

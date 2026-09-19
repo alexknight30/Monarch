@@ -30,7 +30,7 @@ export function IconButton({
   const iconSize = size === "l" ? 28 : 15;
 
   return (
-    <button
+    <button data-design-id="m-c32597f75e04"
       type={type}
       aria-label={label}
       className={cn(

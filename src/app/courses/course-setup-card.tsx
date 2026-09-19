@@ -1,4 +1,6 @@
 "use client";
+import { DesignCopy } from "@/components/design/runtime";
+
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
@@ -15,7 +17,7 @@ type SyllabusPhase = "idle" | "playing" | "review" | "error";
 
 function MeadowStatus({ text }: { text: string }) {
   return (
-    <p role="status" className="pointer-events-none absolute top-4 right-5 z-10 max-w-[220px] text-right font-display text-[22px] leading-7 tracking-[-0.015em] text-[#0A0A0A]">
+    <p data-design-id="m-fd2ac03918be" role="status" className="pointer-events-none absolute top-4 right-5 z-10 max-w-[220px] text-right font-display text-[22px] leading-7 tracking-[-0.015em] text-[#0A0A0A]">
       {text}
     </p>
   );
@@ -183,23 +185,23 @@ export function CourseSetupCard({ onCancel }: CourseSetupCardProps) {
         }}
       />
     ) : phase === "error" ? (
-      <div className="flex h-64 items-center justify-center rounded-[1.125rem] border border-dashed border-foreground/20 bg-background px-6 text-center">
-        <p className="max-w-sm text-sm leading-5 text-[#6B6B6B]">{error}</p>
+      <div data-design-id="m-0b479762112b" className="flex h-64 items-center justify-center rounded-[1.125rem] border border-dashed border-foreground/20 bg-background px-6 text-center">
+        <p data-design-id="m-c7c31be01602" className="max-w-sm text-sm leading-5 text-[#6B6B6B]">{error}</p>
       </div>
     ) : (
-      <div className="relative h-64 overflow-hidden rounded-[1.125rem] border border-dashed border-foreground/20 bg-background">
+      <div data-design-id="m-dae30b19d2b1" className="relative h-64 overflow-hidden rounded-[1.125rem] border border-dashed border-foreground/20 bg-background">
         <ButterflyMeadow className="absolute inset-0" />
         <MeadowStatus text={statusText} />
       </div>
     );
 
   return (
-    <div className="relative mt-8 rounded-xl border border-[#E8E8E6] bg-white p-6 shadow-[0_8px_28px_rgba(0,0,0,0.04)]">
-      <div className="absolute top-5 right-5 flex h-8 items-center rounded-full border border-[#E6E6E6] bg-[#FAFAFA] p-0.5">
+    <div data-design-id="m-1647ed7734c3" className="relative mt-8 rounded-xl border border-[#E8E8E6] bg-white p-6 shadow-[0_8px_28px_rgba(0,0,0,0.04)]">
+      <div data-design-id="m-bbc63992b369" className="absolute top-5 right-5 flex h-8 items-center rounded-full border border-[#E6E6E6] bg-[#FAFAFA] p-0.5">
         {(["syllabus", "manual"] as const).map((option) => {
           const active = mode === option;
           return (
-            <button
+            <button data-design-id="m-9a61f1b9122a" data-design-key={option}
               key={option}
               type="button"
               disabled={phase === "playing" || busy}
@@ -217,14 +219,14 @@ export function CourseSetupCard({ onCancel }: CourseSetupCardProps) {
       </div>
 
       {mode === "syllabus" ? (
-        <div className="flex flex-col gap-4 pr-36">
-          <div>
-            <h2 className="text-base font-semibold leading-5 tracking-[-0.005em] text-[#0A0A0A]">
+        <div data-design-id="m-f55b2df34fa4" className="flex flex-col gap-4 pr-36">
+          <div data-design-id="m-e301cf1722d3">
+            <h2 data-design-id="m-fb3430e11b40" className="text-base font-semibold leading-5 tracking-[-0.005em] text-[#0A0A0A]"><DesignCopy id="m-fb3430e11b40">
               Add a course
-            </h2>
-            <p className="pt-1.5 text-sm leading-5 text-[#6B6B6B]">
+            </DesignCopy></h2>
+            <p data-design-id="m-cf888ad973ee" className="pt-1.5 text-sm leading-5 text-[#6B6B6B]"><DesignCopy id="m-cf888ad973ee">
               Add a syllabus
-            </p>
+            </DesignCopy></p>
           </div>
           <FileUpload
             multiple={false}
@@ -241,55 +243,55 @@ export function CourseSetupCard({ onCancel }: CourseSetupCardProps) {
           />
         </div>
       ) : (
-        <div className="flex flex-col gap-4 pr-36">
-          <div>
-            <h2 className="text-base font-semibold leading-5 tracking-[-0.005em] text-[#0A0A0A]">
+        <div data-design-id="m-1c1c7d8089d1" className="flex flex-col gap-4 pr-36">
+          <div data-design-id="m-3f1c66bfa2a0">
+            <h2 data-design-id="m-ea406a72fd88" className="text-base font-semibold leading-5 tracking-[-0.005em] text-[#0A0A0A]"><DesignCopy id="m-ea406a72fd88">
               Add a course
-            </h2>
-            <p className="pt-1.5 text-sm leading-5 text-[#6B6B6B]">
+            </DesignCopy></h2>
+            <p data-design-id="m-f18522072e60" className="pt-1.5 text-sm leading-5 text-[#6B6B6B]"><DesignCopy id="m-f18522072e60">
               Enter course details manually
-            </p>
+            </DesignCopy></p>
           </div>
 
-          <div className="grid grid-cols-2 gap-3">
-            <label className="flex flex-col gap-1.5">
-              <span className="text-[12px] leading-4 font-medium text-[#5E5E5E]">
+          <div data-design-id="m-b6f4ef88a497" className="grid grid-cols-2 gap-3">
+            <label data-design-id="m-b6fb4452274d" className="flex flex-col gap-1.5">
+              <span data-design-id="m-aca40ac114e0" className="text-[12px] leading-4 font-medium text-[#5E5E5E]"><DesignCopy id="m-aca40ac114e0">
                 Course code
-              </span>
-              <input
+              </DesignCopy></span>
+              <input data-design-id="m-243f14f83407"
                 value={code}
                 onChange={(e) => setCode(e.target.value)}
                 placeholder="CHEM 122"
                 className="h-10 rounded-lg border border-[#E6E6E6] px-3 text-sm text-[#0A0A0A] outline-none placeholder:text-[#B4B4B0] focus:border-[#0A0A0A]"
               />
             </label>
-            <label className="flex flex-col gap-1.5">
-              <span className="text-[12px] leading-4 font-medium text-[#5E5E5E]">
+            <label data-design-id="m-cf4b63cab1b1" className="flex flex-col gap-1.5">
+              <span data-design-id="m-329ca0d59663" className="text-[12px] leading-4 font-medium text-[#5E5E5E]"><DesignCopy id="m-329ca0d59663">
                 Course title
-              </span>
-              <input
+              </DesignCopy></span>
+              <input data-design-id="m-ffe1af807b2d"
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
                 placeholder="Organic Chemistry II"
                 className="h-10 rounded-lg border border-[#E6E6E6] px-3 text-sm text-[#0A0A0A] outline-none placeholder:text-[#B4B4B0] focus:border-[#0A0A0A]"
               />
             </label>
-            <label className="flex flex-col gap-1.5">
-              <span className="text-[12px] leading-4 font-medium text-[#5E5E5E]">
+            <label data-design-id="m-78df20e2604e" className="flex flex-col gap-1.5">
+              <span data-design-id="m-f26d66c3218a" className="text-[12px] leading-4 font-medium text-[#5E5E5E]"><DesignCopy id="m-f26d66c3218a">
                 Instructor
-              </span>
-              <input
+              </DesignCopy></span>
+              <input data-design-id="m-0aad7d92c4b4"
                 value={instructor}
                 onChange={(e) => setInstructor(e.target.value)}
                 placeholder="Prof. Nadia Farouk"
                 className="h-10 rounded-lg border border-[#E6E6E6] px-3 text-sm text-[#0A0A0A] outline-none placeholder:text-[#B4B4B0] focus:border-[#0A0A0A]"
               />
             </label>
-            <label className="flex flex-col gap-1.5">
-              <span className="text-[12px] leading-4 font-medium text-[#5E5E5E]">
+            <label data-design-id="m-fe3e6c3ff475" className="flex flex-col gap-1.5">
+              <span data-design-id="m-aac54b771733" className="text-[12px] leading-4 font-medium text-[#5E5E5E]"><DesignCopy id="m-aac54b771733">
                 Schedule
-              </span>
-              <input
+              </DesignCopy></span>
+              <input data-design-id="m-305a3023cf51"
                 value={schedule}
                 onChange={(e) => setSchedule(e.target.value)}
                 placeholder="MWF · 10:00–10:50 AM"
@@ -298,11 +300,11 @@ export function CourseSetupCard({ onCancel }: CourseSetupCardProps) {
             </label>
           </div>
 
-          <label className="flex flex-col gap-1.5">
-            <span className="text-[12px] leading-4 font-medium text-[#5E5E5E]">
+          <label data-design-id="m-29df3652fedf" className="flex flex-col gap-1.5">
+            <span data-design-id="m-73be85d96061" className="text-[12px] leading-4 font-medium text-[#5E5E5E]"><DesignCopy id="m-73be85d96061">
               Description
-            </span>
-            <textarea
+            </DesignCopy></span>
+            <textarea data-design-id="m-1c98e862e576"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               placeholder="What this course covers…"
@@ -313,31 +315,31 @@ export function CourseSetupCard({ onCancel }: CourseSetupCardProps) {
         </div>
       )}
 
-      {error&&phase!=="error"&&<p role="alert" className="mt-4 text-sm text-red-700">{error}</p>}
-      <div className="mt-5 flex items-center justify-end gap-2 border-t border-[#EFEFED] pt-4">
-        <Button variant="ghost" onClick={onCancel}>
+      {error&&phase!=="error"&&<p data-design-id="m-f784887eb196" role="alert" className="mt-4 text-sm text-red-700">{error}</p>}
+      <div data-design-id="m-6a60d6cc30ac" className="mt-5 flex items-center justify-end gap-2 border-t border-[#EFEFED] pt-4">
+        <Button data-design-id="m-aa61cf2380ab" data-design-key="m-aa61cf2380ab" variant="ghost" onClick={onCancel}><DesignCopy id="m-aa61cf2380ab">
           Cancel
-        </Button>
+        </DesignCopy></Button>
         {mode === "manual" ? (
-          <Button
+          <Button data-design-id="m-0392971682b4" data-design-key="m-0392971682b4"
             onClick={() => void saveManual()}
             disabled={busy || !code.trim() || !title.trim()}
           >
             {busy ? "Saving…" : "Add course"}
           </Button>
         ) : phase === "review" ? (
-          <Button onClick={() => void applyProposal()} disabled={busy || !proposal}>
+          <Button data-design-id="m-4d0f7741ceba" data-design-key="m-4d0f7741ceba" onClick={() => void applyProposal()} disabled={busy || !proposal}>
             {busy ? "Adding…" : "Add course"}
           </Button>
         ) : phase === "error" ? (
-          <><Button variant="ghost" onClick={()=>{setPhase("idle");setError(null);}}>Choose another file</Button><Button onClick={startMeadow} disabled={files.length === 0}>Retry</Button></>
+          <><Button data-design-id="m-c5f057c1d592" data-design-key="m-c5f057c1d592" variant="ghost" onClick={()=>{setPhase("idle");setError(null);}}><DesignCopy id="m-c5f057c1d592">Choose another file</DesignCopy></Button><Button data-design-id="m-b24817b53d28" data-design-key="m-b24817b53d28" onClick={startMeadow} disabled={files.length === 0}><DesignCopy id="m-b24817b53d28">Retry</DesignCopy></Button></>
         ) : (
-          <Button
+          <Button data-design-id="m-37d1a6010f5b" data-design-key="m-37d1a6010f5b"
             onClick={startMeadow}
             disabled={phase !== "idle" || files.length === 0}
-          >
+          ><DesignCopy id="m-37d1a6010f5b">
             Go
-          </Button>
+          </DesignCopy></Button>
         )}
       </div>
     </div>

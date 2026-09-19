@@ -1,4 +1,6 @@
 "use client";
+import { DesignCopy } from "@/components/design/runtime";
+
 
 import { useState } from "react";
 import { applyView } from "@/components/view-provider";
@@ -10,16 +12,16 @@ export default function ViewSwitcher({ activeId }: { activeId: ViewId }) {
 
   return (
     <>
-      <label
+      <label data-design-id="m-f68efc60220f"
         htmlFor="view-select"
         className="block text-[13px] leading-4 text-[#5E5E5E]"
-      >
+      ><DesignCopy id="m-f68efc60220f">
         Switch view
-      </label>
+      </DesignCopy></label>
 
-      <div className="flex items-center gap-2.5 pt-2.5">
-        <div className="relative min-w-0 flex-1">
-          <select
+      <div data-design-id="m-8da228cd0a00" className="flex items-center gap-2.5 pt-2.5">
+        <div data-design-id="m-ac7e7ba63a4a" className="relative min-w-0 flex-1">
+          <select data-design-id="m-3f2e5f2cb57f"
             id="view-select"
             value={selected}
             onChange={(e) => setSelected(e.target.value as ViewId)}
@@ -49,13 +51,13 @@ export default function ViewSwitcher({ activeId }: { activeId: ViewId }) {
           </svg>
         </div>
 
-        <button
+        <button data-design-id="m-766cedfe940d"
           type="button"
           onClick={() => applyView(selected)}
           className="flex h-10 shrink-0 items-center justify-center rounded-lg bg-[#141414] px-5 text-sm leading-[18px] font-medium text-white transition-colors hover:bg-[#000000]"
-        >
+        ><DesignCopy id="m-766cedfe940d">
           Open app
-        </button>
+        </DesignCopy></button>
       </div>
     </>
   );

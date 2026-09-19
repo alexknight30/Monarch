@@ -80,10 +80,10 @@ function Row({
   }, [statusMenuOpen]);
 
   return (
-    <div className="group relative flex h-11 items-center gap-2.5 border-b border-[#F2F2F0] pr-3.5 transition-colors hover:bg-[#FBFBFA]">
+    <div data-design-id="m-9b2ac16071dc" className="group relative flex h-11 items-center gap-2.5 border-b border-[#F2F2F0] pr-3.5 transition-colors hover:bg-[#FBFBFA]">
       {/* Indent guides — one hairline per ancestor level. */}
       {Array.from({ length: depth }, (_, i) => (
-        <span
+        <span data-design-id="m-e973eff769c2"
           key={i}
           aria-hidden="true"
           className="pointer-events-none absolute top-0 bottom-0 z-10 w-px bg-[#EDEDEA]"
@@ -92,7 +92,7 @@ function Row({
       ))}
 
       {hasChildren ? (
-        <button
+        <button data-design-id="m-41f1051690d3"
           type="button"
           onClick={() => onToggle(issue.key)}
           aria-expanded={open}
@@ -104,15 +104,15 @@ function Row({
         </button>
       ) : null}
 
-      <span
+      <span data-design-id="m-3b2e1b322c48"
         className="flex shrink-0 items-center"
         style={{ paddingLeft: 14 + depth * STEP }}
       >
-        <span className="h-5 w-5 shrink-0" />
+        <span data-design-id="m-de2300775149" className="h-5 w-5 shrink-0" />
       </span>
 
-      <div className="relative shrink-0">
-        <button
+      <div data-design-id="m-f160bea9851b" className="relative shrink-0">
+        <button data-design-id="m-bbb3d3adb4cc"
           ref={statusBtnRef}
           type="button"
           aria-label={`Change status, currently ${STATUS_LABEL[issue.status]}`}
@@ -128,7 +128,7 @@ function Row({
           }}
           className="flex h-6 w-6 items-center justify-center rounded-md transition-colors hover:bg-[#EFEFED]"
         >
-          <span className="flex h-4 w-4 items-center justify-center">
+          <span data-design-id="m-7281acea3354" className="flex h-4 w-4 items-center justify-center">
             <StatusIcon status={issue.status} />
           </span>
         </button>
@@ -143,12 +143,12 @@ function Row({
         ) : null}
       </div>
 
-      <button
+      <button data-design-id="m-d87c8246b154"
         type="button"
         onClick={() => onSelect(issue.key)}
         className="flex h-full min-w-0 flex-1 cursor-pointer items-center gap-2.5 text-left"
       >
-        <span
+        <span data-design-id="m-ce940d32e042"
           className={`min-w-0 flex-1 truncate text-sm leading-[18px] ${
             issue.status === "done" ? "text-[#9A9A98] line-through" : "text-[#0A0A0A]"
           }`}
@@ -157,28 +157,28 @@ function Row({
         </span>
 
         {hasChildren && (
-          <span className="shrink-0 text-[11.5px] leading-4 text-[#A0A09C] tabular-nums">
+          <span data-design-id="m-13e911bb29ce" className="shrink-0 text-[11.5px] leading-4 text-[#A0A09C] tabular-nums">
             {progress.done}/{progress.total}
           </span>
         )}
 
         {issue.assignment ? (
-          <span className="flex h-[22px] max-w-[140px] shrink-0 items-center truncate rounded-md border border-[#E8E8E6] px-2 text-[11.5px] leading-4 text-[#5E5E5E]">
+          <span data-design-id="m-86801f627556" className="flex h-[22px] max-w-[140px] shrink-0 items-center truncate rounded-md border border-[#E8E8E6] px-2 text-[11.5px] leading-4 text-[#5E5E5E]">
             {issue.assignment}
           </span>
         ) : null}
 
         {issue.artifact ? (
-          <span className="max-w-[120px] shrink-0 truncate text-[11.5px] leading-4 text-[#9A9A98]">
+          <span data-design-id="m-5bf64033bfdc" className="max-w-[120px] shrink-0 truncate text-[11.5px] leading-4 text-[#9A9A98]">
             {issue.artifact}
           </span>
         ) : null}
 
-        <span className="w-[74px] shrink-0 truncate text-right text-[11.5px] leading-4 text-[#9A9A98]">
+        <span data-design-id="m-384b19970c09" className="w-[74px] shrink-0 truncate text-right text-[11.5px] leading-4 text-[#9A9A98]">
           {issue.course ?? ""}
         </span>
 
-        <span className="w-[46px] shrink-0 text-right text-[11.5px] leading-4 text-[#9A9A98]">
+        <span data-design-id="m-f487e84598e2" className="w-[46px] shrink-0 text-right text-[11.5px] leading-4 text-[#9A9A98]">
           {issue.due ?? ""}
         </span>
       </button>
@@ -214,7 +214,7 @@ function Branch({
       {issues.map((issue) => {
         const open = openKeys.has(issue.key);
         return (
-          <div key={issue.key}>
+          <div data-design-id="m-a6e3491f6c18" data-design-key={issue.key} key={issue.key}>
             <Row
               issue={issue}
               depth={depth}
@@ -305,8 +305,8 @@ export default function IssueTree({
 
   if (groups.length === 0 || groups.every((g) => g.issues.length === 0)) {
     return (
-      <div className="flex flex-col items-center gap-2 pt-16 text-center">
-        <p className="text-sm leading-5 text-[#6B6B6B]">{emptyMessage}</p>
+      <div data-design-id="m-f4fcfe569ed3" className="flex flex-col items-center gap-2 pt-16 text-center">
+        <p data-design-id="m-bf3bf80421a4" className="text-sm leading-5 text-[#6B6B6B]">{emptyMessage}</p>
       </div>
     );
   }
@@ -315,16 +315,16 @@ export default function IssueTree({
 
   return (
     <>
-      <div className="flex flex-col pt-1.5">
+      <div data-design-id="m-4c897f62af1d" className="flex flex-col pt-1.5">
         {groups.map((group) => (
-          <section key={group.id} className="pt-5 first:pt-0">
+          <section data-design-id="m-6009ec7bafc4" data-design-key={group.id} key={group.id} className="pt-5 first:pt-0">
             {!hideHeaders ? (
-              <div className="flex h-9 items-center gap-2 border-b border-[#EAEAE7] px-3.5">
+              <div data-design-id="m-2bfa79fbf088" className="flex h-9 items-center gap-2 border-b border-[#EAEAE7] px-3.5">
                 {group.status ? <StatusIcon status={group.status} /> : null}
-                <h2 className="text-[13px] leading-4 font-medium text-[#0A0A0A]">
+                <h2 data-design-id="m-2b251d0fb92e" className="text-[13px] leading-4 font-medium text-[#0A0A0A]">
                   {group.label}
                 </h2>
-                <span className="text-[12.5px] leading-4 text-[#A0A09C] tabular-nums">
+                <span data-design-id="m-65b27d272b0b" className="text-[12.5px] leading-4 text-[#A0A09C] tabular-nums">
                   {group.issues.length}
                 </span>
               </div>

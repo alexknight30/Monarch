@@ -1,4 +1,6 @@
 "use client";
+import { DesignCopy } from "@/components/design/runtime";
+
 
 import {
   useEffect,
@@ -37,7 +39,7 @@ const MetaChip = ({
   ref?: React.Ref<HTMLButtonElement>;
 }) => {
   return (
-    <button
+    <button data-design-id="m-0094f5c00bb3"
       ref={ref}
       type="button"
       onClick={onClick}
@@ -153,13 +155,13 @@ function Menu({
 
   return createPortal(
     <>
-      <button
+      <button data-design-id="m-894388cfdeb0"
         type="button"
         aria-label="Close menu"
         className="fixed inset-0 z-[60] cursor-default"
         onClick={onClose}
       />
-      <div
+      <div data-design-id="m-7c8faa420f9a"
         ref={menuRef}
         className="fixed z-[70] min-w-[180px] overflow-hidden rounded-lg border border-[#E6E6E6] bg-white py-1 shadow-[0_8px_24px_rgba(0,0,0,0.08)]"
         style={{
@@ -194,7 +196,7 @@ function ChipMenu({
 }) {
   const anchorRef = useRef<HTMLButtonElement>(null);
   return (
-    <div className="relative">
+    <div data-design-id="m-71d2f7c94468" className="relative">
       <MetaChip
         ref={anchorRef}
         active={active}
@@ -220,7 +222,7 @@ function MenuItem({
   active?: boolean;
 }) {
   return (
-    <button
+    <button data-design-id="m-de3251e09008"
       type="button"
       onClick={onClick}
       className={`flex w-full items-center gap-2 px-3 py-2 text-left text-[13px] leading-4 transition-colors ${
@@ -375,24 +377,24 @@ export function NewIssueDialog({ open, onClose }: NewIssueDialogProps) {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-start justify-center px-4 pt-[12vh]">
-      <button
+    <div data-design-id="m-553fcf08350c" className="fixed inset-0 z-50 flex items-start justify-center px-4 pt-[12vh]">
+      <button data-design-id="m-372bc0f93c85"
         type="button"
         aria-label="Dismiss"
         className="absolute inset-0 bg-[#0A0A0A]/35 backdrop-blur-[1px]"
         onClick={onClose}
       />
 
-      <div
+      <div data-design-id="m-41747c0fbf52"
         role="dialog"
         aria-modal="true"
         aria-labelledby={titleId}
         className="relative z-10 flex w-full max-w-[640px] flex-col overflow-hidden rounded-xl border border-[#E8E8E6] bg-white shadow-[0_16px_48px_rgba(0,0,0,0.14)]"
       >
         {/* Header */}
-        <div className="flex items-center justify-between px-4 pt-3.5 pb-2">
-          <div className="flex items-center gap-1.5 text-[13px] leading-4">
-            <span className="flex h-6 items-center gap-1.5 rounded-md border border-[#E6E6E6] bg-[#FAFAFA] px-2 font-medium text-[#1A1A1A]">
+        <div data-design-id="m-162639f61870" className="flex items-center justify-between px-4 pt-3.5 pb-2">
+          <div data-design-id="m-f6660bf8207b" className="flex items-center gap-1.5 text-[13px] leading-4">
+            <span data-design-id="m-dd627abe8653" className="flex h-6 items-center gap-1.5 rounded-md border border-[#E6E6E6] bg-[#FAFAFA] px-2 font-medium text-[#1A1A1A]">
               <svg width="12" height="12" viewBox="0 0 24 24" className="shrink-0">
                 <path
                   d="M4 6h16M4 12h10M4 18h13"
@@ -414,13 +416,13 @@ export function NewIssueDialog({ open, onClose }: NewIssueDialogProps) {
                 strokeLinejoin="round"
               />
             </svg>
-            <span id={titleId} className="text-[#5E5E5E]">
+            <span data-design-id="m-e75259f967ce" id={titleId} className="text-[#5E5E5E]"><DesignCopy id="m-e75259f967ce">
               New task
-            </span>
+            </DesignCopy></span>
           </div>
 
-          <div className="flex items-center gap-0.5">
-            <button
+          <div data-design-id="m-3edd8856bec0" className="flex items-center gap-0.5">
+            <button data-design-id="m-9781b27621ba"
               type="button"
               aria-label="Close"
               onClick={onClose}
@@ -440,8 +442,8 @@ export function NewIssueDialog({ open, onClose }: NewIssueDialogProps) {
         </div>
 
         {/* Body */}
-        <div className="flex flex-col gap-1 px-4 pt-1 pb-3">
-          <input
+        <div data-design-id="m-7f28f0deb49e" className="flex flex-col gap-1 px-4 pt-1 pb-3">
+          <input data-design-id="m-e7134d0c7683"
             ref={titleRef}
             type="text"
             value={title}
@@ -449,7 +451,7 @@ export function NewIssueDialog({ open, onClose }: NewIssueDialogProps) {
             placeholder="Task title"
             className="w-full border-0 bg-transparent text-[17px] leading-6 font-medium tracking-[-0.01em] text-[#0A0A0A] outline-none placeholder:text-[#B4B4B0]"
           />
-          <textarea
+          <textarea data-design-id="m-3596ad283471"
             value={description}
             onChange={(e) => setDescription(e.target.value)}
             placeholder="Add description…"
@@ -459,7 +461,7 @@ export function NewIssueDialog({ open, onClose }: NewIssueDialogProps) {
         </div>
 
         {/* Meta chips */}
-        <div className="flex flex-wrap items-center gap-1.5 px-4 pb-4">
+        <div data-design-id="m-39d49aa4d806" className="flex flex-wrap items-center gap-1.5 px-4 pb-4">
           <ChipMenu
             open={menu === "status"}
             onToggle={() => setMenu(menu === "status" ? null : "status")}
@@ -518,9 +520,9 @@ export function NewIssueDialog({ open, onClose }: NewIssueDialogProps) {
               No course
             </MenuItem>
             {meta.courses.length === 0 ? (
-              <div className="px-3 py-2 text-[13px] leading-4 text-[#9A9A98]">
+              <div data-design-id="m-71ae321c125a" className="px-3 py-2 text-[13px] leading-4 text-[#9A9A98]"><DesignCopy id="m-71ae321c125a">
                 No courses yet
-              </div>
+              </DesignCopy></div>
             ) : (
               meta.courses.map((c) => (
                 <MenuItem
@@ -574,9 +576,9 @@ export function NewIssueDialog({ open, onClose }: NewIssueDialogProps) {
               No artifact
             </MenuItem>
             {meta.artifacts.length === 0 ? (
-              <div className="px-3 py-2 text-[13px] leading-4 text-[#9A9A98]">
+              <div data-design-id="m-1edc1d76bca9" className="px-3 py-2 text-[13px] leading-4 text-[#9A9A98]"><DesignCopy id="m-1edc1d76bca9">
                 No artifacts yet
-              </div>
+              </DesignCopy></div>
             ) : (
               meta.artifacts.map((p) => (
                 <MenuItem
@@ -630,9 +632,9 @@ export function NewIssueDialog({ open, onClose }: NewIssueDialogProps) {
               No assignment
             </MenuItem>
             {meta.assignments.length === 0 ? (
-              <div className="px-3 py-2 text-[13px] leading-4 text-[#9A9A98]">
+              <div data-design-id="m-19bac2240e47" className="px-3 py-2 text-[13px] leading-4 text-[#9A9A98]"><DesignCopy id="m-19bac2240e47">
                 No assignments yet
-              </div>
+              </DesignCopy></div>
             ) : (
               meta.assignments.map((item) => (
                 <MenuItem
@@ -688,16 +690,16 @@ export function NewIssueDialog({ open, onClose }: NewIssueDialogProps) {
             >
               No due date
             </MenuItem>
-            <div className="grid gap-2 p-2"><label className="text-xs text-stone-500">Date<input aria-label="New task due date" type="date" className="mt-1 block rounded border border-stone-200 p-2" value={due?.slice(0,10)||""} onChange={event=>setDue(event.target.value ? event.target.value+(due?.includes("T")?due.slice(10):""):null)}/></label><label className="text-xs text-stone-500">Time (optional)<input aria-label="New task due time" type="time" disabled={!due} className="mt-1 block rounded border border-stone-200 p-2" value={due?.includes("T")?due.slice(11,16):""} onChange={event=>{if(due)setDue(due.slice(0,10)+(event.target.value?`T${event.target.value}`:""));}}/></label><button type="button" className="rounded bg-stone-900 p-2 text-xs text-white" onClick={()=>setMenu(null)}>Done</button></div>
+            <div data-design-id="m-aa14380a5142" className="grid gap-2 p-2"><label data-design-id="m-5b825bde5eaf" className="text-xs text-stone-500">Date<input data-design-id="m-d46efea1c86c" aria-label="New task due date" type="date" className="mt-1 block rounded border border-stone-200 p-2" value={due?.slice(0,10)||""} onChange={event=>setDue(event.target.value ? event.target.value+(due?.includes("T")?due.slice(10):""):null)}/></label><label data-design-id="m-979dfb0c2a7b" className="text-xs text-stone-500">Time (optional)<input data-design-id="m-8f7c1592d630" aria-label="New task due time" type="time" disabled={!due} className="mt-1 block rounded border border-stone-200 p-2" value={due?.includes("T")?due.slice(11,16):""} onChange={event=>{if(due)setDue(due.slice(0,10)+(event.target.value?`T${event.target.value}`:""));}}/></label><button data-design-id="m-f5d0da460de8" type="button" className="rounded bg-stone-900 p-2 text-xs text-white" onClick={()=>setMenu(null)}><DesignCopy id="m-f5d0da460de8">Done</DesignCopy></button></div>
           </ChipMenu>
         </div>
 
         {/* Footer */}
-        <div className="px-4 pb-4"><ObjectTagPicker kind="task" value={tagIds} onChange={setTagIds} disabled={saving}/></div>
-        <input ref={fileRef} className="hidden" type="file" accept=".pdf,.docx,.txt,.md" onChange={event=>{setAttachment(event.target.files?.[0]||null);creationRequestId.current=null;event.target.value="";}}/>
-        {attachment&&<div className="flex items-center justify-between gap-3 border-t border-stone-100 px-4 py-3 text-xs text-stone-600"><span>{attachment.name} · Saved as a linked reading</span><button type="button" disabled={saving} className="underline" onClick={()=>{setAttachment(null);creationRequestId.current=null;}}>Remove</button></div>}
-        <div className="flex items-center justify-between border-t border-[#F0F0F0] px-4 py-3">
-          <button
+        <div data-design-id="m-2bcbccb4d8b5" className="px-4 pb-4"><ObjectTagPicker kind="task" value={tagIds} onChange={setTagIds} disabled={saving}/></div>
+        <input data-design-id="m-af6277c07e26" ref={fileRef} className="hidden" type="file" accept=".pdf,.docx,.txt,.md" onChange={event=>{setAttachment(event.target.files?.[0]||null);creationRequestId.current=null;event.target.value="";}}/>
+        {attachment&&<div data-design-id="m-8593b80da2fe" className="flex items-center justify-between gap-3 border-t border-stone-100 px-4 py-3 text-xs text-stone-600"><span data-design-id="m-b5018df10281">{attachment.name} · Saved as a linked reading</span><button data-design-id="m-75ad97233cb9" type="button" disabled={saving} className="underline" onClick={()=>{setAttachment(null);creationRequestId.current=null;}}><DesignCopy id="m-75ad97233cb9">Remove</DesignCopy></button></div>}
+        <div data-design-id="m-de167220f0d8" className="flex items-center justify-between border-t border-[#F0F0F0] px-4 py-3">
+          <button data-design-id="m-c38afd05723c"
             type="button"
             aria-label="Attach file"
             disabled={saving}
@@ -716,11 +718,11 @@ export function NewIssueDialog({ open, onClose }: NewIssueDialogProps) {
             </svg>
           </button>
 
-          <div className="flex items-center gap-3">
+          <div data-design-id="m-d190dcb644d5" className="flex items-center gap-3">
             {error ? (
-              <span className="text-[13px] leading-4 text-[#B42318]">{error}</span>
+              <span data-design-id="m-4f69ad6fc1c7" className="text-[13px] leading-4 text-[#B42318]">{error}</span>
             ) : null}
-            <button
+            <button data-design-id="m-7775fd6cf2f0"
               type="button"
               onClick={handleCreate}
               className="flex h-8 items-center rounded-lg bg-[#141414] px-3.5 text-[13px] leading-4 font-medium text-white transition-colors hover:bg-[#000000] disabled:opacity-40"

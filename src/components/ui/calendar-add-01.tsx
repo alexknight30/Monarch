@@ -45,7 +45,7 @@ const CalendarAdd01Icon = forwardRef<CalendarAdd01IconHandle, CalendarAdd01IconP
     });
 
     return (
-      <div
+      <div data-design-id="m-f5c6893cc67d"
         className={cn(className)}
         onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}
@@ -59,7 +59,7 @@ const CalendarAdd01Icon = forwardRef<CalendarAdd01IconHandle, CalendarAdd01IconP
           fill="none"
           overflow="visible"
         >
-          <motion.path
+          <motion.path data-design-id="m-879b754ca697"
             d="M16 2V6M8 2V6"
             stroke="currentColor"
             strokeLinecap="round"
@@ -70,7 +70,7 @@ const CalendarAdd01Icon = forwardRef<CalendarAdd01IconHandle, CalendarAdd01IconP
             initial="normal"
             style={{ transformOrigin: '12px 4px' }}
           />
-          <motion.path
+          <motion.path data-design-id="m-03c7ffe6c634"
             d="M21 14V12C21 8.22876 21 6.34315 19.8284 5.17157C18.6569 4 16.7712 4 13 4H11C7.22876 4 5.34315 4 4.17157 5.17157C3 6.34315 3 8.22876 3 12V14C3 17.7712 3 19.6569 4.17157 20.8284C5.34315 22 7.22876 22 11 22H13"
             stroke="currentColor"
             strokeLinecap="round"
@@ -81,7 +81,7 @@ const CalendarAdd01Icon = forwardRef<CalendarAdd01IconHandle, CalendarAdd01IconP
             initial="normal"
             style={{ transformOrigin: '12px 13px' }}
           />
-          <motion.path
+          <motion.path data-design-id="m-e6e7ccaebcff"
             d="M3 10H21"
             stroke="currentColor"
             strokeLinecap="round"
@@ -92,7 +92,7 @@ const CalendarAdd01Icon = forwardRef<CalendarAdd01IconHandle, CalendarAdd01IconP
             initial="normal"
             style={{ transformOrigin: '12px 10px' }}
           />
-          <motion.path
+          <motion.path data-design-id="m-e58f7807669d"
             d="M17.5 15V22M21 18.5L14 18.5"
             stroke="currentColor"
             strokeLinecap="round"

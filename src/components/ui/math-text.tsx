@@ -9,9 +9,9 @@ export function MathText({ text }: { text: string }) {
   return (
     <>
       {nodes.map((node, index) => {
-        if (node.type === "text") return <span key={index}>{node.value}</span>;
+        if (node.type === "text") return <span data-design-id="m-0c1c35ec9f40" key={index}>{node.value}</span>;
         return (
-          <span
+          <span data-design-id="m-76845bdce9a3"
             key={index}
             className={node.block ? "my-3 block overflow-x-auto" : "inline"}
             dangerouslySetInnerHTML={{ __html: node.html }}

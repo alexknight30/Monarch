@@ -62,7 +62,7 @@ export default function LoginGate({ children }: { children: ReactNode }) {
   if (UNGATED.includes(pathname)) return <>{children}</>;
 
   if (!ready) {
-    return <div className="flex h-full min-h-0 flex-1 bg-white" />;
+    return <div data-design-id="m-5612e088412e" className="flex h-full min-h-0 flex-1 bg-white" />;
   }
 
   if (!signedIn&&!savedSession) {
@@ -81,7 +81,7 @@ export default function LoginGate({ children }: { children: ReactNode }) {
 
   return (
     <>
-      <div
+      <div data-design-id="m-b8014e974347"
         className={`flex h-full min-h-0 flex-1 transition-opacity ease-out ${
           boot === "loading" ? "opacity-0" : "opacity-100"
         }`}
@@ -91,7 +91,7 @@ export default function LoginGate({ children }: { children: ReactNode }) {
       </div>
 
       {showLoader ? (
-        <div
+        <div data-design-id="m-58835ad73a9f"
           className={`fixed inset-0 z-50 flex items-center justify-center bg-white transition-opacity ease-out ${
             boot === "fading" ? "opacity-0" : "opacity-100"
           }`}

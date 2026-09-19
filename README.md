@@ -8,6 +8,10 @@ From this folder, install dependencies with `npm install`, then run `npm run dev
 
 The existing `.env.local` contains local provider configuration. Do not overwrite it with the example file. On a fresh checkout, copy `.env.example` to `.env.local` and configure `XAI_API_KEY`. Chat uses the exact `grok-4.5` model. Keys stay on the server.
 
+## Visual design mode
+
+In development, click **✦ Design** at the bottom right to edit the current page’s layout, sizing, colors, typography and static UI copy. Save writes versioned source overrides; exit design mode before navigating. See [DESIGN-EDITOR.md](DESIGN-EDITOR.md) for controls, responsive scopes, recovery and verification status.
+
 ## Start your schoolwork
 
 1. Choose your workspace in Admin. The example workspace has demonstration content; workspaces keep separate records.

@@ -144,3 +144,28 @@ Next: artifact/object management, document-side chat recovery, remaining harness
 - Rechecked the current canvas and PDF viewer implementation. The Browser tool again rejected the same isolated local URL because administrator-policy verification is unavailable.
 - Fixed two source-confirmed edge cases: drawing backups now reject malformed image records, duplicate element IDs and unsupported element types before opening/saving; PDF page input clamps to a whole page so fractional values cannot trigger a renderer failure.
 - The refinement regression passes with new malformed-backup fixtures. Browser acceptance and the exact flashcard error remain unresolved; the previous green build and these focused checks do not prove either of those browser requirements.
+
+
+## Visual design editor (2026-09-18)
+
+- Added the development-only Design toggle and a source-backed editor: selection/layers, eight resize handles, drag offsets, keyboard nudging, grid/flex ordering, layout/spacing, appearance/shape, typography, static text, explicit page/item/shared scope, responsive rules and read-only preview frames, hover/focus preview, undo/redo, save/discard/exit, and recovery previews.
+- Current page interactions are captured while designing; history navigation is guarded and unexpected URL changes end the session. Stable source IDs cover 1,622 elements. Native data and third-party content editors remain their own content owners.
+- Saved changes are imported from `src/design/overrides.json` in development and production. Save API is loopback/development-only with same-origin/custom-header checks, revision conflicts, atomic writes, and 50 ignored recovery snapshots. No test styling remains applied.
+- Passed: TypeScript, full-source lint, production build, check-design (validation/scoping/persistence/conflicts/concurrency/recovery), check-refinements (existing UI render/content regressions), live local design API persistence/reload/recovery/origin/path checks, and production GET/POST refusal. The refinement test now permits attributes on its expected emphasis element.
+- Outstanding acceptance: actual browser selection/drag/resize, responsive visual inspection, save/reload appearance, and navigation behavior across page types. The approved Browser tool twice failed the administrator-policy check. No alternate browser or indirect workaround was used. A user interaction check is pending. The goal is not yet marked complete.
+- Usage and architecture: DESIGN-EDITOR.md. Changes remain uncommitted for review; the user's initial clean commit was f7b3e789.
+
+
+### Design editor follow-up audit
+
+- Corrected generated CSS precedence: equal-specificity selectors now apply shared defaults before page/item rules, then responsive and interaction-state overrides. Saving an All sizes edit later no longer masks an existing responsive edit. Regression coverage includes reverse save order and shared instance versus page scope.
+- Added scanner preflight for duplicate source identities and collision avoidance for newly instrumented elements. Isolated fixture checks prove idempotent rescans, new-element support without duplicate imports, unique IDs, and duplicate detection before writes. The current repo rescan changes zero elements.
+- TypeScript, focused lint, design regressions, instrumentation regressions, and diff whitespace checks pass. Browser acceptance remains blocked; supported troubleshooting offers no repair for unavailable administrator-policy verification. No user interaction result has arrived yet.
+
+
+### Inspector movement and UI refinement
+
+- Replaced the full-height dark purple chrome with Monarch's light paper surfaces, warm neutral borders, compact typography, charcoal primary buttons, restrained green selection accents, and consistent line icons.
+- Inspector now sizes to its content, scrolls internally, and can be dragged by its header or docked left/right. Pin collapses it to a compact edge tab while keeping design mode and its mounted editing controls intact. Position and pin state persist as browser UI preferences. Viewport bounds keep the header reachable after resizing.
+- Added keyboard movement for the focused inspector grip; inspector arrow keys no longer nudge selected page elements. Existing saved design rules were preserved.
+- TypeScript, focused lint, design save regressions, and whitespace checks pass. Browser interaction/visual verification remains unavailable under the existing administrator-policy failure.

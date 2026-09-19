@@ -1,4 +1,6 @@
 "use client";
+import { DesignCopy } from "@/components/design/runtime";
+
 import { useEffect, useRef, useState } from "react";
 import { useViewId } from "@/components/view-provider";
 import { ArtifactShell } from "./artifact-shell";
@@ -58,15 +60,15 @@ export default function ReadingArtifactPage({ artifact }: { artifact: ReadingArt
   const anchored = annotations.map(a => { const start = a.start !== undefined && text.slice(a.start, a.start + a.quote.length) === a.quote ? a.start : a.quote ? text.indexOf(a.quote) : -1; return { ...a, start }; }).filter(a => a.start >= 0 && a.quote);
   const boundaries = [...new Set([0, text.length, ...anchored.flatMap(a => [a.start, a.start + a.quote.length])])].sort((a,b) => a-b);
   return <ArtifactShell artifact={artifact}>
-    <div className="flex flex-wrap items-center gap-2">
-      <button className={button} aria-pressed={!editing} onClick={() => setEditing(false)}>Read & annotate</button><button className={button} aria-pressed={editing} onClick={() => setEditing(true)}>Edit reading</button>
-      <button className={button} onClick={exportNotes}>Export text & notes</button><button className={button} onClick={() => window.print()}>Print / PDF</button>
-      <span className="ml-auto text-xs text-stone-500" role="status">{status}</span>{error && <button className="text-xs text-red-700" onClick={() => void retry()}>{error} · Retry</button>}
+    <div data-design-id="m-b4b9708d275a" className="flex flex-wrap items-center gap-2">
+      <button data-design-id="m-902819b46a04" className={button} aria-pressed={!editing} onClick={() => setEditing(false)}><DesignCopy id="m-902819b46a04">Read & annotate</DesignCopy></button><button data-design-id="m-93edcd78668e" className={button} aria-pressed={editing} onClick={() => setEditing(true)}><DesignCopy id="m-93edcd78668e">Edit reading</DesignCopy></button>
+      <button data-design-id="m-0468040788bf" className={button} onClick={exportNotes}><DesignCopy id="m-0468040788bf">Export text & notes</DesignCopy></button><button data-design-id="m-efa573ff5b2e" className={button} onClick={() => window.print()}><DesignCopy id="m-efa573ff5b2e">Print / PDF</DesignCopy></button>
+      <span data-design-id="m-3eaaeaea5713" className="ml-auto text-xs text-stone-500" role="status">{status}</span>{error && <button data-design-id="m-347e2ba7a59c" className="text-xs text-red-700" onClick={() => void retry()}>{error} · Retry</button>}
     </div>
-    {sourceDocumentId && <div className="flex gap-4 text-xs text-stone-500"><a className="underline" href={`/api/${viewId}/documents/${sourceDocumentId}/file`} target="_blank" rel="noreferrer">Open original source file</a>{!originalView && <button className="underline" onClick={() => setOriginalView(true)}>Read original layout</button>}</div>}
-    {editing ? <div className="space-y-3 rounded-xl border border-stone-200 bg-white p-5">
-      <p className="text-sm text-stone-500">Paste or import the reading. Existing notes are kept when you edit the source.</p>
-      <input aria-label="Import reading file" type="file" accept=".pdf,.docx,.txt,.md" disabled={importing} className="text-sm" onChange={async e => {
+    {sourceDocumentId && <div data-design-id="m-083122aacc3b" className="flex gap-4 text-xs text-stone-500"><a data-design-id="m-7a1e3b9b00b8" className="underline" href={`/api/${viewId}/documents/${sourceDocumentId}/file`} target="_blank" rel="noreferrer"><DesignCopy id="m-7a1e3b9b00b8">Open original source file</DesignCopy></a>{!originalView && <button data-design-id="m-a66930ff154c" className="underline" onClick={() => setOriginalView(true)}><DesignCopy id="m-a66930ff154c">Read original layout</DesignCopy></button>}</div>}
+    {editing ? <div data-design-id="m-e3db144deee2" className="space-y-3 rounded-xl border border-stone-200 bg-white p-5">
+      <p data-design-id="m-ac17321f369f" className="text-sm text-stone-500"><DesignCopy id="m-ac17321f369f">Paste or import the reading. Existing notes are kept when you edit the source.</DesignCopy></p>
+      <input data-design-id="m-cbfad5f21eda" aria-label="Import reading file" type="file" accept=".pdf,.docx,.txt,.md" disabled={importing} className="text-sm" onChange={async e => {
         const file = e.target.files?.[0]; e.target.value = ""; if (!file) return;
         setImporting(true); setImportError("");
         try {
@@ -77,25 +79,25 @@ export default function ReadingArtifactPage({ artifact }: { artifact: ReadingArt
         } catch (cause) { setImportError(cause instanceof Error ? cause.message : "Import failed."); }
         finally { setImporting(false); }
       }} />
-      {importing && <p className="text-xs text-stone-500">Reading your file…</p>}{importError && <p role="alert" className="text-sm text-red-700">{importError}</p>}
-      <textarea aria-label="Reading text" className={field + " min-h-[420px] leading-7"} value={text} onChange={e => { setText(e.target.value); void save({ bodyText: e.target.value }); }} placeholder="Paste the reading here…" />
+      {importing && <p data-design-id="m-7a7cc335e81f" className="text-xs text-stone-500"><DesignCopy id="m-7a7cc335e81f">Reading your file…</DesignCopy></p>}{importError && <p data-design-id="m-1770bce7672e" role="alert" className="text-sm text-red-700">{importError}</p>}
+      <textarea data-design-id="m-49729497fb91" aria-label="Reading text" className={field + " min-h-[420px] leading-7"} value={text} onChange={e => { setText(e.target.value); void save({ bodyText: e.target.value }); }} placeholder="Paste the reading here…" />
     </div> : sourceDocumentId && originalView ? <PdfReadingViewer key={sourceDocumentId} url={`/api/${viewId}/documents/${sourceDocumentId}/file`} onTextView={() => setOriginalView(false)} onQuote={selected => { setQuote(selected); setAnchor(undefined); }} /> : <>
-      <p className="text-xs text-stone-500">Select a passage to quote it in a note. Click a highlighted passage to find its annotation.</p>
-      <article ref={article} onMouseUp={captureSelection} onKeyUp={captureSelection} className="whitespace-pre-wrap rounded-xl border border-stone-200 bg-white px-8 py-8 text-base leading-8">
-        {text ? boundaries.slice(0,-1).map((start, i) => { const end = boundaries[i+1]; const highlight = anchored.find(a => a.start <= start && a.start + a.quote.length >= end); return highlight ? <mark key={start} className="cursor-pointer rounded-sm bg-amber-100" onClick={() => { setActive(highlight.id); document.getElementById("annotation-" + highlight.id)?.scrollIntoView({ behavior: "smooth", block: "center" }); }}><MathText text={text.slice(start,end)} /></mark> : <MathText key={start} text={text.slice(start,end)} />; }) : <span className="text-stone-400">Add the reading in Edit reading.</span>}
+      <p data-design-id="m-ba650cba581c" className="text-xs text-stone-500"><DesignCopy id="m-ba650cba581c">Select a passage to quote it in a note. Click a highlighted passage to find its annotation.</DesignCopy></p>
+      <article data-design-id="m-c55f16077297" ref={article} onMouseUp={captureSelection} onKeyUp={captureSelection} className="whitespace-pre-wrap rounded-xl border border-stone-200 bg-white px-8 py-8 text-base leading-8">
+        {text ? boundaries.slice(0,-1).map((start, i) => { const end = boundaries[i+1]; const highlight = anchored.find(a => a.start <= start && a.start + a.quote.length >= end); return highlight ? <mark data-design-id="m-7ff08033cd03" data-design-key={start} key={start} className="cursor-pointer rounded-sm bg-amber-100" onClick={() => { setActive(highlight.id); document.getElementById("annotation-" + highlight.id)?.scrollIntoView({ behavior: "smooth", block: "center" }); }}><MathText text={text.slice(start,end)} /></mark> : <MathText key={start} text={text.slice(start,end)} />; }) : <span data-design-id="m-e768701bf786" className="text-stone-400"><DesignCopy id="m-e768701bf786">Add the reading in Edit reading.</DesignCopy></span>}
       </article>
     </>}
-    <section className="space-y-4 rounded-xl border border-stone-200 bg-white p-5">
-      <h2 className="font-medium">Annotations <span className="text-sm text-stone-400">({annotations.length})</span></h2>
-      <label className="block text-xs text-stone-500">Quoted passage<textarea className={field} rows={2} value={quote} onChange={e => { setQuote(e.target.value); setAnchor(undefined); }} placeholder="Select text above, or paste a quote…" /></label>
-      <label className="block text-xs text-stone-500">Your note<textarea className={field} rows={3} value={note} onChange={e => setNote(e.target.value)} placeholder="What stands out? What questions do you have?" /></label>
-      <button className={button} disabled={!quote.trim() && !note.trim()} onClick={() => { updateAnnotations([...annotations, { id: crypto.randomUUID(), quote: quote.trim(), note: note.trim(), ...(anchor !== undefined ? { start: anchor, end: anchor + quote.trim().length } : {}) }]); setQuote(""); setNote(""); setAnchor(undefined); window.getSelection()?.removeAllRanges(); }}>Add annotation</button>
-      {!!annotations.length && <input className={field} aria-label="Search annotations" value={search} onChange={e => setSearch(e.target.value)} placeholder="Search notes and quotes…" />}
-      {annotations.filter(a => (a.quote + " " + a.note).toLowerCase().includes(search.toLowerCase())).map(a => <div id={"annotation-" + a.id} key={a.id} className={"space-y-3 rounded-lg border p-4 " + (active === a.id ? "border-amber-300 bg-amber-50" : "border-stone-100 bg-stone-50")}>
-        {a.quote && <blockquote className="border-l-2 border-amber-300 pl-3 text-sm italic leading-relaxed"><MathText text={a.quote} /></blockquote>}
-        {a.quote && !text.includes(a.quote) && <p className="text-xs text-amber-700">This passage no longer matches the reading. Your note is preserved.</p>}
-        <textarea aria-label="Edit annotation note" className={field} rows={2} value={a.note} onChange={e => updateAnnotations(annotations.map(item => item.id === a.id ? { ...item, note: e.target.value } : item))} />
-        <button className="text-xs text-red-700" onClick={() => updateAnnotations(annotations.filter(item => item.id !== a.id))}>Delete annotation</button>
+    <section data-design-id="m-ece20184ebf3" className="space-y-4 rounded-xl border border-stone-200 bg-white p-5">
+      <h2 data-design-id="m-85cdb2ed838a" className="font-medium">Annotations <span data-design-id="m-b550afd4ee5d" className="text-sm text-stone-400">({annotations.length})</span></h2>
+      <label data-design-id="m-fef68757cc1a" className="block text-xs text-stone-500">Quoted passage<textarea data-design-id="m-f65f5ec487de" className={field} rows={2} value={quote} onChange={e => { setQuote(e.target.value); setAnchor(undefined); }} placeholder="Select text above, or paste a quote…" /></label>
+      <label data-design-id="m-d396290a5658" className="block text-xs text-stone-500">Your note<textarea data-design-id="m-f233ceee828c" className={field} rows={3} value={note} onChange={e => setNote(e.target.value)} placeholder="What stands out? What questions do you have?" /></label>
+      <button data-design-id="m-17cf6c6d20e2" className={button} disabled={!quote.trim() && !note.trim()} onClick={() => { updateAnnotations([...annotations, { id: crypto.randomUUID(), quote: quote.trim(), note: note.trim(), ...(anchor !== undefined ? { start: anchor, end: anchor + quote.trim().length } : {}) }]); setQuote(""); setNote(""); setAnchor(undefined); window.getSelection()?.removeAllRanges(); }}><DesignCopy id="m-17cf6c6d20e2">Add annotation</DesignCopy></button>
+      {!!annotations.length && <input data-design-id="m-190645b8cdf9" className={field} aria-label="Search annotations" value={search} onChange={e => setSearch(e.target.value)} placeholder="Search notes and quotes…" />}
+      {annotations.filter(a => (a.quote + " " + a.note).toLowerCase().includes(search.toLowerCase())).map(a => <div data-design-id="m-aa4e7915f857" data-design-key={a.id} id={"annotation-" + a.id} key={a.id} className={"space-y-3 rounded-lg border p-4 " + (active === a.id ? "border-amber-300 bg-amber-50" : "border-stone-100 bg-stone-50")}>
+        {a.quote && <blockquote data-design-id="m-6cbd73f25f11" className="border-l-2 border-amber-300 pl-3 text-sm italic leading-relaxed"><MathText text={a.quote} /></blockquote>}
+        {a.quote && !text.includes(a.quote) && <p data-design-id="m-ef7355eb8c07" className="text-xs text-amber-700"><DesignCopy id="m-ef7355eb8c07">This passage no longer matches the reading. Your note is preserved.</DesignCopy></p>}
+        <textarea data-design-id="m-416211eed0a3" aria-label="Edit annotation note" className={field} rows={2} value={a.note} onChange={e => updateAnnotations(annotations.map(item => item.id === a.id ? { ...item, note: e.target.value } : item))} />
+        <button data-design-id="m-b4cc870a4d07" className="text-xs text-red-700" onClick={() => updateAnnotations(annotations.filter(item => item.id !== a.id))}><DesignCopy id="m-b4cc870a4d07">Delete annotation</DesignCopy></button>
       </div>)}
     </section>
   </ArtifactShell>;

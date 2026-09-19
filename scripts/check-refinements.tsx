@@ -15,7 +15,7 @@ assert.deepEqual(normalizeFlashcardStudy(undefined), { known: [], starred: [], r
 assert.deepEqual(normalizeFlashcardStudy({ known: ["one", "one", 42], starred: null, reverse: "false" }), { known: ["one"], starred: [], reverse: false });
 assert.deepEqual(normalizeFlashcardStudy({ known: null, starred: ["two"], reverse: true }), { known: [], starred: ["two"], reverse: true });
 const markup = renderToStaticMarkup(<StudyMarkdown text={'# Main heading\nIntro with **bold** and *emphasis*.\n\n## Details\n- First\n- Second\n\n3. Third\n4. Fourth\n\n$$\nx^2\n$$\n\n```js\nconst literal = "**text**";\n```\n\n<script>alert(1)</script>'} />);
-assert.ok(markup.includes("<h2")); assert.ok(markup.includes("<strong")); assert.ok(markup.includes("<em>"));
+assert.ok(markup.includes("<h2")); assert.ok(markup.includes("<strong")); assert.ok(/<em(?:\s[^>]*)?>/.test(markup));
 assert.ok(markup.includes("<ul")); assert.ok(markup.includes('start="3"')); assert.ok(markup.includes("katex"));
 assert.ok(markup.includes("&lt;script&gt;")); assert.ok(!markup.includes("<script>"));
 assert.ok(!markup.includes("## Details")); assert.ok(!markup.includes("**bold**"));

@@ -1,4 +1,6 @@
 "use client";
+import { DesignCopy } from "@/components/design/runtime";
+
 
 import { useCallback, useMemo, useState } from "react";
 import { useViewId } from "@/components/view-provider";
@@ -158,10 +160,10 @@ export default function VisibilityClient({
   }, [adding, users.length, viewId]);
 
   return (
-    <div className="flex h-full min-h-0 flex-1 flex-col gap-4 overflow-hidden px-14 pt-7 pb-5">
-      <div className="flex h-[34px] w-[1263px] shrink-0 items-center justify-end">
-        <div className="flex items-center gap-2">
-          <button
+    <div data-design-id="m-ab99ee2d9eb0" className="flex h-full min-h-0 flex-1 flex-col gap-4 overflow-hidden px-14 pt-7 pb-5">
+      <div data-design-id="m-82913cc04746" className="flex h-[34px] w-[1263px] shrink-0 items-center justify-end">
+        <div data-design-id="m-b0812feefecf" className="flex items-center gap-2">
+          <button data-design-id="m-0a2ffe3bc225"
             type="button"
             aria-label="Add user"
             disabled={adding}
@@ -172,8 +174,8 @@ export default function VisibilityClient({
               <path d="M8 3.2V12.8M3.2 8H12.8" fill="none" stroke="#15181E" strokeWidth="2" strokeLinecap="round" />
             </svg>
           </button>
-          <div className="relative">
-            <button
+          <div data-design-id="m-d2017f6c452f" className="relative">
+            <button data-design-id="m-fbec08a13561"
               type="button"
               aria-haspopup="menu"
               aria-expanded={sortOpen}
@@ -183,25 +185,25 @@ export default function VisibilityClient({
               <svg width="13" height="13" viewBox="0 0 16 16" className="shrink-0">
                 <path d="M3 6L6 3L9 6M6 3V13M13 10L10 13L7 10M10 13V3" fill="none" stroke="#15181E" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
               </svg>
-              <span className="text-[12.5px] leading-4 text-[#15181E]">Sort</span>
+              <span data-design-id="m-567dd8ed2c79" className="text-[12.5px] leading-4 text-[#15181E]"><DesignCopy id="m-567dd8ed2c79">Sort</DesignCopy></span>
               <svg width="13" height="13" viewBox="0 0 16 16" className="shrink-0">
                 <path d="M4 6.5L8 10.5L12 6.5" fill="none" stroke="#9AA1AE" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
               </svg>
             </button>
             {sortOpen ? (
               <>
-                <button
+                <button data-design-id="m-f9db5be33ff8"
                   type="button"
                   aria-label="Close sort menu"
                   className="fixed inset-0 z-10 cursor-default"
                   onClick={() => setSortOpen(false)}
                 />
-                <div
+                <div data-design-id="m-ace66149fb29"
                   role="menu"
                   className="absolute top-full right-0 z-20 mt-1 min-w-[168px] overflow-hidden rounded-lg border border-[#E8E8E6] bg-white py-1 shadow-[0_8px_24px_rgba(0,0,0,0.08)]"
                 >
                   {SORTS.map((option) => (
-                    <button
+                    <button data-design-id="m-850ab6089382" data-design-key={option.id}
                       key={option.id}
                       type="button"
                       role="menuitem"
@@ -226,35 +228,35 @@ export default function VisibilityClient({
         </div>
       </div>
 
-      <div className="flex min-h-0 w-[1263px] flex-col overflow-clip rounded-[9px] border border-[#E5E7EC] bg-white">
-        <div className="flex h-[42px] shrink-0 items-center border-b border-[#E5E7EC] bg-[#FBFBFC]">
+      <div data-design-id="m-bb97da6a42e8" className="flex min-h-0 w-[1263px] flex-col overflow-clip rounded-[9px] border border-[#E5E7EC] bg-white">
+        <div data-design-id="m-169104616d89" className="flex h-[42px] shrink-0 items-center border-b border-[#E5E7EC] bg-[#FBFBFC]">
           {COLUMNS.map((col, i) => (
-            <div
+            <div data-design-id="m-f3f66504053d" data-design-key={col.key}
               key={col.key}
               className={`flex h-[26px] shrink-0 items-center gap-1.5 px-3.5 ${col.width} ${
                 i < COLUMNS.length - 1 ? "border-r border-[#E5E7EC]" : ""
               }`}
             >
               <ColumnIcon column={col.key} />
-              <span className="text-[11.5px] font-medium leading-[14px] text-[#15181E]">{col.label}</span>
+              <span data-design-id="m-b151369ad1ce" className="text-[11.5px] font-medium leading-[14px] text-[#15181E]">{col.label}</span>
             </div>
           ))}
         </div>
 
-        <div className="flex min-h-0 flex-col overflow-y-auto">
+        <div data-design-id="m-cf4f455a4e26" className="flex min-h-0 flex-col overflow-y-auto">
           {visible.map((user) => (
-            <div
+            <div data-design-id="m-61ff35a60fd6" data-design-key={user.id}
               key={user.id}
               className="flex h-[52px] shrink-0 items-center border-b border-[#EFF0F3] last:border-b-0 hover:bg-[#FBFBFC]"
             >
               {COLUMNS.map((col, i) => (
-                <div
+                <div data-design-id="m-c5d0e8f00d46" data-design-key={col.key}
                   key={col.key}
                   className={`flex h-[34px] shrink-0 items-center px-3.5 ${col.width} ${
                     i < COLUMNS.length - 1 ? "border-r border-[#EFF0F3]" : ""
                   }`}
                 >
-                  <input
+                  <input data-design-id="m-1ec39228be0e"
                     value={user[col.key]}
                     placeholder="Add…"
                     aria-label={`${col.label} for ${user.username || "user"}`}
@@ -283,9 +285,9 @@ export default function VisibilityClient({
         </div>
       </div>
 
-      <div className="flex w-[1263px] shrink-0 items-center justify-end">
-        <div className="flex items-center gap-1">
-          <button
+      <div data-design-id="m-19633997d5e4" className="flex w-[1263px] shrink-0 items-center justify-end">
+        <div data-design-id="m-cffcee1645f8" className="flex items-center gap-1">
+          <button data-design-id="m-abd86825716d"
             type="button"
             disabled={atFirst}
             onClick={() => setPage((current) => Math.max(1, current - 1))}
@@ -294,10 +296,10 @@ export default function VisibilityClient({
             <svg width="14" height="14" viewBox="0 0 16 16" className="shrink-0">
               <path d="M10 3.5L5.5 8L10 12.5" fill="none" stroke="#15181E" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
-            <span className="text-[12.5px] font-medium leading-4 text-[#15181E]">Previous</span>
+            <span data-design-id="m-9bef312a0d79" className="text-[12.5px] font-medium leading-4 text-[#15181E]"><DesignCopy id="m-9bef312a0d79">Previous</DesignCopy></span>
           </button>
           {pages.map((pageNumber) => (
-            <button
+            <button data-design-id="m-2f85d0df3e21" data-design-key={pageNumber}
               key={pageNumber}
               type="button"
               onClick={() => setPage(pageNumber)}
@@ -310,13 +312,13 @@ export default function VisibilityClient({
               {pageNumber}
             </button>
           ))}
-          <button
+          <button data-design-id="m-acefd19336c0"
             type="button"
             disabled={atLast}
             onClick={() => setPage((current) => Math.min(totalPages, current + 1))}
             className="flex h-8 cursor-pointer items-center gap-1.5 rounded-lg pr-2.5 pl-3 hover:bg-[#F5F6F8] disabled:cursor-default disabled:opacity-40 disabled:hover:bg-transparent"
           >
-            <span className="text-[12.5px] font-medium leading-4 text-[#15181E]">Next</span>
+            <span data-design-id="m-8d9a0ff6d4fc" className="text-[12.5px] font-medium leading-4 text-[#15181E]"><DesignCopy id="m-8d9a0ff6d4fc">Next</DesignCopy></span>
             <svg width="14" height="14" viewBox="0 0 16 16" className="shrink-0">
               <path d="M6 3.5L10.5 8L6 12.5" fill="none" stroke="#15181E" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
             </svg>

@@ -6,6 +6,8 @@ import { getServerViewId } from "@/lib/views-server";
 import { readViewStore } from "@/lib/local-db";
 import "katex/dist/katex.min.css";
 import "./globals.css";
+import { DesignRuntime } from "@/components/design/runtime";
+import DesignEditor from "@/components/design/editor";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -48,14 +50,17 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
       suppressHydrationWarning
     >
       <body className="flex h-full min-h-full bg-[#F5F3EE] text-[#0A0A0A]">
-        <ViewProvider viewId={viewId} profile={profile}>
-          <Rail />
-          <div className="flex min-h-0 min-w-0 flex-1 flex-col pt-2">
-            <main className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden rounded-tl-[24px] border-t border-l border-[#E3E0D9] bg-white">
-              {children}
-            </main>
-          </div>
-        </ViewProvider>
+        <DesignRuntime>
+          <ViewProvider viewId={viewId} profile={profile}>
+            <Rail />
+            <div data-design-id="m-3089d5f35b3a" className="flex min-h-0 min-w-0 flex-1 flex-col pt-2">
+              <main data-design-id="m-a5daf3330150" className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden rounded-tl-[24px] border-t border-l border-[#E3E0D9] bg-white">
+                {children}
+              </main>
+            </div>
+          </ViewProvider>
+          {process.env.NODE_ENV === "development" && <DesignEditor />}
+        </DesignRuntime>
       </body>
     </html>
   );

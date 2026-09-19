@@ -1,4 +1,6 @@
 "use client";
+import { DesignCopy } from "@/components/design/runtime";
+
 
 /**
  * The chat-facing wrapper around a diagram: title, actions, and the affordances
@@ -103,7 +105,7 @@ function GhostButton({
   children: React.ReactNode;
 }) {
   return (
-    <button
+    <button data-design-id="m-3038b80da8ff"
       type="button"
       aria-label={label}
       title={label}
@@ -157,13 +159,13 @@ function FocusDialog({
   };
 
   return (
-    <div
+    <div data-design-id="m-c9fef65ebc00"
       className="fixed inset-0 z-50 flex items-center justify-center p-8"
       style={{ background: "rgba(24,20,32,0.46)" }}
       onClick={onClose}
       role="presentation"
     >
-      <div
+      <div data-design-id="m-dbbe51dd9678"
         role="dialog"
         aria-modal="true"
         aria-label={spec.title}
@@ -171,19 +173,19 @@ function FocusDialog({
         className="flex max-h-full w-full max-w-[1080px] flex-col gap-[22px] rounded-2xl bg-white px-[30px] pt-[26px] pb-[22px] shadow-[0_30px_80px_rgba(20,16,28,0.28)]"
       >
         {/* header */}
-        <div className="flex shrink-0 items-center justify-between">
-          <div className="flex min-w-0 flex-col gap-[5px]">
-            <span className="text-[10px] leading-3 font-semibold tracking-[0.14em]" style={{ color: ACCENT }}>
+        <div data-design-id="m-4dae94605f0d" className="flex shrink-0 items-center justify-between">
+          <div data-design-id="m-ca7743d9a369" className="flex min-w-0 flex-col gap-[5px]">
+            <span data-design-id="m-6ca7c493d789" className="text-[10px] leading-3 font-semibold tracking-[0.14em]" style={{ color: ACCENT }}><DesignCopy id="m-6ca7c493d789">
               DIAGRAM
-            </span>
-            <h2 className="font-display truncate text-[24px] leading-[30px] tracking-[-0.01em] text-[#0A0A0A]">
+            </DesignCopy></span>
+            <h2 data-design-id="m-2c1ae59521e0" className="font-display truncate text-[24px] leading-[30px] tracking-[-0.01em] text-[#0A0A0A]">
               {spec.title}
             </h2>
           </div>
 
-          <div className="flex shrink-0 items-center gap-2.5">
-            <div className="flex items-center gap-0.5 rounded-full p-1" style={{ background: ACCENT_SOFT }}>
-              <button
+          <div data-design-id="m-363fdcded2c0" className="flex shrink-0 items-center gap-2.5">
+            <div data-design-id="m-5b957efc6c1c" className="flex items-center gap-0.5 rounded-full p-1" style={{ background: ACCENT_SOFT }}>
+              <button data-design-id="m-3ef47aaece75"
                 type="button"
                 aria-label="Zoom out"
                 disabled={zoom === 0}
@@ -194,10 +196,10 @@ function FocusDialog({
                   <path d="M6 12h12" stroke="#5E5E5E" strokeWidth="2" strokeLinecap="round" />
                 </svg>
               </button>
-              <span className="w-11 shrink-0 text-center text-[12px] leading-4 font-medium text-[#3D3D3D]">
+              <span data-design-id="m-bbd66d8904a0" className="w-11 shrink-0 text-center text-[12px] leading-4 font-medium text-[#3D3D3D]">
                 {`${Math.round(ZOOMS[zoom] * 100)}%`}
               </span>
-              <button
+              <button data-design-id="m-eb0b11208984"
                 type="button"
                 aria-label="Zoom in"
                 disabled={zoom === ZOOMS.length - 1}
@@ -209,7 +211,7 @@ function FocusDialog({
                 </svg>
               </button>
             </div>
-            <button
+            <button data-design-id="m-1d01047ba7c2"
               type="button"
               aria-label="Close"
               onClick={onClose}
@@ -223,8 +225,8 @@ function FocusDialog({
         </div>
 
         {/* canvas — zoom magnifies deliberately; the 100% render stays crisp */}
-        <div className="min-h-0 flex-1 overflow-auto">
-          <div
+        <div data-design-id="m-1d710d65db53" className="min-h-0 flex-1 overflow-auto">
+          <div data-design-id="m-c3495c38ab6f"
             style={{
               transform: `scale(${ZOOMS[zoom]})`,
               transformOrigin: "top center",
@@ -236,12 +238,12 @@ function FocusDialog({
         </div>
 
         {/* footer */}
-        <div className="flex shrink-0 items-center justify-between">
-          <span className="text-[12px] leading-4 text-[#9A9A98]">
+        <div data-design-id="m-59acf8a9f302" className="flex shrink-0 items-center justify-between">
+          <span data-design-id="m-0ee16634f3ed" className="text-[12px] leading-4 text-[#9A9A98]">
             {`${describeDiagram(spec)} · still editable`}
           </span>
-          <div className="flex shrink-0 items-center gap-2.5">
-            <button
+          <div data-design-id="m-17f6e329c6a9" className="flex shrink-0 items-center gap-2.5">
+            <button data-design-id="m-0a2510aa2198"
               type="button"
               onClick={copyOutline}
               className="flex h-9 shrink-0 items-center gap-[7px] rounded-lg border border-[#E4E2EC] px-[15px] text-[13px] leading-4 font-medium text-[#3D3D3D] transition-colors hover:bg-[#FAFAFA]"
@@ -251,7 +253,7 @@ function FocusDialog({
             </button>
 
             {saved ? (
-              <Link
+              <Link data-design-id="m-7d8b8db0ecc2"
                 href={`/artifacts/${saved}`}
                 className="flex h-9 shrink-0 items-center gap-[7px] rounded-lg px-4 text-[13px] leading-4 font-medium"
                 style={{ background: ACCENT_SOFT, color: ACCENT }}
@@ -260,7 +262,7 @@ function FocusDialog({
                 Open artifact
               </Link>
             ) : onSave ? (
-              <button
+              <button data-design-id="m-59c074e5c5fd"
                 type="button"
                 onClick={onSave}
                 disabled={saving}
@@ -339,19 +341,19 @@ export function DiagramCard({
 
   return (
     <>
-      <div className="my-1 flex w-full flex-col gap-[22px] rounded-[14px] border border-[#E4E2EC] bg-white px-7 pt-[22px] pb-[18px]">
+      <div data-design-id="m-322057ca1c7c" className="my-1 flex w-full flex-col gap-[22px] rounded-[14px] border border-[#E4E2EC] bg-white px-7 pt-[22px] pb-[18px]">
         {/* header */}
-        <div className="flex items-center justify-between gap-4">
-          <div className="flex min-w-0 flex-col gap-[5px]">
-            <span className="text-[10px] leading-3 font-semibold tracking-[0.14em]" style={{ color: ACCENT }}>
+        <div data-design-id="m-b116e5d23e62" className="flex items-center justify-between gap-4">
+          <div data-design-id="m-ef468432f984" className="flex min-w-0 flex-col gap-[5px]">
+            <span data-design-id="m-ff3ffcdcafc9" className="text-[10px] leading-3 font-semibold tracking-[0.14em]" style={{ color: ACCENT }}><DesignCopy id="m-ff3ffcdcafc9">
               DIAGRAM
-            </span>
-            <span className="truncate text-base leading-5 font-semibold tracking-[-0.005em] text-[#0A0A0A]">
+            </DesignCopy></span>
+            <span data-design-id="m-37cb18f74c3f" className="truncate text-base leading-5 font-semibold tracking-[-0.005em] text-[#0A0A0A]">
               {spec.title}
             </span>
           </div>
 
-          <div className="flex shrink-0 items-center gap-[7px]">
+          <div data-design-id="m-193fa7fb6602" className="flex shrink-0 items-center gap-[7px]">
             <GhostButton label={copied ? "Copied" : "Copy outline"} onClick={copyOutline}>
               {copied ? <CheckIcon /> : <CopyIcon />}
             </GhostButton>
@@ -360,7 +362,7 @@ export function DiagramCard({
             </GhostButton>
 
             {savedSlug ? (
-              <Link
+              <Link data-design-id="m-cef7be85aeb8"
                 href={`/artifacts/${savedSlug}`}
                 className="flex h-[31px] shrink-0 items-center gap-[7px] rounded-lg px-3.5 text-[13px] leading-4 font-medium"
                 style={{ background: ACCENT_SOFT, color: ACCENT }}
@@ -369,7 +371,7 @@ export function DiagramCard({
                 Saved
               </Link>
             ) : onSave ? (
-              <button
+              <button data-design-id="m-c087fcb99b98"
                 type="button"
                 onClick={handleSave}
                 disabled={saving}
@@ -384,16 +386,16 @@ export function DiagramCard({
         </div>
 
         {/* diagram */}
-        <div className={busyDetail ? "opacity-50 transition-opacity" : "transition-opacity"}>
+        <div data-design-id="m-ff782a641f31" className={busyDetail ? "opacity-50 transition-opacity" : "transition-opacity"}>
           <DiagramView spec={spec} scale="inline" />
         </div>
 
         {/* footer */}
-        <div className="flex items-center justify-between gap-4">
-          <span className="text-[12px] leading-4 text-[#9A9A98]">{describeDiagram(spec)}</span>
+        <div data-design-id="m-14302de6bcd7" className="flex items-center justify-between gap-4">
+          <span data-design-id="m-01a92e6e5b4f" className="text-[12px] leading-4 text-[#9A9A98]">{describeDiagram(spec)}</span>
 
           {showDetailControl ? (
-            <button
+            <button data-design-id="m-e18aa3b5d06c"
               type="button"
               onClick={() => handleDetail(expandable ? 2 : 1)}
               disabled={busyDetail}
@@ -401,7 +403,7 @@ export function DiagramCard({
               style={{ background: ACCENT_SOFT, color: ACCENT }}
             >
               {busyDetail ? (
-                <span style={{ color: ACCENT }}>
+                <span data-design-id="m-bedca9645b9d" style={{ color: ACCENT }}>
                   <Spinner />
                 </span>
               ) : expandable ? (
@@ -418,7 +420,7 @@ export function DiagramCard({
           ) : null}
         </div>
 
-        {error ? <p className="text-[13px] leading-[18px] text-[#B42318]">{error}</p> : null}
+        {error ? <p data-design-id="m-230ba1787986" className="text-[13px] leading-[18px] text-[#B42318]">{error}</p> : null}
       </div>
 
       {focused ? (

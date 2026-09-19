@@ -1,4 +1,6 @@
 "use client";
+import { DesignCopy } from "@/components/design/runtime";
+
 
 import {
   useEffect,
@@ -109,7 +111,7 @@ function PropButton({
   active?: boolean;
 }) {
   return (
-    <button
+    <button data-design-id="m-a6d775cdf9b5"
       type="button"
       onClick={onClick}
       className={`flex h-8 w-full items-center gap-2 rounded-md px-2 text-left text-[13px] leading-4 transition-colors ${
@@ -135,13 +137,13 @@ function Menu({
   if (!open) return null;
   return (
     <>
-      <button
+      <button data-design-id="m-93a8eb65e23a"
         type="button"
         aria-label="Close menu"
         className="fixed inset-0 z-10 cursor-default"
         onClick={onClose}
       />
-      <div className="absolute top-full left-0 z-20 mt-1 min-w-[180px] overflow-hidden rounded-lg border border-[#E8E8E6] bg-white py-1 shadow-[0_8px_24px_rgba(0,0,0,0.08)]">
+      <div data-design-id="m-756cf0b13b4a" className="absolute top-full left-0 z-20 mt-1 min-w-[180px] overflow-hidden rounded-lg border border-[#E8E8E6] bg-white py-1 shadow-[0_8px_24px_rgba(0,0,0,0.08)]">
         {children}
       </div>
     </>
@@ -158,7 +160,7 @@ function MenuItem({
   onClick: () => void;
 }) {
   return (
-    <button
+    <button data-design-id="m-bf318dda5338"
       type="button"
       onClick={onClick}
       className={`flex w-full items-center gap-2 px-3 py-2 text-left text-[13px] leading-4 transition-colors ${
@@ -384,15 +386,15 @@ function IssueDetailContent({ issue, onClose, onOpenIssue }: IssueDetailProps) {
   if (!mounted) return null;
 
   return createPortal(
-    <div className="fixed inset-0 z-50 flex items-start justify-center px-4 pt-[8vh] pb-10">
-      <button
+    <div data-design-id="m-d28df6c0e2cc" className="fixed inset-0 z-50 flex items-start justify-center px-4 pt-[8vh] pb-10">
+      <button data-design-id="m-9eccb4a312d9"
         type="button"
         aria-label="Dismiss"
         className="absolute inset-0 bg-[#0A0A0A]/35 backdrop-blur-[1px]"
         onClick={onClose}
       />
 
-      <div
+      <div data-design-id="m-085da175e251"
         ref={dialogRef}
         role="dialog"
         aria-modal="true"
@@ -403,7 +405,7 @@ function IssueDetailContent({ issue, onClose, onOpenIssue }: IssueDetailProps) {
         }`}
       >
         {/* Drag handle — top white strip across the card */}
-        <div
+        <div data-design-id="m-90ff7d7f2fe9"
           role="separator"
           aria-label="Drag to move"
           onPointerDown={onDragHandlePointerDown}
@@ -415,11 +417,11 @@ function IssueDetailContent({ issue, onClose, onOpenIssue }: IssueDetailProps) {
           }`}
         />
 
-        <div className="flex min-h-0 flex-1 overflow-hidden">
+        <div data-design-id="m-9f6f8f9a39f1" className="flex min-h-0 flex-1 overflow-hidden">
         {/* Main */}
-        <div className="flex min-w-0 flex-1 flex-col overflow-y-auto px-8 pt-1 pb-8">
-          <div className="flex items-start justify-between gap-3">
-            <textarea
+        <div data-design-id="m-e4522b1cfe4d" className="flex min-w-0 flex-1 flex-col overflow-y-auto px-8 pt-1 pb-8">
+          <div data-design-id="m-dfd6002e51f6" className="flex items-start justify-between gap-3">
+            <textarea data-design-id="m-49e19983a1da"
               id={titleId}
               ref={titleRef}
               value={title}
@@ -435,7 +437,7 @@ function IssueDetailContent({ issue, onClose, onOpenIssue }: IssueDetailProps) {
               className="min-w-0 flex-1 resize-none bg-transparent text-[26px] leading-[34px] font-semibold tracking-[-0.02em] text-[#0A0A0A] outline-none placeholder:text-[#C4C4C0]"
               placeholder="Task title"
             />
-            <button
+            <button data-design-id="m-5e9a1425c85c"
               type="button"
               aria-label="Close"
               onClick={onClose}
@@ -453,7 +455,7 @@ function IssueDetailContent({ issue, onClose, onOpenIssue }: IssueDetailProps) {
             </button>
           </div>
 
-          <textarea
+          <textarea data-design-id="m-f41dc0d6ae90"
             value={description}
             onChange={(e) => setDescription(e.target.value)}
             onBlur={saveDescription}
@@ -462,8 +464,8 @@ function IssueDetailContent({ issue, onClose, onOpenIssue }: IssueDetailProps) {
             placeholder="Add description…"
           />
 
-          <div className="mt-3 flex items-center gap-1.5 text-[#B0B0AC]">
-            <span className="flex h-7 w-7 items-center justify-center rounded-md">
+          <div data-design-id="m-a809bf4ee8f2" className="mt-3 flex items-center gap-1.5 text-[#B0B0AC]">
+            <span data-design-id="m-22c0732f033f" className="flex h-7 w-7 items-center justify-center rounded-md">
               <svg width="15" height="15" viewBox="0 0 24 24">
                 <circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" strokeWidth="1.6" />
                 <circle cx="9" cy="10" r="1" fill="currentColor" />
@@ -477,7 +479,7 @@ function IssueDetailContent({ issue, onClose, onOpenIssue }: IssueDetailProps) {
                 />
               </svg>
             </span>
-            <span className="flex h-7 w-7 items-center justify-center rounded-md">
+            <span data-design-id="m-f69d9837550d" className="flex h-7 w-7 items-center justify-center rounded-md">
               <svg width="15" height="15" viewBox="0 0 24 24">
                 <path
                   d="M8.5 12.5l6.2-6.2a3 3 0 1 1 4.2 4.2l-7.8 7.8a4.5 4.5 0 0 1-6.4-6.4l7.5-7.5"
@@ -492,8 +494,8 @@ function IssueDetailContent({ issue, onClose, onOpenIssue }: IssueDetailProps) {
           </div>
 
           {/* Sub-tasks */}
-          <section className="mt-8">
-            <div className="flex h-9 items-center gap-2 border-b border-[#EFEFED]">
+          <section data-design-id="m-9b79c183d156" className="mt-8">
+            <div data-design-id="m-4f29dbadb5f4" className="flex h-9 items-center gap-2 border-b border-[#EFEFED]">
               <svg width="12" height="12" viewBox="0 0 24 24" className="shrink-0">
                 <path
                   d="M6 9.5l6 6 6-6"
@@ -504,17 +506,17 @@ function IssueDetailContent({ issue, onClose, onOpenIssue }: IssueDetailProps) {
                   strokeLinejoin="round"
                 />
               </svg>
-              <h2 className="text-[13px] leading-4 font-medium text-[#0A0A0A]">
+              <h2 data-design-id="m-32e2cd45c722" className="text-[13px] leading-4 font-medium text-[#0A0A0A]"><DesignCopy id="m-32e2cd45c722">
                 Sub-tasks
-              </h2>
+              </DesignCopy></h2>
               {children.length > 0 ? (
-                <span className="flex items-center gap-1.5 text-[12.5px] leading-4 text-[#9A9A98] tabular-nums">
+                <span data-design-id="m-82592ed183ea" className="flex items-center gap-1.5 text-[12.5px] leading-4 text-[#9A9A98] tabular-nums">
                   <ProgressRing done={progress.done} total={progress.total} />
                   {progress.done}/{progress.total}
                 </span>
               ) : null}
-              <div className="flex-1" />
-              <button
+              <div data-design-id="m-aba2f4d10436" className="flex-1" />
+              <button data-design-id="m-8632f91a471b"
                 type="button"
                 aria-label="Add sub-task"
                 // Prevent stealing focus / blur-saving the open composer.
@@ -534,19 +536,19 @@ function IssueDetailContent({ issue, onClose, onOpenIssue }: IssueDetailProps) {
               </button>
             </div>
 
-            <ul className="flex flex-col pt-1">
+            <ul data-design-id="m-578846b34319" className="flex flex-col pt-1">
               {children.map((child) => (
-                <li key={child.key}>
-                  <button
+                <li data-design-id="m-8183d59e765e" data-design-key={child.key} key={child.key}>
+                  <button data-design-id="m-ac499823701f"
                     type="button"
                     onClick={() => onOpenIssue(child.key)}
                     className="flex w-full items-start gap-2.5 rounded-md px-1 py-2.5 text-left transition-colors hover:bg-[#FBFBFA]"
                   >
-                    <span className="mt-0.5 shrink-0">
+                    <span data-design-id="m-dbe3c3109aba" className="mt-0.5 shrink-0">
                       <StatusIcon status={child.status} />
                     </span>
-                    <span className="min-w-0 flex-1">
-                      <span
+                    <span data-design-id="m-601e212004d3" className="min-w-0 flex-1">
+                      <span data-design-id="m-bc80bf4f7808"
                         className={`block truncate text-sm leading-[18px] ${
                           child.status === "done"
                             ? "text-[#9A9A98] line-through"
@@ -556,7 +558,7 @@ function IssueDetailContent({ issue, onClose, onOpenIssue }: IssueDetailProps) {
                         {child.title}
                       </span>
                       {child.description ? (
-                        <span className="mt-0.5 block truncate text-[13px] leading-[18px] text-[#9A9A98]">
+                        <span data-design-id="m-46ee50c92146" className="mt-0.5 block truncate text-[13px] leading-[18px] text-[#9A9A98]">
                           {child.description}
                         </span>
                       ) : null}
@@ -566,12 +568,12 @@ function IssueDetailContent({ issue, onClose, onOpenIssue }: IssueDetailProps) {
               ))}
 
               {addingSubtask ? (
-                <li className="flex items-start gap-2.5 px-1 py-2">
-                  <span className="mt-0.5 shrink-0">
+                <li data-design-id="m-8b8636637895" className="flex items-start gap-2.5 px-1 py-2">
+                  <span data-design-id="m-035e78f0c5c8" className="mt-0.5 shrink-0">
                     <StatusIcon status="todo" />
                   </span>
-                  <div className="flex min-w-0 flex-1 flex-col gap-0.5">
-                    <input
+                  <div data-design-id="m-9bdb98eabc85" className="flex min-w-0 flex-1 flex-col gap-0.5">
+                    <input data-design-id="m-b4532d490274"
                       ref={subtaskRef}
                       value={subtaskTitle}
                       onChange={(e) => setSubtaskTitle(e.target.value)}
@@ -604,7 +606,7 @@ function IssueDetailContent({ issue, onClose, onOpenIssue }: IssueDetailProps) {
                       disabled={savingSubtask}
                       className="w-full bg-transparent text-sm leading-[18px] text-[#0A0A0A] outline-none placeholder:text-[#B0B0AC]"
                     />
-                    <textarea
+                    <textarea data-design-id="m-d55dbc60d257"
                       value={subtaskDescription}
                       onChange={(e) => setSubtaskDescription(e.target.value)}
                       onKeyDown={(e) => {
@@ -638,22 +640,22 @@ function IssueDetailContent({ issue, onClose, onOpenIssue }: IssueDetailProps) {
               ) : null}
 
               {!addingSubtask && children.length === 0 ? (
-                <li className="px-1 py-3 text-[13px] leading-[18px] text-[#9A9A98]">
+                <li data-design-id="m-97b62e283ec6" className="px-1 py-3 text-[13px] leading-[18px] text-[#9A9A98]"><DesignCopy id="m-97b62e283ec6">
                   Break this into smaller pieces.
-                </li>
+                </DesignCopy></li>
               ) : null}
             </ul>
           </section>
 
           {error ? (
-            <p className="mt-4 text-[13px] leading-4 text-[#B42318]">{error}</p>
+            <p data-design-id="m-f7f051d360cb" className="mt-4 text-[13px] leading-4 text-[#B42318]">{error}</p>
           ) : null}
         </div>
 
         {/* Properties — flat list, no section dividers */}
-        <aside className="flex w-[240px] shrink-0 flex-col overflow-y-auto border-l border-[#EFEFED] bg-[#FCFCFB] px-4 pt-1 pb-8">
-          <div className="flex flex-col gap-0.5">
-            <div className="relative">
+        <aside data-design-id="m-66bd379eb368" className="flex w-[240px] shrink-0 flex-col overflow-y-auto border-l border-[#EFEFED] bg-[#FCFCFB] px-4 pt-1 pb-8">
+          <div data-design-id="m-0d31ee592c5b" className="flex flex-col gap-0.5">
+            <div data-design-id="m-8787a42ad59c" className="relative">
               <PropButton
                 active={menu === "status"}
                 onClick={() => setMenu(menu === "status" ? null : "status")}
@@ -678,7 +680,7 @@ function IssueDetailContent({ issue, onClose, onOpenIssue }: IssueDetailProps) {
               </Menu>
             </div>
 
-            <div className="relative">
+            <div data-design-id="m-0cc80db03301" className="relative">
               <PropButton
                 active={menu === "course"}
                 onClick={() => setMenu(menu === "course" ? null : "course")}
@@ -699,7 +701,7 @@ function IssueDetailContent({ issue, onClose, onOpenIssue }: IssueDetailProps) {
                     strokeLinecap="round"
                   />
                 </svg>
-                {issue.course ?? <span className="text-[#9A9A98]">Course</span>}
+                {issue.course ?? <span data-design-id="m-90799037b4c9" className="text-[#9A9A98]"><DesignCopy id="m-90799037b4c9">Course</DesignCopy></span>}
               </PropButton>
               <Menu open={menu === "course"} onClose={() => setMenu(null)}>
                 <MenuItem
@@ -712,9 +714,9 @@ function IssueDetailContent({ issue, onClose, onOpenIssue }: IssueDetailProps) {
                   No course
                 </MenuItem>
                 {meta.courses.length === 0 ? (
-                  <div className="px-3 py-2 text-[13px] leading-4 text-[#9A9A98]">
+                  <div data-design-id="m-5f79208b1861" className="px-3 py-2 text-[13px] leading-4 text-[#9A9A98]"><DesignCopy id="m-5f79208b1861">
                     No courses yet
-                  </div>
+                  </DesignCopy></div>
                 ) : (
                   meta.courses.map((c) => (
                     <MenuItem
@@ -732,7 +734,7 @@ function IssueDetailContent({ issue, onClose, onOpenIssue }: IssueDetailProps) {
               </Menu>
             </div>
 
-            <div className="relative">
+            <div data-design-id="m-66fb901db0db" className="relative">
               <PropButton
                 active={menu === "artifact"}
                 onClick={() => setMenu(menu === "artifact" ? null : "artifact")}
@@ -755,7 +757,7 @@ function IssueDetailContent({ issue, onClose, onOpenIssue }: IssueDetailProps) {
                     strokeWidth="1.7"
                   />
                 </svg>
-                {issue.artifact ?? <span className="text-[#9A9A98]">Artifact</span>}
+                {issue.artifact ?? <span data-design-id="m-2736b4e813b6" className="text-[#9A9A98]"><DesignCopy id="m-2736b4e813b6">Artifact</DesignCopy></span>}
               </PropButton>
               <Menu open={menu === "artifact"} onClose={() => setMenu(null)}>
                 <MenuItem
@@ -768,9 +770,9 @@ function IssueDetailContent({ issue, onClose, onOpenIssue }: IssueDetailProps) {
                   No artifact
                 </MenuItem>
                 {meta.artifacts.length === 0 ? (
-                  <div className="px-3 py-2 text-[13px] leading-4 text-[#9A9A98]">
+                  <div data-design-id="m-167e26f2e8b4" className="px-3 py-2 text-[13px] leading-4 text-[#9A9A98]"><DesignCopy id="m-167e26f2e8b4">
                     No artifacts yet
-                  </div>
+                  </DesignCopy></div>
                 ) : (
                   meta.artifacts.map((p) => (
                     <MenuItem
@@ -788,7 +790,7 @@ function IssueDetailContent({ issue, onClose, onOpenIssue }: IssueDetailProps) {
               </Menu>
             </div>
 
-            <div className="relative">
+            <div data-design-id="m-c5d1209dc0d6" className="relative">
               <PropButton
                 active={menu === "assignment"}
                 onClick={() => setMenu(menu === "assignment" ? null : "assignment")}
@@ -810,7 +812,7 @@ function IssueDetailContent({ issue, onClose, onOpenIssue }: IssueDetailProps) {
                   />
                 </svg>
                 {issue.assignment ?? (
-                  <span className="text-[#9A9A98]">Assignment</span>
+                  <span data-design-id="m-f7bb6d3913b3" className="text-[#9A9A98]"><DesignCopy id="m-f7bb6d3913b3">Assignment</DesignCopy></span>
                 )}
               </PropButton>
               <Menu open={menu === "assignment"} onClose={() => setMenu(null)}>
@@ -824,9 +826,9 @@ function IssueDetailContent({ issue, onClose, onOpenIssue }: IssueDetailProps) {
                   No assignment
                 </MenuItem>
                 {meta.assignments.length === 0 ? (
-                  <div className="px-3 py-2 text-[13px] leading-4 text-[#9A9A98]">
+                  <div data-design-id="m-2cbda73018c3" className="px-3 py-2 text-[13px] leading-4 text-[#9A9A98]"><DesignCopy id="m-2cbda73018c3">
                     No assignments yet
-                  </div>
+                  </DesignCopy></div>
                 ) : (
                   meta.assignments.map((a) => (
                     <MenuItem
@@ -844,7 +846,7 @@ function IssueDetailContent({ issue, onClose, onOpenIssue }: IssueDetailProps) {
               </Menu>
             </div>
 
-            <div className="relative">
+            <div data-design-id="m-27d8a8b185a9" className="relative">
               <PropButton
                 active={menu === "due"}
                 onClick={() => setMenu(menu === "due" ? null : "due")}
@@ -868,7 +870,7 @@ function IssueDetailContent({ issue, onClose, onOpenIssue }: IssueDetailProps) {
                     strokeLinecap="round"
                   />
                 </svg>
-                {issue.due ?? <span className="text-[#9A9A98]">Due date</span>}
+                {issue.due ?? <span data-design-id="m-7e583dcff0e7" className="text-[#9A9A98]"><DesignCopy id="m-7e583dcff0e7">Due date</DesignCopy></span>}
               </PropButton>
               <Menu open={menu === "due"} onClose={() => setMenu(null)}>
                 <MenuItem
@@ -880,7 +882,7 @@ function IssueDetailContent({ issue, onClose, onOpenIssue }: IssueDetailProps) {
                 >
                   No due date
                 </MenuItem>
-                <form className="grid gap-2 p-2" onSubmit={(event) => {
+                <form data-design-id="m-7faa2b083b60" className="grid gap-2 p-2" onSubmit={(event) => {
                   event.preventDefault();
                   const values = new FormData(event.currentTarget);
                   const day = String(values.get("day") || "");
@@ -888,15 +890,15 @@ function IssueDetailContent({ issue, onClose, onOpenIssue }: IssueDetailProps) {
                   setMenu(null);
                   void patch({ dueAt: day ? day + (time ? `T${time}` : "") : null });
                 }}>
-                  <label className="grid gap-1 text-xs">Date<input name="day" aria-label="Task due date" type="date" required defaultValue={issue.dueAt?.slice(0,10) || ""} className="rounded border p-2" /></label>
-                  <label className="grid gap-1 text-xs">Time (optional)<input name="time" aria-label="Task due time" type="time" defaultValue={issue.dueAt?.includes("T") ? issue.dueAt.slice(11,16) : ""} className="rounded border p-2" /></label>
-                  <button type="submit" className="rounded bg-[#1F1E1C] p-2 text-xs text-white">Set due date</button>
+                  <label data-design-id="m-2407fe802f00" className="grid gap-1 text-xs">Date<input data-design-id="m-811e6b4a14c5" name="day" aria-label="Task due date" type="date" required defaultValue={issue.dueAt?.slice(0,10) || ""} className="rounded border p-2" /></label>
+                  <label data-design-id="m-60597ed1a648" className="grid gap-1 text-xs">Time (optional)<input data-design-id="m-e9055e56b032" name="time" aria-label="Task due time" type="time" defaultValue={issue.dueAt?.includes("T") ? issue.dueAt.slice(11,16) : ""} className="rounded border p-2" /></label>
+                  <button data-design-id="m-340cebc73047" type="submit" className="rounded bg-[#1F1E1C] p-2 text-xs text-white"><DesignCopy id="m-340cebc73047">Set due date</DesignCopy></button>
                 </form>
               </Menu>
             </div>
           </div>
           <TaskTagEditor key={issue.key+JSON.stringify(issue.tagIds)} value={issue.tagIds||[]} onSave={tagIds=>patch({tagIds})}/>
-          <div className="mt-5 border-t border-stone-200 pt-4"><LinkedObjectsPanel object={{kind:"task",id:issue.id||issue.key}}/></div>
+          <div data-design-id="m-8fe73bf27923" className="mt-5 border-t border-stone-200 pt-4"><LinkedObjectsPanel object={{kind:"task",id:issue.id||issue.key}}/></div>
         </aside>
         </div>
       </div>

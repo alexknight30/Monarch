@@ -1,4 +1,6 @@
 "use client";
+import { DesignCopy } from "@/components/design/runtime";
+
 import { useState } from "react";
 import { useViewId } from "./view-provider";
 import { flushChatHistory } from "@/lib/chat-history";
@@ -35,17 +37,17 @@ export function WorkspaceBackupControls() {
       }else {setPreview(data.preview);setStatus("Backup checked. Nothing has been replaced.");}
     }catch(error){setStatus(error instanceof Error?error.message:"Restore failed.");}finally{setBusy(false);}
   }
-  return <section className="space-y-4 rounded-xl border border-stone-200 p-5">
-    <h2 className="font-medium">Full backup & restore</h2>
-    <p className="text-sm leading-6 text-stone-500">Includes workspace records, original documents, chat attachments and whiteboard media. Provider keys and older recovery snapshots are not included.</p>
-    <button disabled={busy} className="rounded-lg border border-stone-200 px-4 py-2 text-sm disabled:opacity-50" onClick={()=>void download()}>Download full backup</button>
-    <label className="block text-sm">Restore a backup<input disabled={busy} type="file" accept=".gz,application/gzip" className="mt-2 block w-full text-xs" onChange={event=>{const selected=event.target.files?.[0]||null;setFile(selected);setPreview(null);setConfirmation("");if(selected)void upload(selected);}}/></label>
-    {preview&&file&&<div className="space-y-3 rounded-lg bg-amber-50 p-4 text-sm leading-6">
-      <p>Backup from {new Date(preview.exportedAt).toLocaleString()}: {preview.courses} courses, {preview.artifacts} artifacts, {preview.tasks} top-level tasks, {preview.conversations} conversations and {preview.files} files.</p>
-      <p>Restoring replaces this workspace’s current records. The current records get a recovery snapshot and existing files stay on disk. Close other Monarch tabs first so they cannot save older edits over the restored work.</p>
-      <label className="block">Type REPLACE to confirm<input aria-label="Restore confirmation" className="ml-2 rounded border border-amber-200 bg-white px-2 py-1" value={confirmation} onChange={event=>setConfirmation(event.target.value)}/></label>
-      <button disabled={busy||confirmation!=="REPLACE"} className="rounded-lg bg-stone-900 px-4 py-2 text-white disabled:opacity-40" onClick={()=>void upload(file,true)}>Restore this workspace</button>
+  return <section data-design-id="m-0642a57a5e62" className="space-y-4 rounded-xl border border-stone-200 p-5">
+    <h2 data-design-id="m-8ca06132936f" className="font-medium"><DesignCopy id="m-8ca06132936f">Full backup & restore</DesignCopy></h2>
+    <p data-design-id="m-6616166d9d12" className="text-sm leading-6 text-stone-500"><DesignCopy id="m-6616166d9d12">Includes workspace records, original documents, chat attachments and whiteboard media. Provider keys and older recovery snapshots are not included.</DesignCopy></p>
+    <button data-design-id="m-ada9f7ce1293" disabled={busy} className="rounded-lg border border-stone-200 px-4 py-2 text-sm disabled:opacity-50" onClick={()=>void download()}><DesignCopy id="m-ada9f7ce1293">Download full backup</DesignCopy></button>
+    <label data-design-id="m-bf22c5f624d7" className="block text-sm">Restore a backup<input data-design-id="m-f4b9f993b0ab" disabled={busy} type="file" accept=".gz,application/gzip" className="mt-2 block w-full text-xs" onChange={event=>{const selected=event.target.files?.[0]||null;setFile(selected);setPreview(null);setConfirmation("");if(selected)void upload(selected);}}/></label>
+    {preview&&file&&<div data-design-id="m-b038864e4eb1" className="space-y-3 rounded-lg bg-amber-50 p-4 text-sm leading-6">
+      <p data-design-id="m-aea139a76465">Backup from {new Date(preview.exportedAt).toLocaleString()}: {preview.courses} courses, {preview.artifacts} artifacts, {preview.tasks} top-level tasks, {preview.conversations} conversations and {preview.files} files.</p>
+      <p data-design-id="m-cf8e0e71e854"><DesignCopy id="m-cf8e0e71e854">Restoring replaces this workspace’s current records. The current records get a recovery snapshot and existing files stay on disk. Close other Monarch tabs first so they cannot save older edits over the restored work.</DesignCopy></p>
+      <label data-design-id="m-3227a750d866" className="block">Type REPLACE to confirm<input data-design-id="m-829a3c0c897b" aria-label="Restore confirmation" className="ml-2 rounded border border-amber-200 bg-white px-2 py-1" value={confirmation} onChange={event=>setConfirmation(event.target.value)}/></label>
+      <button data-design-id="m-ba5a505bfa03" disabled={busy||confirmation!=="REPLACE"} className="rounded-lg bg-stone-900 px-4 py-2 text-white disabled:opacity-40" onClick={()=>void upload(file,true)}><DesignCopy id="m-ba5a505bfa03">Restore this workspace</DesignCopy></button>
     </div>}
-    <p role="status" className="text-sm text-stone-600">{status}</p>
+    <p data-design-id="m-1c8cae7e2b9a" role="status" className="text-sm text-stone-600">{status}</p>
   </section>;
 }

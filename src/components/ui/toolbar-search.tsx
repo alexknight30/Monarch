@@ -24,7 +24,7 @@ export function ToolbarSearch({
 }) {
   if (!open) {
     return (
-      <button
+      <button data-design-id="m-a43228269830"
         type="button"
         aria-label="Search"
         onClick={onOpen}
@@ -36,9 +36,9 @@ export function ToolbarSearch({
   }
 
   return (
-    <div className="flex h-[30px] w-[220px] items-center gap-2 rounded-md border border-[#E6E6E6] bg-white px-2.5">
+    <div data-design-id="m-0f66eefaf529" className="flex h-[30px] w-[220px] items-center gap-2 rounded-md border border-[#E6E6E6] bg-white px-2.5">
       <Search01Icon size={15} className="shrink-0 text-[#3D3D3D]" />
-      <input
+      <input data-design-id="m-4bb45478ea56"
         ref={inputRef}
         value={query}
         onChange={(e) => onQueryChange(e.target.value)}
@@ -51,7 +51,7 @@ export function ToolbarSearch({
         placeholder={placeholder}
         className="min-w-0 flex-1 bg-transparent text-sm leading-[18px] text-[#0A0A0A] outline-none placeholder:text-[#6B6B6B]"
       />
-      <IconButton
+      <IconButton data-design-id="m-17e5427e6563" data-design-key="m-17e5427e6563"
         icon={Cancel01Icon}
         label="Close search"
         size="s"

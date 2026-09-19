@@ -1,4 +1,6 @@
 "use client";
+import { DesignCopy } from "@/components/design/runtime";
+
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
@@ -225,9 +227,9 @@ function ChatIcon({ size = 18 }: { size?: number }) {
 
 function InfoRow({ label, value }: { label: string; value: string }) {
   return (
-    <div className="grid grid-cols-[132px_minmax(0,1fr)] items-start gap-4 py-[9px]">
-      <dt className="text-[13px] leading-[18px] text-[#9A9A98]">{label}</dt>
-      <dd className="text-[13px] leading-[18px] text-[#0A0A0A]">{value}</dd>
+    <div data-design-id="m-11c7382aff3a" className="grid grid-cols-[132px_minmax(0,1fr)] items-start gap-4 py-[9px]">
+      <dt data-design-id="m-e3049ec67276" className="text-[13px] leading-[18px] text-[#9A9A98]">{label}</dt>
+      <dd data-design-id="m-50fde7a56338" className="text-[13px] leading-[18px] text-[#0A0A0A]">{value}</dd>
     </div>
   );
 }
@@ -262,18 +264,18 @@ function TreeRow({
 
   const body = (
     <>
-      <span
+      <span data-design-id="m-808164164bca"
         className="flex h-4 w-4 shrink-0 items-center justify-center"
         style={{ marginLeft: indent * 18 }}
       >
         {expandable ? <Chevron open={Boolean(open)} /> : null}
       </span>
       <Icon />
-      <span className="min-w-0 flex-1 truncate text-[13px] leading-4 text-[#0A0A0A]">
+      <span data-design-id="m-c1a4d9fa8435" className="min-w-0 flex-1 truncate text-[13px] leading-4 text-[#0A0A0A]">
         {name}
       </span>
       {meta ? (
-        <span className="shrink-0 text-[12px] leading-4 text-[#9A9A98]">{meta}</span>
+        <span data-design-id="m-5c83684e7303" className="shrink-0 text-[12px] leading-4 text-[#9A9A98]">{meta}</span>
       ) : null}
     </>
   );
@@ -284,7 +286,7 @@ function TreeRow({
 
   if (expandable) {
     return (
-      <button type="button" onClick={onToggle} className={className}>
+      <button data-design-id="m-3110ebfcd9b0" type="button" onClick={onToggle} className={className}>
         {body}
       </button>
     );
@@ -294,29 +296,29 @@ function TreeRow({
     const external = href.startsWith("/api/");
     if (external) {
       return (
-        <a href={href} target="_blank" rel="noreferrer" className={className}>
+        <a data-design-id="m-4f0d12869703" href={href} target="_blank" rel="noreferrer" className={className}>
           {body}
         </a>
       );
     }
     return (
-      <Link href={href} className={className}>
+      <Link data-design-id="m-2c0575aaef49" href={href} className={className}>
         {body}
       </Link>
     );
   }
 
-  return <div className={className}>{body}</div>;
+  return <div data-design-id="m-a5490018eda6" className={className}>{body}</div>;
 }
 
 function EmptyFolder({ indent = 1 }: { indent?: number }) {
   return (
-    <div
+    <div data-design-id="m-348cb01cdd7f"
       className="px-3 py-2 text-[12px] leading-4 text-[#B0B0AC]"
       style={{ paddingLeft: 38 + indent * 18 }}
-    >
+    ><DesignCopy id="m-348cb01cdd7f">
       Nothing here yet
-    </div>
+    </DesignCopy></div>
   );
 }
 
@@ -365,27 +367,27 @@ function CourseChatBubble({ course }: { course: Course }) {
   };
 
   return (
-    <div ref={panelRef} className="absolute right-6 bottom-6 z-30 flex flex-col items-end gap-3">
+    <div data-design-id="m-f00fa2ad6df0" ref={panelRef} className="absolute right-6 bottom-6 z-30 flex flex-col items-end gap-3">
       {open ? (
-        <div className="w-[320px] rounded-2xl border border-[#E8E8E6] bg-white p-3.5 shadow-[0_12px_40px_rgba(20,20,18,0.12)]">
-          <p className="text-[13px] leading-4 text-[#7A7A7A]">
+        <div data-design-id="m-674cb0be74ce" className="w-[320px] rounded-2xl border border-[#E8E8E6] bg-white p-3.5 shadow-[0_12px_40px_rgba(20,20,18,0.12)]">
+          <p data-design-id="m-b9a53ea8c456" className="text-[13px] leading-4 text-[#7A7A7A]">
             Ask about {course.code}
           </p>
-          <form
+          <form data-design-id="m-7e243e6a8995"
             className="mt-2.5 flex items-center gap-2"
             onSubmit={(event) => {
               event.preventDefault();
               startChat(text);
             }}
           >
-            <input
+            <input data-design-id="m-220ddc329e07"
               ref={inputRef}
               value={text}
               onChange={(event) => setText(event.target.value)}
               placeholder="Due dates, readings, study plan…"
               className="h-10 min-w-0 flex-1 rounded-lg bg-[#F5F5F3] px-3 text-[13px] leading-4 text-[#0A0A0A] outline-none placeholder:text-[#A0A0A0]"
             />
-            <button
+            <button data-design-id="m-5b0d983e1122"
               type="submit"
               aria-label="Start chat"
               className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-[#141414] text-white transition hover:bg-black"
@@ -402,16 +404,16 @@ function CourseChatBubble({ course }: { course: Course }) {
               </svg>
             </button>
           </form>
-          <Link
+          <Link data-design-id="m-b7fd5eba00d9"
             href={chatHref}
             className="mt-2 inline-block text-[12px] leading-4 text-[#9A9A98] hover:text-[#0A0A0A]"
-          >
+          ><DesignCopy id="m-b7fd5eba00d9">
             Open a blank chat
-          </Link>
+          </DesignCopy></Link>
         </div>
       ) : null}
 
-      <button
+      <button data-design-id="m-25d9c1d5ce47"
         type="button"
         aria-label={`Chat about ${course.code}`}
         aria-expanded={open}
@@ -456,12 +458,12 @@ export default function CourseDetailClient({
   };
 
   return (
-    <div className="relative flex min-h-0 flex-1 flex-col">
-      <div className="flex min-h-0 flex-1 flex-col overflow-hidden px-10 pt-11 pb-6">
-        <div className="shrink-0">
-          <div className="mb-4 flex flex-wrap gap-2"><CourseEditor course={course} /><AcademicManager mode="assignments" course={course} /><AcademicManager mode="calendar" course={course} /></div>
-          <div className="flex items-center gap-3">
-            <Link
+    <div data-design-id="m-6ef84013d77c" className="relative flex min-h-0 flex-1 flex-col">
+      <div data-design-id="m-8a275d4fc6ca" className="flex min-h-0 flex-1 flex-col overflow-hidden px-10 pt-11 pb-6">
+        <div data-design-id="m-8756206cdd5c" className="shrink-0">
+          <div data-design-id="m-62b47bcf61b0" className="mb-4 flex flex-wrap gap-2"><CourseEditor course={course} /><AcademicManager mode="assignments" course={course} /><AcademicManager mode="calendar" course={course} /></div>
+          <div data-design-id="m-2aee7833a1e1" className="flex items-center gap-3">
+            <Link data-design-id="m-451c0c74c6b3"
               href="/courses"
               aria-label="Back to courses"
               className="flex size-[30px] shrink-0 items-center justify-center rounded-md text-[#0A0A0A] transition-colors hover:bg-[#F5F5F5]"
@@ -477,36 +479,36 @@ export default function CourseDetailClient({
                 />
               </svg>
             </Link>
-            <div className="flex items-center gap-2">
+            <div data-design-id="m-484f600dda7d" className="flex items-center gap-2">
               <BreadcrumbBack
                 href="/courses"
                 className="text-sm leading-[18px] text-[#7A7A7A]"
               >
                 Courses
               </BreadcrumbBack>
-              <span className="text-sm leading-[18px] text-[#C4C4C0]">/</span>
-              <span className="text-sm leading-[18px] text-[#0A0A0A]">
+              <span data-design-id="m-174ec3420d25" className="text-sm leading-[18px] text-[#C4C4C0]"><DesignCopy id="m-174ec3420d25">/</DesignCopy></span>
+              <span data-design-id="m-6dd165811dad" className="text-sm leading-[18px] text-[#0A0A0A]">
                 {course.code}
               </span>
             </div>
           </div>
 
-          <div className="pt-[18px]">
-            <h1 className="font-display text-[34px] leading-[42px] tracking-[-0.015em] text-[#0A0A0A]">
+          <div data-design-id="m-b2865b0cfff3" className="pt-[18px]">
+            <h1 data-design-id="m-e44341020dc1" className="font-display text-[34px] leading-[42px] tracking-[-0.015em] text-[#0A0A0A]">
               {course.code} – {course.title}
             </h1>
-            <p className="max-w-[720px] pt-3 text-sm leading-[21px] text-[#4E4E4C]">
+            <p data-design-id="m-7d1644735fe4" className="max-w-[720px] pt-3 text-sm leading-[21px] text-[#4E4E4C]">
               {course.description}
             </p>
           </div>
         </div>
 
-        <div className="mt-7 grid min-h-0 flex-1 grid-cols-2 gap-5">
-          <section className="min-h-0 overflow-y-auto rounded-xl border border-[#E8E8E6] bg-white px-[22px] py-2">
-            <h2 className="pt-3 text-[13px] leading-4 font-medium text-[#7A7A7A]">
+        <div data-design-id="m-581afa3f21cb" className="mt-7 grid min-h-0 flex-1 grid-cols-2 gap-5">
+          <section data-design-id="m-21378cd5aedb" className="min-h-0 overflow-y-auto rounded-xl border border-[#E8E8E6] bg-white px-[22px] py-2">
+            <h2 data-design-id="m-4997d442fdb3" className="pt-3 text-[13px] leading-4 font-medium text-[#7A7A7A]"><DesignCopy id="m-4997d442fdb3">
               Info
-            </h2>
-            <dl className="divide-y divide-[#F1F1EF] pt-1 pb-2">
+            </DesignCopy></h2>
+            <dl data-design-id="m-ba7b5045aa47" className="divide-y divide-[#F1F1EF] pt-1 pb-2">
               <InfoRow label="Instructor" value={course.instructor} />
               {course.instructorEmail ? (
                 <InfoRow label="Email" value={course.instructorEmail} />
@@ -527,18 +529,18 @@ export default function CourseDetailClient({
             </dl>
 
             {course.grading?.length ? (
-              <div className="border-t border-[#F1F1EF] py-4">
-                <h3 className="text-[13px] leading-4 font-medium text-[#7A7A7A]">
+              <div data-design-id="m-ef53c2e0f081" className="border-t border-[#F1F1EF] py-4">
+                <h3 data-design-id="m-153623892f43" className="text-[13px] leading-4 font-medium text-[#7A7A7A]"><DesignCopy id="m-153623892f43">
                   Grading
-                </h3>
-                <ul className="flex flex-col gap-2 pt-3">
+                </DesignCopy></h3>
+                <ul data-design-id="m-f8d1c334327a" className="flex flex-col gap-2 pt-3">
                   {course.grading.map((item) => (
-                    <li
+                    <li data-design-id="m-635c35ed86b4" data-design-key={item.component}
                       key={item.component}
                       className="flex items-baseline justify-between gap-4 text-[13px] leading-[18px]"
                     >
-                      <span className="text-[#0A0A0A]">{item.component}</span>
-                      <span className="shrink-0 text-[#9A9A98]">
+                      <span data-design-id="m-429509cc42d4" className="text-[#0A0A0A]">{item.component}</span>
+                      <span data-design-id="m-13be17d18583" className="shrink-0 text-[#9A9A98]">
                         {item.weight} pts
                       </span>
                     </li>
@@ -549,39 +551,39 @@ export default function CourseDetailClient({
 
             {course.policies &&
             Object.values(course.policies).some(Boolean) ? (
-              <div className="border-t border-[#F1F1EF] py-4">
-                <h3 className="text-[13px] leading-4 font-medium text-[#7A7A7A]">
+              <div data-design-id="m-1ee77ae853f5" className="border-t border-[#F1F1EF] py-4">
+                <h3 data-design-id="m-3e6a0b579a55" className="text-[13px] leading-4 font-medium text-[#7A7A7A]"><DesignCopy id="m-3e6a0b579a55">
                   Policies
-                </h3>
-                <dl className="flex flex-col gap-3 pt-3">
+                </DesignCopy></h3>
+                <dl data-design-id="m-699fa652253f" className="flex flex-col gap-3 pt-3">
                   {course.policies.late ? (
-                    <div>
-                      <dt className="text-[12px] leading-4 text-[#9A9A98]">Late work</dt>
-                      <dd className="pt-1 text-[13px] leading-[19px] text-[#4E4E4C]">
+                    <div data-design-id="m-59acc8323a4f">
+                      <dt data-design-id="m-339df64c51dc" className="text-[12px] leading-4 text-[#9A9A98]"><DesignCopy id="m-339df64c51dc">Late work</DesignCopy></dt>
+                      <dd data-design-id="m-32ad8f3da239" className="pt-1 text-[13px] leading-[19px] text-[#4E4E4C]">
                         {course.policies.late}
                       </dd>
                     </div>
                   ) : null}
                   {course.policies.attendance ? (
-                    <div>
-                      <dt className="text-[12px] leading-4 text-[#9A9A98]">Attendance</dt>
-                      <dd className="pt-1 text-[13px] leading-[19px] text-[#4E4E4C]">
+                    <div data-design-id="m-f2da4a11274d">
+                      <dt data-design-id="m-d18072b71ad0" className="text-[12px] leading-4 text-[#9A9A98]"><DesignCopy id="m-d18072b71ad0">Attendance</DesignCopy></dt>
+                      <dd data-design-id="m-dfbd34640c9a" className="pt-1 text-[13px] leading-[19px] text-[#4E4E4C]">
                         {course.policies.attendance}
                       </dd>
                     </div>
                   ) : null}
                   {course.policies.ai ? (
-                    <div>
-                      <dt className="text-[12px] leading-4 text-[#9A9A98]">AI</dt>
-                      <dd className="pt-1 text-[13px] leading-[19px] text-[#4E4E4C]">
+                    <div data-design-id="m-7f7234972744">
+                      <dt data-design-id="m-6f7d2a926413" className="text-[12px] leading-4 text-[#9A9A98]"><DesignCopy id="m-6f7d2a926413">AI</DesignCopy></dt>
+                      <dd data-design-id="m-ba0d92e51d95" className="pt-1 text-[13px] leading-[19px] text-[#4E4E4C]">
                         {course.policies.ai}
                       </dd>
                     </div>
                   ) : null}
                   {course.policies.integrity ? (
-                    <div>
-                      <dt className="text-[12px] leading-4 text-[#9A9A98]">Integrity</dt>
-                      <dd className="pt-1 text-[13px] leading-[19px] text-[#4E4E4C]">
+                    <div data-design-id="m-3f0e3923bd7a">
+                      <dt data-design-id="m-56ed0034d835" className="text-[12px] leading-4 text-[#9A9A98]"><DesignCopy id="m-56ed0034d835">Integrity</DesignCopy></dt>
+                      <dd data-design-id="m-1fe584201a63" className="pt-1 text-[13px] leading-[19px] text-[#4E4E4C]">
                         {course.policies.integrity}
                       </dd>
                     </div>
@@ -591,14 +593,14 @@ export default function CourseDetailClient({
             ) : null}
           </section>
 
-          <section className="flex min-h-0 flex-col overflow-hidden rounded-xl border border-[#E8E8E6] bg-white">
-            <div className="shrink-0 px-[22px] pt-4 pb-2">
-              <h2 className="text-[13px] leading-4 font-medium text-[#7A7A7A]">
+          <section data-design-id="m-d03c41a22dcc" className="flex min-h-0 flex-col overflow-hidden rounded-xl border border-[#E8E8E6] bg-white">
+            <div data-design-id="m-6e0388aee32e" className="shrink-0 px-[22px] pt-4 pb-2">
+              <h2 data-design-id="m-b1296434ae4f" className="text-[13px] leading-4 font-medium text-[#7A7A7A]"><DesignCopy id="m-b1296434ae4f">
                 Files
-              </h2>
+              </DesignCopy></h2>
             </div>
 
-            <div className="min-h-0 flex-1 overflow-y-auto pb-1.5">
+            <div data-design-id="m-eab5043a5005" className="min-h-0 flex-1 overflow-y-auto pb-1.5">
               <TreeRow
                 icon="folder"
                 name="Readings"
@@ -692,7 +694,7 @@ export default function CourseDetailClient({
                     const nestedOpen = Boolean(openNested[nestedKey]);
                     if (series) {
                       return (
-                        <div key={group.id}>
+                        <div data-design-id="m-c03189242152" data-design-key={group.id} key={group.id}>
                           <TreeRow
                             indent={1}
                             icon="folder"
@@ -754,7 +756,7 @@ export default function CourseDetailClient({
                     const hasChildren = Boolean(task.children?.length);
                     const nestedOpen = openNested[childKey] ?? true;
                     return (
-                      <div key={task.key}>
+                      <div data-design-id="m-dffcdfa0b6fe" data-design-key={task.key} key={task.key}>
                         <TreeRow
                           indent={1}
                           icon={hasChildren ? "folder" : "task"}

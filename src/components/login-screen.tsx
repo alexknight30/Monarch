@@ -1,4 +1,6 @@
 "use client";
+import { DesignCopy } from "@/components/design/runtime";
+
 
 import Image from "next/image";
 import { useState, type FormEvent } from "react";
@@ -21,10 +23,10 @@ export default function LoginScreen({ onSignIn }: { onSignIn: () => void }) {
   }
 
   return (
-    <div className="flex min-h-full flex-1 bg-white">
+    <div data-design-id="m-4776f3e3e39f" className="flex min-h-full flex-1 bg-white">
       {/* Left — brand + form */}
-      <div className="flex w-full shrink-0 flex-col justify-center px-8 sm:px-16 lg:w-[720px] lg:px-[120px]">
-        <div className="flex items-center gap-[11px]">
+      <div data-design-id="m-e4d66dda9ef7" className="flex w-full shrink-0 flex-col justify-center px-8 sm:px-16 lg:w-[720px] lg:px-[120px]">
+        <div data-design-id="m-22b7b03d7165" className="flex items-center gap-[11px]">
           {/*
             -4px is an optical correction, not a layout fudge: "Monarch" has no
             descenders, so its glyphs sit ~3.7px above the centre of the line
@@ -43,16 +45,16 @@ export default function LoginScreen({ onSignIn }: { onSignIn: () => void }) {
               fill="#1F1E1C"
             />
           </svg>
-          <span className="font-display text-[29px] leading-[34px] font-medium tracking-[-0.015em] text-[#0A0A0A]">
+          <span data-design-id="m-534d8f804b1f" className="font-display text-[29px] leading-[34px] font-medium tracking-[-0.015em] text-[#0A0A0A]"><DesignCopy id="m-534d8f804b1f">
             Monarch
-          </span>
+          </DesignCopy></span>
         </div>
 
-        <form
+        <form data-design-id="m-ca8216b2b345"
           onSubmit={submit}
           className="flex w-full max-w-[380px] flex-col gap-3 pt-11"
         >
-          <input
+          <input data-design-id="m-835b10f39e1e"
             type="email"
             autoFocus
             value={email}
@@ -61,7 +63,7 @@ export default function LoginScreen({ onSignIn }: { onSignIn: () => void }) {
             aria-label="Email"
             className="h-12 shrink-0 rounded-[10px] border border-[#E6E6E6] bg-white px-4 text-[15px] leading-5 text-[#0A0A0A] transition-colors outline-none placeholder:text-[#A0A0A0] focus:border-[#C4C4C4]"
           />
-          <input
+          <input data-design-id="m-b6e83893ccad"
             type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
@@ -69,19 +71,19 @@ export default function LoginScreen({ onSignIn }: { onSignIn: () => void }) {
             aria-label="Password"
             className="h-12 shrink-0 rounded-[10px] border border-[#E6E6E6] bg-white px-4 text-[15px] leading-5 text-[#0A0A0A] transition-colors outline-none placeholder:text-[#A0A0A0] focus:border-[#C4C4C4]"
           />
-          <button
+          <button data-design-id="m-466808058af6"
             type="submit"
             disabled={!ready}
             className="mt-1 flex h-12 shrink-0 items-center justify-center rounded-[10px] bg-[#141414] text-[15px] leading-5 font-medium text-white transition-colors hover:bg-[#000000] disabled:pointer-events-none disabled:opacity-35"
-          >
+          ><DesignCopy id="m-466808058af6">
             Confirm
-          </button>
+          </DesignCopy></button>
         </form>
       </div>
 
       {/* Right — photo with the headline set into its top corner */}
-      <div className="relative hidden flex-1 items-center justify-center lg:flex">
-        <div className="relative h-[754px] max-h-[calc(100dvh-96px)] w-[522px] shrink-0 overflow-hidden rounded-[5px]">
+      <div data-design-id="m-3fb733e0a219" className="relative hidden flex-1 items-center justify-center lg:flex">
+        <div data-design-id="m-3fce8849b47b" className="relative h-[754px] max-h-[calc(100dvh-96px)] w-[522px] shrink-0 overflow-hidden rounded-[5px]">
           <Image
             src="/login-hero.png"
             alt=""
@@ -90,14 +92,14 @@ export default function LoginScreen({ onSignIn }: { onSignIn: () => void }) {
             sizes="522px"
             className="object-cover"
           />
-          <p
+          <p data-design-id="m-70f4c2c551a7"
             className="absolute left-1/2 top-[calc(42%+30px)] -translate-x-1/2 -translate-y-1/2 whitespace-nowrap text-center font-display text-[55px] leading-[66px] text-white italic"
             style={{
               textShadow: "0 2px 1.5px rgba(0, 0, 0, 0.2)",
             }}
-          >
+          ><DesignCopy id="m-70f4c2c551a7">
             You&rsquo;re getting dumber.
-          </p>
+          </DesignCopy></p>
         </div>
       </div>
     </div>

@@ -91,14 +91,14 @@ const Search01Icon = forwardRef<Search01IconHandle, Search01IconProps>(
     );
 
     return (
-      <div
+      <div data-design-id="m-ae07f8df06bf"
         ref={scope}
         className={cn(className)}
         onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}
         {...props}
       >
-        <span
+        <span data-design-id="m-2f9232fb4047"
           data-search-icon
           style={{ display: 'inline-flex', transformOrigin: '11px 11px' }}
         >

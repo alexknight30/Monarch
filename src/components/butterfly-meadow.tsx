@@ -96,8 +96,8 @@ export function ButterflyMeadow({ className }: { className?: string }) {
   }, []);
 
   return (
-    <div ref={wrapRef} className={className}>
-      <canvas ref={canvasRef} className="block h-full w-full" />
+    <div data-design-id="m-00170aa13f21" ref={wrapRef} className={className}>
+      <canvas data-design-id="m-0c15af7fc68c" ref={canvasRef} className="block h-full w-full" />
     </div>
   );
 }

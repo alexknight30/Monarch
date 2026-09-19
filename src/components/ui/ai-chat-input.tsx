@@ -1,4 +1,6 @@
 "use client";
+import { DesignCopy } from "@/components/design/runtime";
+
 
 import * as React from "react";
 import { useState, useEffect, useRef } from "react";
@@ -258,26 +260,26 @@ const AIChatInput = ({
     !isActive && !inputValue && !selectedSkill && !menuOpen && files.length === 0;
 
   return (
-    <div className="relative flex w-full items-center justify-center text-black">
+    <div data-design-id="m-7bd545b0ef6a" className="relative flex w-full items-center justify-center text-black">
       {/* Slash skill menu — sits above the composer like Claude */}
       {menuOpen ? (
-        <div
+        <div data-design-id="m-46ad84746a25"
           className={`absolute bottom-[calc(100%+8px)] left-1/2 z-50 w-full -translate-x-1/2 px-2 ${
             compact ? "max-w-none" : "max-w-3xl"
           }`}
         >
-          <div className="overflow-hidden rounded-xl border border-[#E6E6E6] bg-white shadow-[0_8px_28px_rgba(0,0,0,0.12)]">
+          <div data-design-id="m-bee42057eac8" className="overflow-hidden rounded-xl border border-[#E6E6E6] bg-white shadow-[0_8px_28px_rgba(0,0,0,0.12)]">
             {filtered.length === 0 ? (
-              <p className="px-3.5 py-3 text-sm text-[#9A9A98]">
+              <p data-design-id="m-eaa3331b801c" className="px-3.5 py-3 text-sm text-[#9A9A98]"><DesignCopy id="m-eaa3331b801c">
                 No skills match
-              </p>
+              </DesignCopy></p>
             ) : (
-              <ul className="max-h-64 overflow-y-auto py-1">
+              <ul data-design-id="m-979b0221b8f5" className="max-h-64 overflow-y-auto py-1">
                 {filtered.map((skill, index) => {
                   const active = index === highlight;
                   return (
-                    <li key={skill.id}>
-                      <button
+                    <li data-design-id="m-a1857c30353f" data-design-key={skill.id} key={skill.id}>
+                      <button data-design-id="m-b0c440458197"
                         type="button"
                         onMouseEnter={() => setHighlight(index)}
                         onClick={(e) => {
@@ -288,10 +290,10 @@ const AIChatInput = ({
                           active ? "bg-[#F1F1EF]" : "bg-white hover:bg-[#F7F7F5]"
                         }`}
                       >
-                        <span className="font-mono text-[13px] leading-4 text-[#0A0A0A]">
+                        <span data-design-id="m-6b95240ce540" className="font-mono text-[13px] leading-4 text-[#0A0A0A]">
                           /{skill.command}
                         </span>
-                        <span className="truncate text-[13px] leading-4 text-[#9A9A98]">
+                        <span data-design-id="m-3ca89bf215ee" className="truncate text-[13px] leading-4 text-[#9A9A98]">
                           {skill.description}
                         </span>
                       </button>
@@ -304,7 +306,7 @@ const AIChatInput = ({
         </div>
       ) : null}
 
-      <motion.div
+      <motion.div data-design-id="m-a3afb4411903"
         ref={wrapperRef}
         className={`w-full ${compact ? "max-w-none" : "max-w-3xl"}`}
         variants={containerVariants}
@@ -345,7 +347,7 @@ const AIChatInput = ({
           }
         }}
       >
-        <input
+        <input data-design-id="m-afddc9fbe266"
           ref={fileInputRef}
           type="file"
           accept={ATTACH_ACCEPT}
@@ -356,18 +358,18 @@ const AIChatInput = ({
             event.currentTarget.value = "";
           }}
         />
-        <div
+        <div data-design-id="m-6ccdf79e530c"
           className={`flex h-full w-full flex-col items-stretch ${
             files.length ? (compact ? "pb-2" : "pb-3") : ""
           }`}
         >
           {/* Input Row */}
-          <div
+          <div data-design-id="m-5fd9bf01aae4"
             className={`flex w-full items-center gap-1.5 rounded-full bg-white ${
               compact ? "max-w-none p-1.5" : "max-w-3xl p-3 gap-2"
             }`}
           >
-            <button
+            <button data-design-id="m-4fa5c17521b9"
               className={`inline-flex items-center justify-center rounded-full transition hover:bg-gray-100 disabled:opacity-50 ${
                 compact ? "p-2" : "p-3"
               }`}
@@ -385,9 +387,9 @@ const AIChatInput = ({
             </button>
 
             {/* Text Input & Placeholder */}
-            <div className="relative flex min-w-0 flex-1 items-center gap-2">
+            <div data-design-id="m-750cc8828a69" className="relative flex min-w-0 flex-1 items-center gap-2">
               {selectedSkill ? (
-                <button
+                <button data-design-id="m-8eed654c2ab2"
                   type="button"
                   onClick={(e) => {
                     e.stopPropagation();
@@ -401,8 +403,8 @@ const AIChatInput = ({
                 </button>
               ) : null}
 
-              <div className="relative min-w-0 flex-1">
-                <input
+              <div data-design-id="m-cace9f6c9995" className="relative min-w-0 flex-1">
+                <input data-design-id="m-ebc02f783c33"
                   ref={inputRef}
                   type="text"
                   value={inputValue}
@@ -470,14 +472,14 @@ const AIChatInput = ({
                         : undefined
                   }
                 />
-                <div
+                <div data-design-id="m-4c15aaf4291c"
                   className={`pointer-events-none absolute top-0 left-0 flex h-full w-full items-center ${
                     compact ? "px-2 py-1.5" : "px-3 py-2"
                   }`}
                 >
                   {staticPlaceholder ? (
                     showPlaceholderText && (
-                      <span
+                      <span data-design-id="m-f9acdf436ff8"
                         className={`pointer-events-none absolute top-1/2 left-0 -translate-y-1/2 truncate text-gray-400 select-none ${
                           compact ? "text-sm" : ""
                         }`}
@@ -488,7 +490,7 @@ const AIChatInput = ({
                   ) : (
                     <AnimatePresence mode="wait">
                       {showPlaceholder && showPlaceholderText && (
-                        <motion.span
+                        <motion.span data-design-id="m-6676f5587745" data-design-key={placeholderIndex}
                           key={placeholderIndex}
                           className="pointer-events-none absolute top-1/2 left-0 -translate-y-1/2 text-gray-400 select-none"
                           style={{
@@ -505,7 +507,7 @@ const AIChatInput = ({
                           {placeholders[placeholderIndex]
                             .split("")
                             .map((char, i) => (
-                              <motion.span
+                              <motion.span data-design-id="m-b4333bd2f306"
                                 key={i}
                                 variants={letterVariants}
                                 style={{ display: "inline-block" }}
@@ -521,7 +523,7 @@ const AIChatInput = ({
               </div>
             </div>
 
-            <button
+            <button data-design-id="m-fa50988aa68a"
               className={`rounded-full transition hover:bg-gray-100 ${
                 compact ? "p-2" : "p-3"
               }`}
@@ -531,7 +533,7 @@ const AIChatInput = ({
             >
               <Mic size={compact ? 16 : 20} />
             </button>
-            <button
+            <button data-design-id="m-913c4ffd4d41"
               className={`flex items-center justify-center gap-1 rounded-full bg-black font-medium text-white hover:bg-zinc-700 disabled:opacity-50 disabled:hover:bg-black ${
                 compact ? "p-2" : "p-3"
               }`}
@@ -548,7 +550,7 @@ const AIChatInput = ({
           </div>
 
           {files.length > 0 || attachError ? (
-            <div
+            <div data-design-id="m-74d555a6c58c"
               className={`flex flex-col ${compact ? "gap-1 px-2.5 pb-1" : "gap-1.5 px-4 pb-1"}`}
             >
               <ChatAttachmentChips
@@ -560,13 +562,13 @@ const AIChatInput = ({
                 }}
               />
               {attachError ? (
-                <p className="text-[12px] leading-4 text-[#B42318]">{attachError}</p>
+                <p data-design-id="m-694f8aa7d48c" className="text-[12px] leading-4 text-[#B42318]">{attachError}</p>
               ) : null}
             </div>
           ) : null}
 
           {/* Expanded Controls */}
-          <motion.div
+          <motion.div data-design-id="m-3c2cf9df4f52"
             className={`flex w-full items-center justify-start ${
               compact ? "px-2.5 text-xs" : "px-4 text-sm"
             }`}
@@ -588,11 +590,11 @@ const AIChatInput = ({
             animate={hasComposerContent ? "visible" : "hidden"}
             style={{ marginTop: compact ? 4 : 8 }}
           >
-            <div className={`flex items-center ${compact ? "gap-1.5" : "gap-3"}`}>
+            <div data-design-id="m-2ec5edbf6bf3" className={`flex items-center ${compact ? "gap-1.5" : "gap-3"}`}>
               {expandedRow ?? (
                 <>
               {/* Think Toggle */}
-              <button
+              <button data-design-id="m-5f3eecf9d2e6"
                 className={`group flex items-center gap-1 rounded-full font-medium transition-all ${
                   compact ? "px-2.5 py-1" : "px-4 py-2"
                 } ${
@@ -616,7 +618,7 @@ const AIChatInput = ({
               </button>
 
               {/* Deep Search Toggle */}
-              <motion.button
+              <motion.button data-design-id="m-a9a1812d4f58"
                 className={`flex items-center justify-start gap-1 overflow-hidden rounded-full font-medium whitespace-nowrap transition ${
                   compact ? "px-2.5 py-1" : "px-4 py-2"
                 } ${
@@ -637,18 +639,18 @@ const AIChatInput = ({
                   paddingLeft: deepSearchActive ? (compact ? 6 : 8) : compact ? 7 : 9,
                 }}
               >
-                <div className="flex-1">
+                <div data-design-id="m-6b1240645e9c" className="flex-1">
                   <Globe size={compact ? 14 : 18} />
                 </div>
-                <motion.span
+                <motion.span data-design-id="m-605aaff7ebf0"
                   className="pb-[2px]"
                   initial={false}
                   animate={{
                     opacity: deepSearchActive ? 1 : 0,
                   }}
-                >
+                ><DesignCopy id="m-605aaff7ebf0">
                   Deep Search
-                </motion.span>
+                </DesignCopy></motion.span>
               </motion.button>
                 </>
               )}

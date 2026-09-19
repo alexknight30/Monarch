@@ -24,7 +24,7 @@ export function FileThumbnail({
   if (previewImageUrl) {
     return (
       // eslint-disable-next-line @next/next/no-img-element
-      <img
+      <img data-design-id="m-3f670b84f967"
         src={previewImageUrl}
         alt=""
         className={cn("object-cover", className)}
@@ -33,7 +33,7 @@ export function FileThumbnail({
   }
 
   return (
-    <div
+    <div data-design-id="m-5bbe52deee38"
       className={cn(
         "grid place-items-center border border-[#E6E6E6] bg-[#FAFAFA] text-[10px] font-medium tracking-wide text-[#5E5E5E]",
         className,

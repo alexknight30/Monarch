@@ -64,7 +64,7 @@ const PlusSignIcon = forwardRef<PlusSignIconHandle, PlusSignIconProps>(
     });
 
     return (
-      <div
+      <div data-design-id="m-fda6d95eeee5"
         className={cn(className)}
         onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}
@@ -78,7 +78,7 @@ const PlusSignIcon = forwardRef<PlusSignIconHandle, PlusSignIconProps>(
           fill="none"
           overflow="visible"
         >
-          <motion.path
+          <motion.path data-design-id="m-617266f56421"
             d="M12 4V20M20 12H4"
             stroke="currentColor"
             strokeLinecap="round"
@@ -88,12 +88,12 @@ const PlusSignIcon = forwardRef<PlusSignIconHandle, PlusSignIconProps>(
             animate={controls}
             initial="normal"
           />
-          <motion.g
+          <motion.g data-design-id="m-f7c29fbbf79e"
             variants={generatedGeometryVariants}
             animate={controls}
             initial="normal"
           >
-          <motion.path
+          <motion.path data-design-id="m-5333c4debe78"
             d="M12 4V20"
             stroke="currentColor"
             strokeLinecap="round"
@@ -103,7 +103,7 @@ const PlusSignIcon = forwardRef<PlusSignIconHandle, PlusSignIconProps>(
             animate={controls}
             initial="normal"
           />
-          <motion.path
+          <motion.path data-design-id="m-bca8b29b4bd4"
             d="M20 12H4"
             stroke="currentColor"
             strokeLinecap="round"

@@ -55,8 +55,8 @@ export function BlankEmptyPlus({
 
   return (
     <>
-      <div className="flex min-h-0 flex-1 items-center justify-center">
-        <IconButton
+      <div data-design-id="m-11f0353a95b1" className="flex min-h-0 flex-1 items-center justify-center">
+        <IconButton data-design-id="m-c078b174b4c7" data-design-key="m-c078b174b4c7"
           icon={PlusSignIcon}
           label={addLabel}
           size="l"

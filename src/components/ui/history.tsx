@@ -135,7 +135,7 @@ const HistoryIcon = forwardRef<HistoryIconHandle, HistoryIconProps>(
     });
 
     return (
-      <div
+      <div data-design-id="m-9f57bb716cfc"
         className={cn(className)}
         onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}
@@ -149,7 +149,7 @@ const HistoryIcon = forwardRef<HistoryIconHandle, HistoryIconProps>(
           fill="none"
           overflow="visible"
         >
-          <motion.g
+          <motion.g data-design-id="m-9c45157266bf"
             variants={frameVariants}
             animate={controls}
             initial="normal"
@@ -170,7 +170,7 @@ const HistoryIcon = forwardRef<HistoryIconHandle, HistoryIconProps>(
               strokeWidth="1.5"
             />
           </motion.g>
-          <motion.g
+          <motion.g data-design-id="m-77ca564c8ac0"
             variants={minuteHandVariants}
             animate={controls}
             initial="normal"
@@ -188,7 +188,7 @@ const HistoryIcon = forwardRef<HistoryIconHandle, HistoryIconProps>(
               strokeWidth="1.5"
             />
           </motion.g>
-          <motion.g
+          <motion.g data-design-id="m-f225bd122440"
             variants={hourHandVariants}
             animate={controls}
             initial="normal"

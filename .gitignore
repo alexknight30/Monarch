@@ -55,3 +55,8 @@ data/*/workspace.json
 data/*/trash.json
 data/*/.write-lock/
 data/*/*.tmp
+
+# Visual design save recovery
+/.design-history/
+/src/design/.save-lock/
+/src/design/*.tmp

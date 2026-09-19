@@ -1,4 +1,6 @@
 "use client";
+import { DesignCopy } from "@/components/design/runtime";
+
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
@@ -100,14 +102,14 @@ export default function CoursesClient({ courses, today }: { courses: Course[]; t
   }, [sortOpen]);
 
   return (
-    <div className="flex min-h-0 flex-1 flex-col items-center overflow-y-auto pt-13 pb-16">
-      <div className="flex w-240 min-h-0 flex-1 flex-col">
-        <div className="flex items-center justify-between gap-4">
-          <h1 className="font-display text-[34px] leading-[42px] tracking-[-0.015em] text-[#0A0A0A]">
+    <div data-design-id="m-d43e829831e0" className="flex min-h-0 flex-1 flex-col items-center overflow-y-auto pt-13 pb-16">
+      <div data-design-id="m-c63f2e15b9b1" className="flex w-240 min-h-0 flex-1 flex-col">
+        <div data-design-id="m-321c0497f9b6" className="flex items-center justify-between gap-4">
+          <h1 data-design-id="m-e3fe526d6579" className="font-display text-[34px] leading-[42px] tracking-[-0.015em] text-[#0A0A0A]"><DesignCopy id="m-e3fe526d6579">
             Courses
-          </h1>
+          </DesignCopy></h1>
           {!isEmpty && !setupOpen ? (
-            <div className="flex items-center gap-3">
+            <div data-design-id="m-8219cbd52460" className="flex items-center gap-3">
               <ToolbarSearch
                 open={searchOpen}
                 query={query}
@@ -121,27 +123,27 @@ export default function CoursesClient({ courses, today }: { courses: Course[]; t
                 onQueryChange={setQuery}
               />
 
-              <div ref={sortRef} className="relative">
-                <Button
+              <div data-design-id="m-1bc5831c7445" ref={sortRef} className="relative">
+                <Button data-design-id="m-da47286dd43b" data-design-key="m-da47286dd43b"
                   variant="secondary"
                   aria-haspopup="listbox"
                   aria-expanded={sortOpen}
                   onClick={() => setSortOpen((v) => !v)}
                 >
-                  <span className="text-[#6B6B6B]">Sort by</span>
+                  <span data-design-id="m-3677aa3489ad" className="text-[#6B6B6B]"><DesignCopy id="m-3677aa3489ad">Sort by</DesignCopy></span>
                   {sortLabel}
                   <ChevronDownIcon size={13} />
                 </Button>
 
                 {sortOpen ? (
-                  <div
+                  <div data-design-id="m-f99cba3764d7"
                     role="listbox"
                     className="absolute top-[calc(100%+6px)] right-0 z-40 w-[180px] overflow-hidden rounded-lg border border-[#E6E6E6] bg-white p-1.5"
                   >
                     {SORT_OPTIONS.map((option) => {
                       const active = option.id === sort;
                       return (
-                        <button
+                        <button data-design-id="m-17573c09e157" data-design-key={option.id}
                           key={option.id}
                           type="button"
                           role="option"
@@ -164,7 +166,7 @@ export default function CoursesClient({ courses, today }: { courses: Course[]; t
                 ) : null}
               </div>
 
-              <Button onClick={() => setSetupOpen(true)}>Add course</Button>
+              <Button data-design-id="m-438aa6ac94d2" data-design-key="m-438aa6ac94d2" onClick={() => setSetupOpen(true)}><DesignCopy id="m-438aa6ac94d2">Add course</DesignCopy></Button>
             </div>
           ) : null}
         </div>
@@ -173,9 +175,9 @@ export default function CoursesClient({ courses, today }: { courses: Course[]; t
           <CourseSetupCard onCancel={() => setSetupOpen(false)} />
         ) : isEmpty ? (
           <>
-            <p className="pt-2.5 text-[15px] leading-[22px] text-[#9A9A98] italic">
+            <p data-design-id="m-80d0de687994" className="pt-2.5 text-[15px] leading-[22px] text-[#9A9A98] italic"><DesignCopy id="m-80d0de687994">
               Nothing to see here yet
-            </p>
+            </DesignCopy></p>
             <BlankEmptyPlus
               addLabel="Add course"
               onCreate={() => setSetupOpen(true)}
@@ -183,14 +185,14 @@ export default function CoursesClient({ courses, today }: { courses: Course[]; t
           </>
         ) : (
           <>
-            <div className="pt-[30px]">
+            <div data-design-id="m-c2972737facd" className="pt-[30px]">
               <TextTabs items={TABS} value={tab} onChange={setTab} />
             </div>
-            <p className="mt-3 text-xs text-stone-400">Courses move to Past after their term end date. Set dates in Edit course.</p>
+            <p data-design-id="m-9961083a29be" className="mt-3 text-xs text-stone-400"><DesignCopy id="m-9961083a29be">Courses move to Past after their term end date. Set dates in Edit course.</DesignCopy></p>
 
             {visible.length === 0 ? (
-              <div className="flex flex-col items-center gap-2 pt-16 text-center">
-                <p className="text-sm leading-5 text-[#6B6B6B]">
+              <div data-design-id="m-61598a69f8a1" className="flex flex-col items-center gap-2 pt-16 text-center">
+                <p data-design-id="m-3e9233a78f78" className="text-sm leading-5 text-[#6B6B6B]">
                   {query.trim()
                     ? "No courses match your search."
                     : tab === "past"
@@ -201,31 +203,31 @@ export default function CoursesClient({ courses, today }: { courses: Course[]; t
                 </p>
               </div>
             ) : (
-              <div className="grid grid-cols-2 gap-5 pt-6.5">
+              <div data-design-id="m-0ffccd14207d" className="grid grid-cols-2 gap-5 pt-6.5">
                 {visible.map((course) => (
-                  <Link
+                  <Link data-design-id="m-88f081393668" data-design-key={course.slug}
                     key={course.slug}
                     href={`/courses/${course.slug}`}
                     className="flex h-41 cursor-pointer flex-col justify-between rounded-xl border border-[#E8E8E6] bg-white p-[22px] transition-colors hover:border-[#D6D6D2] hover:bg-[#FCFCFB]"
                   >
-                    <div className="flex flex-col gap-[9px]">
-                      <div className="flex flex-col gap-1">
-                        <span className="text-[13px] leading-4 font-medium tracking-[0.02em] text-[#7A7A7A]">
+                    <div data-design-id="m-c675985476cc" className="flex flex-col gap-[9px]">
+                      <div data-design-id="m-7bf3074280cc" className="flex flex-col gap-1">
+                        <span data-design-id="m-e17d94bdc6e7" className="text-[13px] leading-4 font-medium tracking-[0.02em] text-[#7A7A7A]">
                           {course.code}
                         </span>
-                        <h2 className="text-base font-semibold leading-5 tracking-[-0.005em] text-[#0A0A0A]">
+                        <h2 data-design-id="m-2419a159d447" className="text-base font-semibold leading-5 tracking-[-0.005em] text-[#0A0A0A]">
                           {course.title}
                         </h2>
                       </div>
-                      <p className="line-clamp-2 text-sm leading-[21px] text-[#4E4E4C]">
+                      <p data-design-id="m-4dd93ff57710" className="line-clamp-2 text-sm leading-[21px] text-[#4E4E4C]">
                         {course.description}
                       </p>
                     </div>
-                    <div className="flex w-full items-center justify-between gap-3">
-                      <span className="truncate text-[13px] leading-4 text-[#9A9A98]">
+                    <div data-design-id="m-33a32e3de3b3" className="flex w-full items-center justify-between gap-3">
+                      <span data-design-id="m-cc97ef680233" className="truncate text-[13px] leading-4 text-[#9A9A98]">
                         {course.instructor}
                       </span>
-                      <span className="shrink-0 text-[13px] leading-4 text-[#9A9A98]">
+                      <span data-design-id="m-0fa7e555615a" className="shrink-0 text-[13px] leading-4 text-[#9A9A98]">
                         {course.schedule}
                       </span>
                     </div>

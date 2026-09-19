@@ -1,4 +1,6 @@
 "use client";
+import { DesignCopy } from "@/components/design/runtime";
+
 import { useEffect, useRef, useState, type CSSProperties } from "react";
 import type { PDFDocumentProxy, RenderTask, TextLayer } from "pdfjs-dist";
 import "./pdf-reading-viewer.css";
@@ -77,20 +79,20 @@ export function PdfReadingViewer({ url, onQuote, onTextView }: { url: string; on
       const quote = selection.toString().trim(); if (quote) onQuote(quote);
     }
   };
-  return <section className="overflow-hidden rounded-xl border border-stone-200 bg-stone-100">
-    <div className="flex flex-wrap items-center gap-2 border-b border-stone-200 bg-white p-3">
-      <button className={button} disabled={!document || page <= 1} onClick={() => setPage(value => value - 1)}>←</button>
-      <label className="flex items-center gap-2 text-xs text-stone-500">Page <input aria-label="PDF page" type="number" min={1} step={1} max={document?.numPages || 1} value={page} onChange={event => setPage(Math.max(1, Math.min(document?.numPages || 1, Math.floor(Number(event.target.value)) || 1)))} className="w-14 rounded border border-stone-200 p-1" /> of {document?.numPages || "…"}</label>
-      <button className={button} disabled={!document || page >= document.numPages} onClick={() => setPage(value => value + 1)}>→</button>
-      <select aria-label="PDF zoom" className={button + " ml-auto"} value={zoom} onChange={event => setZoom(Number(event.target.value))}><option value={1}>Fit width</option><option value={1.25}>125%</option><option value={1.5}>150%</option><option value={2}>200%</option></select>
-      <button className={button} onClick={onTextView}>Text view</button>
+  return <section data-design-id="m-34b964988172" className="overflow-hidden rounded-xl border border-stone-200 bg-stone-100">
+    <div data-design-id="m-5e84cdaeb590" className="flex flex-wrap items-center gap-2 border-b border-stone-200 bg-white p-3">
+      <button data-design-id="m-213052697c8d" className={button} disabled={!document || page <= 1} onClick={() => setPage(value => value - 1)}><DesignCopy id="m-213052697c8d">←</DesignCopy></button>
+      <label data-design-id="m-97f4eddc69a5" className="flex items-center gap-2 text-xs text-stone-500">Page <input data-design-id="m-4e759b17148f" aria-label="PDF page" type="number" min={1} step={1} max={document?.numPages || 1} value={page} onChange={event => setPage(Math.max(1, Math.min(document?.numPages || 1, Math.floor(Number(event.target.value)) || 1)))} className="w-14 rounded border border-stone-200 p-1" /> of {document?.numPages || "…"}</label>
+      <button data-design-id="m-b2b804a3505b" className={button} disabled={!document || page >= document.numPages} onClick={() => setPage(value => value + 1)}><DesignCopy id="m-b2b804a3505b">→</DesignCopy></button>
+      <select data-design-id="m-37a1cd569d84" aria-label="PDF zoom" className={button + " ml-auto"} value={zoom} onChange={event => setZoom(Number(event.target.value))}><option value={1}>Fit width</option><option value={1.25}>125%</option><option value={1.5}>150%</option><option value={2}>200%</option></select>
+      <button data-design-id="m-a4bdb5f8abec" className={button} onClick={onTextView}><DesignCopy id="m-a4bdb5f8abec">Text view</DesignCopy></button>
     </div>
-    {error ? <div role="alert" className="p-5 text-sm text-red-700">{error} <button className="underline" onClick={onTextView}>Read extracted text</button></div> : <>
-      <p role="status" className="px-4 pt-3 text-xs text-stone-500">{rendering ? "Rendering the original page…" : "Select a passage to add it to your notes below."}</p>
-      <div ref={wrapper} className="max-h-[80vh] overflow-auto p-4">
-        <div className="relative mx-auto bg-white shadow-sm" style={{ width: size.width, height: size.height, "--total-scale-factor": size.scale } as CSSProperties}>
-          <canvas ref={canvas} aria-label={"Original PDF page " + page} style={{ width: size.width, height: size.height }} />
-          <div ref={text} className="monarch-pdf-text" onMouseUp={capture} onKeyUp={capture} />
+    {error ? <div data-design-id="m-d1f34a7fd1a9" role="alert" className="p-5 text-sm text-red-700">{error} <button data-design-id="m-d624085d25b5" className="underline" onClick={onTextView}><DesignCopy id="m-d624085d25b5">Read extracted text</DesignCopy></button></div> : <>
+      <p data-design-id="m-f7fd96b53e08" role="status" className="px-4 pt-3 text-xs text-stone-500">{rendering ? "Rendering the original page…" : "Select a passage to add it to your notes below."}</p>
+      <div data-design-id="m-8101f593976a" ref={wrapper} className="max-h-[80vh] overflow-auto p-4">
+        <div data-design-id="m-d0330b01c782" className="relative mx-auto bg-white shadow-sm" style={{ width: size.width, height: size.height, "--total-scale-factor": size.scale } as CSSProperties}>
+          <canvas data-design-id="m-94ad2b70c407" ref={canvas} aria-label={"Original PDF page " + page} style={{ width: size.width, height: size.height }} />
+          <div data-design-id="m-c71f6ed23975" ref={text} className="monarch-pdf-text" onMouseUp={capture} onKeyUp={capture} />
         </div>
       </div>
     </>}

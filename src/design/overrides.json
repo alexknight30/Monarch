@@ -1,0 +1,16 @@
+{
+  "version": 1,
+  "rules": [
+    {
+      "id": "b8bcfe76-2ce2-47cd-8c31-2044378f7a48",
+      "node": "m-8c0b173a11f1",
+      "page": "/artifacts",
+      "instance": [],
+      "breakpoint": "all",
+      "state": "normal",
+      "style": {
+        "translate": "0px 0px"
+      }
+    }
+  ]
+}

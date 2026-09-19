@@ -1,4 +1,6 @@
 "use client";
+import { DesignCopy } from "@/components/design/runtime";
+
 
 import * as React from "react";
 import {
@@ -136,9 +138,9 @@ function UploadIconCluster({
   const singleIcon = acceptedFileTypes.length === 1;
 
   return (
-    <div className="relative h-14 w-36">
+    <div data-design-id="m-a3fce738331c" className="relative h-14 w-36">
       {acceptedFileTypes.map((item, index) => (
-        <Card
+        <Card data-design-id="m-6549a0118a0a" data-design-key="m-6549a0118a0a"
           key={item.label}
           className={cn(
             "absolute top-1/2 left-1/2 grid size-12 place-items-center rounded-xl bg-background text-muted-foreground transition-[transform,color,background-color] duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] before:rounded-[calc(var(--radius-xl)-1px)]",
@@ -223,7 +225,7 @@ export function FileUpload({
   }, []);
 
   const dropzone = (
-    <div
+    <div data-design-id="m-f009ecd31287"
       role="button"
       tabIndex={0}
       className={cn(
@@ -264,20 +266,20 @@ export function FileUpload({
         acceptedFileTypes={acceptedFileTypes}
         isDragging={isDragging}
       />
-      <div className="space-y-1">
-        <div className="text-sm font-medium">
+      <div data-design-id="m-629f394c0ce3" className="space-y-1">
+        <div data-design-id="m-655f9139a7d4" className="text-sm font-medium">
           {files.length > 0 && titleWhenHasFiles ? titleWhenHasFiles : title}
         </div>
-        <div className="text-xs text-muted-foreground">{description}</div>
+        <div data-design-id="m-b3dc8bc78e48" className="text-xs text-muted-foreground">{description}</div>
         {rejectionMessage ? (
-          <div className="text-xs text-destructive">{rejectionMessage}</div>
+          <div data-design-id="m-c429cc3cad7b" className="text-xs text-destructive">{rejectionMessage}</div>
         ) : null}
       </div>
-      <div className="inline-flex items-center gap-2 rounded-full border bg-background px-3 py-1 text-xs text-muted-foreground">
+      <div data-design-id="m-59c06db36a9d" className="inline-flex items-center gap-2 rounded-full border bg-background px-3 py-1 text-xs text-muted-foreground">
         <HugeiconsIcon icon={Upload01Icon} className="size-3.5" />
-        <span>{isDragging ? draggingLabel : browseLabel}</span>
+        <span data-design-id="m-feb0e8bf46db">{isDragging ? draggingLabel : browseLabel}</span>
       </div>
-      <input
+      <input data-design-id="m-ff5b94ce8612"
         ref={inputRef}
         type="file"
         accept={accept}
@@ -297,7 +299,7 @@ export function FileUpload({
   const beam = showBorderBeam && !dropzoneOverride;
 
   return (
-    <div className={cn("space-y-3", className)}>
+    <div data-design-id="m-c9316b876a0d" className={cn("space-y-3", className)}>
       {beam ? (
         <BorderBeam
           active={isDragging}
@@ -316,9 +318,9 @@ export function FileUpload({
         surface
       )}
       {showFileList && files.length > 0 ? (
-        <div className="rounded-xl border bg-background">
+        <div data-design-id="m-7dc7c4edf769" className="rounded-xl border bg-background">
           {files.map((file) => (
-            <div
+            <div data-design-id="m-645de447c3f5" data-design-key={file.id}
               key={file.id}
               className="flex items-center gap-3 border-b px-3 py-2.5 last:border-b-0"
             >
@@ -334,13 +336,13 @@ export function FileUpload({
                   className="size-10 shrink-0 rounded-lg"
                 />
               ) : null}
-              <div className="min-w-0 flex-1">
-                <div className="truncate text-sm font-medium">{file.name}</div>
-                <div className="truncate text-xs text-muted-foreground">
+              <div data-design-id="m-db69c46e4703" className="min-w-0 flex-1">
+                <div data-design-id="m-2f49fae7fc44" className="truncate text-sm font-medium">{file.name}</div>
+                <div data-design-id="m-6e2dc6ccf509" className="truncate text-xs text-muted-foreground">
                   {file.type} - {formatBytes(file.size)}
                 </div>
               </div>
-              <div className="text-xs text-muted-foreground">Ready</div>
+              <div data-design-id="m-95cc15d9a31c" className="text-xs text-muted-foreground"><DesignCopy id="m-95cc15d9a31c">Ready</DesignCopy></div>
             </div>
           ))}
         </div>
