@@ -52,19 +52,39 @@ export function Hero() {
     const b = bRef.current;
     if (!a) return;
 
-    // Let Safari loop the dedicated meadow clip without seeking or swapping players.
-    if (isMobile) {
-      setLayer(a, { opacity: 1, z: 0 });
-      void a.play().catch(() => {});
-      return () => a.pause();
-    }
     if (!b) return;
+
+    // Play the butterfly intro once, then hand off to Safari's native meadow loop.
+    // Keep the intro's final frame visible until the loop is actually playing.
+    if (isMobile) {
+      const revealLoop = () => {
+        setLayer(b, { opacity: 1, z: 1 });
+        setLayer(a, { opacity: 0, z: 0 });
+        a.pause();
+      };
+      const startLoop = () => {
+        void b.play().catch(() => {});
+      };
+      setLayer(a, { opacity: 1, z: 0 });
+      setLayer(b, { opacity: 0, z: 0 });
+      b.addEventListener("playing", revealLoop);
+      a.addEventListener("ended", startLoop);
+      if (a.ended) startLoop();
+      else void a.play().catch(() => {});
+      return () => {
+        a.removeEventListener("ended", startLoop);
+        b.removeEventListener("playing", revealLoop);
+        a.pause();
+        b.pause();
+      };
+    }
 
     let front = a;
     let back = b;
     let fading = false;
     let alive = true;
     let rafId = 0;
+    let clearPendingSeek: (() => void) | undefined;
 
     const play = (el: HTMLVideoElement) => {
       void el.play().catch(() => {
@@ -80,8 +100,13 @@ export function Hero() {
           back.currentTime = CUTOFF;
         }
       };
+      clearPendingSeek?.();
       if (back.readyState >= 1) seek();
-      else back.addEventListener("loadedmetadata", seek, { once: true });
+      else {
+        const pendingVideo = back;
+        pendingVideo.addEventListener("loadedmetadata", seek, { once: true });
+        clearPendingSeek = () => pendingVideo.removeEventListener("loadedmetadata", seek);
+      }
     };
 
     const startIncoming = () => {
@@ -162,6 +187,9 @@ export function Hero() {
     return () => {
       alive = false;
       cancelAnimationFrame(rafId);
+      clearPendingSeek?.();
+      a.pause();
+      b.pause();
       a.removeEventListener("ended", onEnded);
       b.removeEventListener("ended", onEnded);
     };
@@ -180,8 +208,7 @@ export function Hero() {
     >
       <video
         ref={aRef}
-        src={isMobile ? MOBILE_LOOP_SRC : HERO_SRC}
-        loop={isMobile}
+        src={HERO_SRC}
         autoPlay
         muted
         playsInline
@@ -191,11 +218,12 @@ export function Hero() {
       />
       <video
         ref={bRef}
-        src={isMobile ? undefined : `${HERO_SRC}&p=b`}
+        src={isMobile ? MOBILE_LOOP_SRC : `${HERO_SRC}&p=b`}
+        loop={isMobile}
         muted
         playsInline
         preload="auto"
-        style={{ ...VIDEO_FILL, opacity: 0, display: isMobile ? "none" : undefined }}
+        style={{ ...VIDEO_FILL, opacity: 0 }}
       />
 
       <h1
